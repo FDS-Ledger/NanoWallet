@@ -794,6 +794,11 @@ function JapaneseProvider($translateProvider) {
       TREZOR_TEXT: 'ハードウェアウォレットのTREZORはXEM、モザイク、マルチシグアカウントを保護できます。',
       TREZOR_BUTTON: 'TREZORでログイン',
 
+      // NANO LEDGER RELATED
+      NANO_LEDGER_TITLE: 'NANO LEDGER',
+      NANO_LEDGER_TEXT: 'ハードウェアウォレットのNANO LEDGERはXEM、モザイク、マルチシグアカウントを保護できます。',
+      NANO_LEDGER_BUTTON: 'NANO LEDGERでログイン',
+
       // CREATE OFFLINE TRANSACTION MODULE
       OFFLINE_TX_TITLE: 'オフライントランザクションの準備',
       OFFLINE_TX_NO_WALLET: 'フォームを表示するためにログイン画面からウォレットをインポートしてください。',
