@@ -96,7 +96,8 @@ class Ledger {
 
             let payload = await this.signTransaction(account, serializedTx)
                 .catch(err => {
-                    this._Alert.transactionError(err);
+                    console.log(err);
+                    this._Alert.transactionError('The transaction is too big!');
                     reject(err);
                 });
             resolve(payload);
