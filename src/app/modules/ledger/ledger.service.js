@@ -1,5 +1,5 @@
 import nem from "nem-sdk";
-
+var request = require('request');
 /** Service storing Ledger utility functions. */
 class Ledger {
 
@@ -52,36 +52,40 @@ class Ledger {
     }
 
     async getAccount(hdKeypath, network, label) {
-        var request = require('request');
-        var JSONObject = { "requestType": "getAddress", "hdKeypath": hdKeypath, "label": label, "network": network };
-
         return new Promise((resolve, reject) => {
-            request({
-                        url: "http://localhost:21335",
-                        method: "POST",
-                        json: true,
-                        body: JSONObject
-                    },
-                    function(error, response, body) {
-                        if (error != null) {
-                            //There is a problem with the ledger-bridge
-                            // reject(new Error(error));
-                            reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
-                        } else if (body.message != null) {
-                            //Exporting the wallet was denied
+            var JSONObject = {
+                "requestType": "getAddress",
+                "hdKeypath": hdKeypath, "label": label, "network": network
+            };
+            let option = {
+                url: "http://localhost:21335",
+                method: "POST",
+                json: true,
+                body: JSONObject
+            }
+            request(option, function (error, response, body) {
+                try {
+                    if (error != null) {
+                        reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
+                    } else if (body.message != null) {
+                        if(body.statusCode == '26368'){
+                            reject('Please use the NEM app')
+                        }
+                        else{
                             reject(body.message);
                         }
-                        resolve(body);
-                    })
-                .catch(() => {
+                    }
+                    resolve(body);
+                } catch (error) {
                     reject('Cannot connect to ledger connection server.');
-                });
-        });
+                }
+            })
+        })
     }
 
     serialize(transaction, account) {
         alert("Follow instructions on your device. Click OK to continue.");
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             //Transaction with testnet and mainnet
             //Correct the signer
             transaction.signer = account.publicKey;
@@ -94,14 +98,14 @@ class Ledger {
             //Serialize the transaction
             let serializedTx = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction));
             let payload = await this.signTransaction(account, serializedTx);
-            if(payload.signature){
+            if (payload.signature) {
                 resolve(payload);
             }
-            else{
-                if(payload.statusCode == '26368'){
+            else {
+                if (payload.statusCode == '26368') {
                     this._Alert.transactionError('The transaction is too big');
                 }
-                else{
+                else {
                     this._Alert.transactionError(payload.statusText);
                 }
                 reject(payload);
@@ -111,36 +115,34 @@ class Ledger {
     }
 
     signTransaction(account, serializedTx) {
-        var request = require('request');
-        var JSONObject = { "requestType": "signTransaction", "serializedTx": serializedTx, "hdKeypath": account.hdKeypath };
-
-        return new Promise(async(resolve, reject) => {
-            request({
-                        url: "http://localhost:21335",
-                        method: "POST",
-                        json: true,
-                        body: JSONObject
-                    },
-                    function(error, response, body) {
-                        if (error != null) {
-                            //There is a problem with the ledger-bridge
-                            reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
-                        } else if (body.message != null) {
-                            //Signing the transaction was rejected
-                            reject(body.message);
-                        } else {
-                            //Signing transaction is successful
-                            let payload = {
-                                data: serializedTx,
-                                signature: body
-                            }
-                            resolve(payload);
+        return new Promise(async (resolve) => {
+            var JSONObject = {
+                "requestType": "signTransaction",
+                "serializedTx": serializedTx, "hdKeypath": account.hdKeypath
+            };
+            var option = {
+                url: "http://localhost:21335",
+                method: "POST",
+                json: true,
+                body: JSONObject
+            }
+            request(option, function (error, response, body) {
+                try {
+                    if (body.statusCode) {
+                        resolve(body)
+                    }
+                    else {
+                        let payload = {
+                            data: serializedTx,
+                            signature: body
                         }
-                    })
-                .catch(() => {
-                    reject('Cannot connect to ledger connection server.');
-                });
-        });
+                        resolve(payload);
+                    }
+                } catch (error) {
+                    resolve(error)
+                }
+            })
+        })
     }
 }
 
