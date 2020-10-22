@@ -74,6 +74,12 @@
           </button>
           </fieldset>
 
+          <fieldset class="form-group" ng-show="$ctrl._Wallet.algo == 'ledger'" ng-click="$ctrl._Ledger.showAccount($ctrl._Wallet.currentAccount)">
+          <button type="button" class="btn btn-success">
+            <i class="fa fa-eye"></i> {{ 'ACCOUNT_SHOW_ON_LEDGER_BTN' | translate }}
+          </button>
+          </fieldset>
+
           <fieldset class="form-group">
           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addAccountModal">
             <i class="fa fa-plus"></i> {{ 'ACCOUNT_ADD_NEW_ACCOUNT_BTN' | translate }}

@@ -368,6 +368,7 @@ function ItalianProvider($translateProvider) {
         ACCOUNT_DELEGATED_PRIVATE_KEY: 'Chiave privata delegata',
         ACCOUNT_NO_PUBLIC_KEY: 'È necessario effettuare una transazione per generare automaticamente una chiave pubblica',
         ACCOUNT_SHOW_ON_TREZOR_BTN: 'Mostra su TREZOR',
+        ACCOUNT_SHOW_ON_LEDGER_BTN: 'Mostra su LEDGER',
 
         // PORTAL MODULE
         PORTAL_TITLE: 'Acquista casa chester',
@@ -411,7 +412,7 @@ function ItalianProvider($translateProvider) {
         ADDRESS_BOOK_ACCOUNT_ADDRESS: "Indirizzo dell'account",
         ADDRESS_BOOK_ACTIONS: "Azioni",
         ADDRESS_BOOK_CONFIRM_DELETE: "Conferma elimina tutti gli indirizzi della rubrica",
-        
+
         // EXPLORER MODULE NAV
         EXPLORER_NAV_HOME: 'Home',
         EXPLORER_NAV_NSM: 'Registrazione nomi e piastrelle',
@@ -770,7 +771,7 @@ function ItalianProvider($translateProvider) {
         FORM_SELECT_MULTISIG: 'Seleziona un account multi-firma',
         FORM_SELECT_CONTACT: 'Seleziona un contatto',
 
-        // TREZOR RELATED  
+        // TREZOR RELATED
         TREZOR_TITLE: 'TREZOR',
         TREZOR_TEXT: 'Il portafoglio hardware TREZOR ti consente di conservare le tue XEM, bollette a più conti con mosaico',
         TREZOR_BUTTON: 'Accedi con TREZOR',

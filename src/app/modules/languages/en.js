@@ -371,6 +371,7 @@ function EnglishProvider($translateProvider) {
         ACCOUNT_DELEGATED_PRIVATE_KEY: 'Delegated private key',
         ACCOUNT_NO_PUBLIC_KEY: 'You need to make a transaction to get a public key',
         ACCOUNT_SHOW_ON_TREZOR_BTN: 'Show on TREZOR',
+        ACCOUNT_SHOW_ON_LEDGER_BTN: 'Show on LEDGER',
 
         // PORTAL MODULE
         PORTAL_TITLE: 'Services',

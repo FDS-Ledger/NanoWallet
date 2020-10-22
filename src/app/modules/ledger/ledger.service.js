@@ -51,6 +51,19 @@ class Ledger {
         return this.getAccount(hdKeypath, network, label);
     }
 
+    showAccount(account) {
+        alert("Follow instructions on your device. Click OK to continue.");
+        return new Promise((resolve, reject) => {
+            this.getAccount(account.hdKeypath, account.network, (result) => {
+                if (result.success) {
+                    resolve(result.address);
+                } else {
+                    reject(result.error);
+                }
+            });
+        });
+    }
+
     async getAccount(hdKeypath, network, label) {
         return new Promise((resolve, reject) => {
             var JSONObject = {

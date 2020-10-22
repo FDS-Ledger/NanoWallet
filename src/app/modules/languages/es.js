@@ -368,6 +368,7 @@ function SpanishProvider($translateProvider) {
         ACCOUNT_DELEGATED_PRIVATE_KEY: 'Clave privada delegada',
         ACCOUNT_NO_PUBLIC_KEY: 'Debes realizar una transacción para obtener una clave pública',
         ACCOUNT_SHOW_ON_TREZOR_BTN: 'Mostrar en TREZOR',
+        ACCOUNT_SHOW_ON_LEDGER_BTN: 'Mostrar en LEDGER',
 
         // PORTAL MODULE
         PORTAL_TITLE: 'Servicios',
