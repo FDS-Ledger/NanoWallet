@@ -68,16 +68,20 @@ class Ledger {
                     if (error != null) {
                         reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
                     } else if (body.message != null) {
-                        if(body.statusCode == '26368'){
-                            reject('Please use the NEM app')
-                        }
-                        else{
+                        //Exporting the wallet was denied
+                        if(body.statusCode == '26368' || body.statusCode == '27264') {
+                            reject('Not using latest NEM BOLOS app');
+                        } else {
                             reject(body.message);
                         }
                     }
                     resolve(body);
                 } catch (error) {
-                    reject('Cannot connect to ledger connection server.');
+                    if(error == null){
+                        reject(body.message);
+                    } else {
+                        reject('Cannot connect to ledger connection server.');
+                    }
                 }
             })
         })
