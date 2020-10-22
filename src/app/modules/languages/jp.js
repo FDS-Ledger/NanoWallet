@@ -375,6 +375,7 @@ function JapaneseProvider($translateProvider) {
       ACCOUNT_DELEGATED_PRIVATE_KEY: "委任秘密鍵",
       ACCOUNT_NO_PUBLIC_KEY: '公開鍵を取得するためにはトランザクションを発行してください。',
       ACCOUNT_SHOW_ON_TREZOR_BTN: 'TREZORで見る',
+      ACCOUNT_SHOW_ON_LEDGER_BTN: 'LEDGERで見る',
 
       // PORTAL MODULE
       PORTAL_TITLE: "各種機能",
