@@ -93,14 +93,20 @@ class Ledger {
 
             //Serialize the transaction
             let serializedTx = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction));
+            let payload = await this.signTransaction(account, serializedTx);
+            if(payload.signature){
+                resolve(payload);
+            }
+            else{
+                if(payload.statusCode == '26368'){
+                    this._Alert.transactionError('The transaction is too big');
+                }
+                else{
+                    this._Alert.transactionError(payload.statusText);
+                }
+                reject(payload);
+            }
 
-            let payload = await this.signTransaction(account, serializedTx)
-                .catch(err => {
-                    console.log(err);
-                    this._Alert.transactionError('The transaction is too big!');
-                    reject(err);
-                });
-            resolve(payload);
         });
     }
 
