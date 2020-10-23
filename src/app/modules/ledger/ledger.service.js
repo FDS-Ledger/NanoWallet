@@ -1,5 +1,8 @@
 import nem from "nem-sdk";
 var request = require('request');
+const SUPPORT_VERSION = { LEDGER_MAJOR_VERSION: 0,
+                        LEDGER_MINOR_VERSION: 0,
+                        LEDGER_PATCH_VERSION: 2}
 /** Service storing Ledger utility functions. */
 class Ledger {
 
@@ -25,8 +28,13 @@ class Ledger {
 
     // Service methods region //
 
-    createWallet(network) {
-        return this.createAccount(network, 0, "Primary")
+    async createWallet(network) {
+        let checkVersion = await this.getAppVersion();
+        if(!checkVersion){
+            throw('Not using latest NEM BOLOS app');
+        }
+        else{
+            return this.createAccount(network, 0, "Primary")
             .then((account) => ({
                 "name": "LEDGER",
                 "accounts": {
@@ -36,6 +44,7 @@ class Ledger {
             .catch((err) => {
                 throw err;
             });
+        }
     }
 
     bip44(network, index) {
@@ -43,6 +52,36 @@ class Ledger {
         // "44'/43'/networkId'/walletIndex'/accountIndex'"
         const networkId = network == -104 ? 152 : 104;
         return (`44'/43'/${networkId}'/${index}'/0'`);
+    }
+
+    async getAppVersion(){
+        return new Promise(async (resolve) => {
+            var JSONObject = {
+                "requestType": "getAppVersion",
+            };
+            var option = {
+                url: "http://localhost:21335",
+                method: "POST",
+                json: true,
+                body: JSONObject
+            }
+            request(option, function (error, response, body) {
+                try {
+                    let appVersion = body;
+                    if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
+                        resolve(false);
+                    } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
+                        resolve(false);
+                    } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
+                        resolve(false);
+                    } else {
+                        resolve(true);
+                    }
+                } catch (error) {
+                    resolve(error)
+                }
+            })
+        })
     }
 
     createAccount(network, index, label) {
@@ -135,7 +174,8 @@ class Ledger {
         return new Promise(async (resolve) => {
             var JSONObject = {
                 "requestType": "signTransaction",
-                "serializedTx": serializedTx, "hdKeypath": account.hdKeypath
+                "serializedTx": serializedTx,
+                "hdKeypath": account.hdKeypath
             };
             var option = {
                 url: "http://localhost:21335",
