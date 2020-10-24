@@ -7,6 +7,7 @@
   "dependencies": {
     "@babel/runtime": "^7.4.2",
     "@ledgerhq/hw-transport-http": "^4.48.0",
+    "@ledgerhq/hw-transport-webhid": "^5.26.0",
     "@ledgerhq/hw-transport-webusb": "^4.48.0",
     "@uirouter/angularjs": "1.0.6",
     "angular": "1.6.2",
