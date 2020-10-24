@@ -1,4 +1,8 @@
 import nem from "nem-sdk";
+// import TransportNodeHid from "@ledgerhq/hw-transport-node-hid"; 
+import NemH from "@ledgerhq/hw-transport-webhid";
+import TransportWebHID from "@ledgerhq/hw-transport-webhid";
+
 var request = require('request');
 const SUPPORT_VERSION = { LEDGER_MAJOR_VERSION: 0,
                         LEDGER_MINOR_VERSION: 0,
@@ -42,6 +46,7 @@ class Ledger {
                 }
             }))
             .catch((err) => {
+                console.log(err);
                 throw err;
             });
         }
@@ -103,41 +108,49 @@ class Ledger {
         });
     }
 
-    async getAccount(hdKeypath, network, label) {
-        return new Promise((resolve, reject) => {
-            var JSONObject = {
-                "requestType": "getAddress",
-                "hdKeypath": hdKeypath, "label": label, "network": network
-            };
-            let option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    if (error != null) {
-                        reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
-                    } else if (body.message != null) {
-                        //Exporting the wallet was denied
-                        if(body.statusCode == '26368' || body.statusCode == '27264') {
-                            reject('Not using latest NEM BOLOS app');
-                        } else {
-                            reject(body.message);
-                        }
-                    }
-                    resolve(body);
-                } catch (error) {
-                    if(error == null){
-                        reject(body.message);
-                    } else {
-                        reject('Cannot connect to ledger connection server.');
-                    }
-                }
-            })
-        })
+    async getAccount(bipPath, network, label) {
+        console.log("get account");
+        const transport = await TransportWebHID.request();
+        console.log("transport: ", transport);
+        const nemH = new NemH(transport);
+        return await nemH.getAccount(bipPath, network, label);
     }
+
+    // async getAccount(hdKeypath, network, label) {
+    //     return new Promise((resolve, reject) => {
+    //         var JSONObject = {
+    //             "requestType": "getAddress",
+    //             "hdKeypath": hdKeypath, "label": label, "network": network
+    //         };
+    //         let option = {
+    //             url: "http://localhost:21335",
+    //             method: "POST",
+    //             json: true,
+    //             body: JSONObject
+    //         }
+    //         request(option, function (error, response, body) {
+    //             try {
+    //                 if (error != null) {
+    //                     reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
+    //                 } else if (body.message != null) {
+    //                     //Exporting the wallet was denied
+    //                     if(body.statusCode == '26368' || body.statusCode == '27264') {
+    //                         reject('Not using latest NEM BOLOS app');
+    //                     } else {
+    //                         reject(body.message);
+    //                     }
+    //                 }
+    //                 resolve(body);
+    //             } catch (error) {
+    //                 if(error == null){
+    //                     reject(body.message);
+    //                 } else {
+    //                     reject('Cannot connect to ledger connection server.');
+    //                 }
+    //             }
+    //         })
+    //     })
+    // }
 
     serialize(transaction, account) {
         alert("Follow instructions on your device. Click OK to continue.");
