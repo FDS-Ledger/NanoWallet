@@ -1,9 +1,12 @@
 import nem from "nem-sdk";
+import BIPPath from "bip32-path";
 // import TransportNodeHid from "@ledgerhq/hw-transport-node-hid"; 
-import NemH from "@ledgerhq/hw-transport-webhid";
+import TransportNodeHid from "@ledgerhq/hw-transport-webhid";
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
+// import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
+// import TransportU2F from "@ledgerhq/hw-transport-u2f";
 
-var request = require('request');
+// var request = require('request');
 const SUPPORT_VERSION = { LEDGER_MAJOR_VERSION: 0,
                         LEDGER_MINOR_VERSION: 0,
                         LEDGER_PATCH_VERSION: 2}
@@ -33,7 +36,8 @@ class Ledger {
     // Service methods region //
 
     async createWallet(network) {
-        let checkVersion = await this.getAppVersion();
+        let checkVersion = true;
+        // let checkVersion = await this.getAppVersion();
         if(!checkVersion){
             throw('Not using latest NEM BOLOS app');
         }
@@ -110,10 +114,58 @@ class Ledger {
 
     async getAccount(bipPath, network, label) {
         console.log("get account");
-        const transport = await TransportWebHID.request();
+        // const transport = await TransportWebUSB.create();
+        const transport = await TransportWebHID.create();
         console.log("transport: ", transport);
-        const nemH = new NemH(transport);
-        return await nemH.getAccount(bipPath, network, label);
+        // const nemH = new NemH(transport);
+        return await this.getAddress(transport, path);
+    }
+
+    /**
+     * get NEM address for a given BIP 32 path.
+     *
+     * @param path a path in BIP 32 format
+     * @param display optionally enable or not the display
+     * @param chainCode optionally enable or not the chainCode request
+     * @param ed25519
+     * @return an object with a publicKey, address and (optionally) chainCode
+     * @example
+     * const result = await nem.getAddress(bip32path);
+     * const { publicKey, address } = result;
+     */
+    async getAddress(transport, path) {
+        const GET_ADDRESS_INS_FIELD = 0x02
+        const display = true;
+        const chainCode = false;
+        const ed25519 = true;
+
+        const bipPath = BIPPath.fromString(path).toPathArray();
+        const curveMask = ed25519 ? 0x80 : 0x40;
+
+        // APDU fields configuration
+        const apdu = {
+            cla: CLA_FIELD,
+            ins: GET_ADDRESS_INS_FIELD,
+            p1: display ? 0x01 : 0x00,
+            p2: curveMask | (chainCode ? 0x01 : 0x00),
+            data: Buffer.alloc(1 + bipPath.length * 4),
+        };
+
+        apdu.data.writeInt8(bipPath.length, 0);
+        bipPath.forEach((segment, index) => {
+            apdu.data.writeUInt32BE(segment, 1 + index * 4);
+        });
+
+        // Response from Ledger
+        const response = await transport.send(apdu.cla, apdu.ins, apdu.p1, apdu.p2, apdu.data);
+
+        const result = {};
+        const addressLength = response[0];
+        const publicKeyLength = response[1 + addressLength];
+        result.address = response.slice(1, 1 + addressLength).toString("ascii");
+        result.publicKey = response.slice(1 + addressLength + 1, 1 + addressLength + 1 + publicKeyLength).toString("hex");
+        result.path = path;
+        return result;
     }
 
     // async getAccount(hdKeypath, network, label) {

@@ -1,12 +1,14 @@
 {
   "name": "NEM-Wallet",
-  "version": "2.4.7",
+  "version": "2.4.7-ledger",
   "description": "Cross-platform lite wallet for NEM",
   "author": "https://github.com/QuantumMechanics",
   "license": "MIT",
   "dependencies": {
+    "-": "0.0.1",
     "@babel/runtime": "^7.4.2",
     "@ledgerhq/hw-transport-http": "^4.48.0",
+    "@ledgerhq/hw-transport-u2f": "^5.26.0",
     "@ledgerhq/hw-transport-webhid": "^5.26.0",
     "@ledgerhq/hw-transport-webusb": "^4.48.0",
     "@uirouter/angularjs": "1.0.6",
@@ -30,6 +32,7 @@
     "carlo": "^0.9.45",
     "chart.js": "2.1.6",
     "crypto-js": "^3.1.9-1",
+    "g": "^2.0.1",
     "glob": "7.0.5",
     "gulp": "^3.9.1",
     "gulp-angular-templatecache": "^1.8.0",
@@ -52,8 +55,8 @@
     "ngstorage": "0.3.10",
     "nw": "^0.26.6",
     "nw-builder": "^3.4.1",
-    "testnpm-testledger": "^1.0.3",
     "rxjs": "^6.5.3",
+    "testnpm-testledger": "^1.0.3",
     "url-parse": "1.1.9",
     "vinyl-source-stream": "^1.1.0",
     "zxcvbn": "4.4.2"
@@ -64,6 +67,7 @@
   "scripts": {
     "test": "gulp tests browserifyTests",
     "devApp": "nw build/",
+    "a": "gulp",
     "build": "gulp && mkdir build/modules && cp -rf external-modules/nem-ledger-bridge build/modules && cp -rf run.js build"
   },
   "repository": {
