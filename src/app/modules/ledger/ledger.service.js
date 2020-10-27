@@ -2,7 +2,8 @@ import nem from "nem-sdk";
 import BIPPath from "bip32-path";
 import NemH from "./ledger.communicator"
 
-import TransportWebHID from "@ledgerhq/hw-transport-webhid";
+import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+// import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 // import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 // import TransportU2F from "@ledgerhq/hw-transport-u2f";
 
@@ -113,14 +114,13 @@ class Ledger {
         });
     }
 
-    async getAccount(hdKeypath, network, label) {
-        console.log("Get in the getAccount function");
-        debugger;
-        const transport = await TransportWebHID.create();
-        console.log(transport);
-
+    async getAccount(hdKeypath, network, label) {       
         try {
-            const result = nemH.getAddress(hdKeypath)
+            console.log("Get in the getAccount function");
+            debugger;
+            const transport = await TransportWebUSB.create();
+            console.log(transport);
+            const result = new nemH.getAddress(hdKeypath)
             transport.close();
             return (
                 {

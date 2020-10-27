@@ -65,8 +65,10 @@ gulp.task('browserify', ['views'], function() {
     }))
     .transform(ngAnnotate)
     .bundle()
-    .on("error", interceptErrors)
+    .on('error', interceptErrors)
+    //Pass desired output filename to vinyl-source-stream
     .pipe(source('main.js'))
+    // Start piping stream to tasks!
     .pipe(gulp.dest('./build/'));
 });
 
