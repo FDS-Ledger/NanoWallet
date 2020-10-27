@@ -1,7 +1,7 @@
 import nem from "nem-sdk";
 import BIPPath from "bip32-path";
-// import TransportNodeHid from "@ledgerhq/hw-transport-node-hid"; 
-import TransportNodeHid from "@ledgerhq/hw-transport-webhid";
+import NemH from "./ledger.communicator"
+
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 // import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 // import TransportU2F from "@ledgerhq/hw-transport-u2f";
@@ -63,40 +63,41 @@ class Ledger {
         return (`44'/43'/${networkId}'/${index}'/0'`);
     }
 
-    async getAppVersion(){
-        return new Promise(async (resolve) => {
-            var JSONObject = {
-                "requestType": "getAppVersion",
-            };
-            var option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    let appVersion = body;
-                    if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
-                        resolve(false);
-                    } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
-                        resolve(false);
-                    } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
-                        resolve(false);
-                    } else {
-                        resolve(true);
-                    }
-                } catch (error) {
-                    resolve(error)
-                }
-            })
-        })
-    }
-
+    // async getAppVersion(){
+    //     return new Promise(async (resolve) => {
+    //         var JSONObject = {
+    //             "requestType": "getAppVersion",
+    //         };
+    //         var option = {
+    //             url: "http://localhost:21335",
+    //             method: "POST",
+    //             json: true,
+    //             body: JSONObject
+    //         }
+    //         request(option, function (error, response, body) {
+    //             try {
+    //                 let appVersion = body;
+    //                 if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
+    //                     resolve(false);
+    //                 } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
+    //                     resolve(false);
+    //                 } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
+    //                     resolve(false);
+    //                 } else {
+    //                     resolve(true);
+    //                 }
+    //             } catch (error) {
+    //                 resolve(error)
+    //             }
+    //         })
+    //     })
+    // }
     createAccount(network, index, label) {
         alert("Follow instructions on your device. Click OK to continue.");
         const hdKeypath = this.bip44(network, index);
-        return this.getAccount(hdKeypath, network, label);
+        // return new Promise((resolve) => {
+        this.getAccount(hdKeypath, network, label);
+        // })
     }
 
     showAccount(account) {
@@ -112,97 +113,35 @@ class Ledger {
         });
     }
 
-    async getAccount(bipPath, network, label) {
-        console.log("get account");
-        // const transport = await TransportWebUSB.create();
+    async getAccount(hdKeypath, network, label) {
+        console.log("Get in the getAccount function");
+        debugger;
         const transport = await TransportWebHID.create();
-        console.log("transport: ", transport);
-        // const nemH = new NemH(transport);
-        return await this.getAddress(transport, path);
+        console.log(transport);
+
+        try {
+            const result = nemH.getAddress(hdKeypath)
+            transport.close();
+            return (
+                {
+                    "brain": false,
+                    "algo": "ledger",
+                    "encrypted": "",
+                    "iv": "",
+                    "address": result.address,
+                    "label": label,
+                    "network": network,
+                    "child": "",
+                    "hdKeypath": hdKeypath,
+                    "publicKey": result.publicKey
+                }
+            );
+        } catch (error) {
+            transport.close();
+            reject(error);
+        }
+
     }
-
-    /**
-     * get NEM address for a given BIP 32 path.
-     *
-     * @param path a path in BIP 32 format
-     * @param display optionally enable or not the display
-     * @param chainCode optionally enable or not the chainCode request
-     * @param ed25519
-     * @return an object with a publicKey, address and (optionally) chainCode
-     * @example
-     * const result = await nem.getAddress(bip32path);
-     * const { publicKey, address } = result;
-     */
-    async getAddress(transport, path) {
-        const GET_ADDRESS_INS_FIELD = 0x02
-        const display = true;
-        const chainCode = false;
-        const ed25519 = true;
-
-        const bipPath = BIPPath.fromString(path).toPathArray();
-        const curveMask = ed25519 ? 0x80 : 0x40;
-
-        // APDU fields configuration
-        const apdu = {
-            cla: CLA_FIELD,
-            ins: GET_ADDRESS_INS_FIELD,
-            p1: display ? 0x01 : 0x00,
-            p2: curveMask | (chainCode ? 0x01 : 0x00),
-            data: Buffer.alloc(1 + bipPath.length * 4),
-        };
-
-        apdu.data.writeInt8(bipPath.length, 0);
-        bipPath.forEach((segment, index) => {
-            apdu.data.writeUInt32BE(segment, 1 + index * 4);
-        });
-
-        // Response from Ledger
-        const response = await transport.send(apdu.cla, apdu.ins, apdu.p1, apdu.p2, apdu.data);
-
-        const result = {};
-        const addressLength = response[0];
-        const publicKeyLength = response[1 + addressLength];
-        result.address = response.slice(1, 1 + addressLength).toString("ascii");
-        result.publicKey = response.slice(1 + addressLength + 1, 1 + addressLength + 1 + publicKeyLength).toString("hex");
-        result.path = path;
-        return result;
-    }
-
-    // async getAccount(hdKeypath, network, label) {
-    //     return new Promise((resolve, reject) => {
-    //         var JSONObject = {
-    //             "requestType": "getAddress",
-    //             "hdKeypath": hdKeypath, "label": label, "network": network
-    //         };
-    //         let option = {
-    //             url: "http://localhost:21335",
-    //             method: "POST",
-    //             json: true,
-    //             body: JSONObject
-    //         }
-    //         request(option, function (error, response, body) {
-    //             try {
-    //                 if (error != null) {
-    //                     reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
-    //                 } else if (body.message != null) {
-    //                     //Exporting the wallet was denied
-    //                     if(body.statusCode == '26368' || body.statusCode == '27264') {
-    //                         reject('Not using latest NEM BOLOS app');
-    //                     } else {
-    //                         reject(body.message);
-    //                     }
-    //                 }
-    //                 resolve(body);
-    //             } catch (error) {
-    //                 if(error == null){
-    //                     reject(body.message);
-    //                 } else {
-    //                     reject('Cannot connect to ledger connection server.');
-    //                 }
-    //             }
-    //         })
-    //     })
-    // }
 
     serialize(transaction, account) {
         alert("Follow instructions on your device. Click OK to continue.");
