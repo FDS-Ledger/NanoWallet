@@ -69,7 +69,8 @@
   "scripts": {
     "test": "gulp tests browserifyTests",
     "devApp": "nw build/",
-    "build": "gulp && mkdir build/modules && cp -rf external-modules/nem-ledger-bridge build/modules && cp -rf run.js build"
+    "compile": "gulp && cp -rf run.js build",
+    "build": "./nem-build.sh"
   },
   "repository": {
     "type": "git",
