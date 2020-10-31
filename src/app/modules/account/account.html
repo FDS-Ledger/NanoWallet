@@ -133,7 +133,7 @@
               <div class="col-sm-6">
               </div>
               <div class="col-sm-6">
-                <button type="button" class="btn btn-block" data-toggle="modal" data-target="#accountModalMobileApps" ng-disabled="$ctrl._Wallet.algo === 'trezor'">{{'ACCOUNT_QR_BTN_2' | translate }}</button>
+                <button type="button" class="btn btn-block" data-toggle="modal" data-target="#accountModalMobileApps" ng-disabled="$ctrl._Wallet.algo === 'trezor' || $ctrl._Wallet.algo === 'ledger'">{{'ACCOUNT_QR_BTN_2' | translate }}</button>
               </div>
             </div>
           </div>
@@ -283,8 +283,8 @@
             </div>
           </fieldset>
           <button class="btn btn-success"
-            type="submit" ng-disabled="$ctrl.okPressed || 
-            ($ctrl._Wallet.algo !== 'trezor' && $ctrl._Wallet.algo !== 'ledger') && 
+            type="submit" ng-disabled="$ctrl.okPressed ||
+            ($ctrl._Wallet.algo !== 'trezor' && $ctrl._Wallet.algo !== 'ledger') &&
             !$ctrl.common.password.length" ng-click="$ctrl.addNewAccount()">
             {{ 'ACCOUNT_ADD_NEW_ACCOUNT' | translate }}
           </button>
