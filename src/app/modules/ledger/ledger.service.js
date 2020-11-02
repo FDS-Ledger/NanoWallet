@@ -116,14 +116,20 @@ class Ledger {
                 body: JSONObject
             }
             request(option, function (error, response, body) {
+                console.log(error);
+                console.log(response);
                 try {
                     if (error != null) {
                         reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
                     } else if (body.message != null) {
                         //Exporting the wallet was denied
                         if(body.statusCode == '26368' || body.statusCode == '27264') {
-                            reject('Not using latest NEM BOLOS app');
-                        } else {
+                            reject('Not using latest NEM BOLOS app.');
+                        }
+                        else if(body.statusCode == '26628'){
+                            reject('Ledger device: Please open your Bolos-app.')
+                        } 
+                        else {
                             reject(body.message);
                         }
                     }
@@ -161,6 +167,9 @@ class Ledger {
                 if (payload.statusCode == '26368') {
                     this._Alert.transactionError('The transaction is too big');
                 }
+                else if(payload.statusCode == '27013'){
+                    this._Alert.transactionError('Signing cancelled by user');
+                }
                 else {
                     this._Alert.transactionError(payload.statusText);
                 }
@@ -184,9 +193,17 @@ class Ledger {
                 body: JSONObject
             }
             request(option, function (error, response, body) {
+                console.log('error '+error);
+                console.log('response '+response);
                 try {
                     if (body.statusCode) {
                         resolve(body)
+                    }
+                    else if(body.name == "TransportError"){
+                        let payload = {
+                            statusText :"Fail to sign transaction, reason: "+ body.message
+                        }
+                        resolve(payload)
                     }
                     else {
                         let payload = {
