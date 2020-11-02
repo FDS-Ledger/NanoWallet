@@ -161,6 +161,9 @@ class Ledger {
                 if (payload.statusCode == '26368') {
                     this._Alert.transactionError('The transaction is too big');
                 }
+                else if(payload.statusCode == '27013'){
+                    this._Alert.transactionError('Signing cancelled by user');
+                }
                 else {
                     this._Alert.transactionError(payload.statusText);
                 }
