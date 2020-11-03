@@ -1,8 +1,10 @@
 import nem from "nem-sdk";
 var request = require('request');
-const SUPPORT_VERSION = { LEDGER_MAJOR_VERSION: 0,
-                        LEDGER_MINOR_VERSION: 0,
-                        LEDGER_PATCH_VERSION: 2}
+const SUPPORT_VERSION = {
+    LEDGER_MAJOR_VERSION: 0,
+    LEDGER_MINOR_VERSION: 0,
+    LEDGER_PATCH_VERSION: 2
+}
 /** Service storing Ledger utility functions. */
 class Ledger {
 
@@ -30,20 +32,20 @@ class Ledger {
 
     async createWallet(network) {
         let checkVersion = await this.getAppVersion();
-        if(!checkVersion){
-            throw('Not using latest NEM BOLOS app');
+        if (!checkVersion) {
+            throw ('Not using latest NEM BOLOS app');
         }
-        else{
+        else {
             return this.createAccount(network, 0, "Primary")
-            .then((account) => ({
-                "name": "LEDGER",
-                "accounts": {
-                    "0": account
-                }
-            }))
-            .catch((err) => {
-                throw err;
-            });
+                .then((account) => ({
+                    "name": "LEDGER",
+                    "accounts": {
+                        "0": account
+                    }
+                }))
+                .catch((err) => {
+                    throw err;
+                });
         }
     }
 
@@ -54,7 +56,7 @@ class Ledger {
         return (`44'/43'/${networkId}'/${index}'/0'`);
     }
 
-    async getAppVersion(){
+    async getAppVersion() {
         return new Promise(async (resolve) => {
             var JSONObject = {
                 "requestType": "getAppVersion",
@@ -123,19 +125,17 @@ class Ledger {
                         reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
                     } else if (body.message != null) {
                         //Exporting the wallet was denied
-                        if(body.statusCode == '26368' || body.statusCode == '27264') {
+                        if (body.statusCode == '26368' || body.statusCode == '27264') {
                             reject('Not using latest NEM BOLOS app.');
-                        }
-                        else if(body.statusCode == '26628'){
+                        } else if (body.statusCode == '26628') {
                             reject('Ledger device: Please open your Bolos-app.')
-                        } 
-                        else {
+                        } else {
                             reject(body.message);
                         }
                     }
                     resolve(body);
                 } catch (error) {
-                    if(error == null){
+                    if (error == null) {
                         reject(body.message);
                     } else {
                         reject('Cannot connect to ledger connection server.');
@@ -162,15 +162,12 @@ class Ledger {
             let payload = await this.signTransaction(account, serializedTx);
             if (payload.signature) {
                 resolve(payload);
-            }
-            else {
+            } else {
                 if (payload.statusCode == '26368') {
                     this._Alert.transactionError('The transaction is too big');
-                }
-                else if(payload.statusCode == '27013'){
+                } else if (payload.statusCode == '27013') {
                     this._Alert.transactionError('Signing cancelled by user');
-                }
-                else {
+                } else {
                     this._Alert.transactionError(payload.statusText);
                 }
                 reject(payload);
@@ -193,19 +190,17 @@ class Ledger {
                 body: JSONObject
             }
             request(option, function (error, response, body) {
-                console.log('error '+error);
-                console.log('response '+response);
+                console.log('error ' + error);
+                console.log('response ' + response);
                 try {
                     if (body.statusCode) {
                         resolve(body)
-                    }
-                    else if(body.name == "TransportError"){
+                    } else if (body.name == "TransportError") {
                         let payload = {
-                            statusText :"Fail to sign transaction, reason: "+ body.message
+                            statusText: "Fail to sign transaction, reason: " + body.message
                         }
                         resolve(payload)
-                    }
-                    else {
+                    } else {
                         let payload = {
                             data: serializedTx,
                             signature: body
