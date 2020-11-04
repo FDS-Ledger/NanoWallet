@@ -77,7 +77,30 @@ class LedgerCtrl {
             })
             .catch(error => {
                 this._$timeout(() => {
-                    this._Alert.createWalletFailed(error);
+                    console.log(error);
+                    switch (error) {
+                        case 'NoDevice':
+                            this._Alert.ledgerDeviceNotFound();
+                            break;
+                        case 'bridge_problem':
+                            this._Alert.ledgerBridgeNotRunning();
+                            break;
+                        case 'close_bolos_app':
+                            this._Alert.ledgerNotOpenApp();
+                            break;
+                        case 'not_using_nem_app':
+                            this._Alert.ledgerNotUsingNemApp();
+                            break;
+                        case 'user_reject_login':
+                            this._Alert.ledgerLoginCancelByUser();
+                            break;
+                        case 'old_bolos_app':
+                            this._Alert.ledgerNotSupportApp();
+                            break;
+                        default:
+                            this._Alert.createWalletFailed(error);
+                            break;
+                    }
                 });
                 this.okPressed = false;
             });

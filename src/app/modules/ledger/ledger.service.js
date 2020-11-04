@@ -5,6 +5,8 @@ const SUPPORT_VERSION = {
     LEDGER_MINOR_VERSION: 0,
     LEDGER_PATCH_VERSION: 2
 }
+let message;
+
 /** Service storing Ledger utility functions. */
 class Ledger {
 
@@ -31,11 +33,13 @@ class Ledger {
     // Service methods region //
 
     async createWallet(network) {
-        let checkVersion = await this.getAppVersion();
+        const checkVersion = await this.getAppVersion();
         if (!checkVersion) {
-            throw ('Not using latest NEM BOLOS app');
+            message = 'old_bolos_app';
+            throw message;
         }
         else {
+            this._Alert.ledgerFollowInstruction();
             return this.createAccount(network, 0, "Primary")
                 .then((account) => ({
                     "name": "LEDGER",
@@ -80,20 +84,19 @@ class Ledger {
                         resolve(true);
                     }
                 } catch (error) {
-                    resolve(error)
+                    resolve(error);
                 }
             })
         })
     }
 
     createAccount(network, index, label) {
-        alert("Follow instructions on your device. Click OK to continue.");
         const hdKeypath = this.bip44(network, index);
         return this.getAccount(hdKeypath, network, label);
     }
 
     showAccount(account) {
-        alert("Follow instructions on your device. Click OK to continue.");
+        this._Alert.ledgerFollowInstruction();
         return new Promise((resolve, reject) => {
             this.getAccount(account.hdKeypath, account.network, (result) => {
                 if (result.success) {
@@ -122,23 +125,29 @@ class Ledger {
                 console.log(response);
                 try {
                     if (error != null) {
-                        reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
+                        message = 'bridge_problem';
+                        reject(message);
                     } else if (body.message != null) {
                         //Exporting the wallet was denied
-                        if (body.statusCode == '26368' || body.statusCode == '27264') {
-                            reject('Not using latest NEM BOLOS app.');
-                        } else if (body.statusCode == '26628') {
-                            reject('Ledger device: Please open your Bolos-app.')
+                        console.log('message code ', body.message);
+                        if(body.statusCode == '26368') {
+                            message = 'close_bolos_app';
+                        } else if (body.statusCode == '27013') {
+                            message = 'user_reject_login';
+                        } else if (body.statusCode == '27264') {
+                            message = 'not_using_nem_app';
                         } else {
-                            reject(body.message);
+                            message = body.message;
                         }
+                        reject(message);
                     }
                     resolve(body);
                 } catch (error) {
                     if (error == null) {
                         reject(body.message);
                     } else {
-                        reject('Cannot connect to ledger connection server.');
+                        message = 'bridge_problem';
+                        reject(message);
                     }
                 }
             })
@@ -146,7 +155,7 @@ class Ledger {
     }
 
     serialize(transaction, account) {
-        alert("Follow instructions on your device. Click OK to continue.");
+        this._Alert.ledgerFollowInstruction();
         return new Promise(async (resolve, reject) => {
             //Transaction with testnet and mainnet
             //Correct the signer
@@ -164,9 +173,9 @@ class Ledger {
                 resolve(payload);
             } else {
                 if (payload.statusCode == '26368') {
-                    this._Alert.transactionError('The transaction is too big');
+                    this._Alert.ledgerTransactionTooBig();
                 } else if (payload.statusCode == '27013') {
-                    this._Alert.transactionError('Signing cancelled by user');
+                    this._Alert.ledgerTransactionCancelByUser();
                 } else {
                     this._Alert.transactionError(payload.statusText);
                 }
@@ -196,10 +205,7 @@ class Ledger {
                     if (body.statusCode) {
                         resolve(body)
                     } else if (body.name == "TransportError") {
-                        let payload = {
-                            statusText: "Fail to sign transaction, reason: " + body.message
-                        }
-                        resolve(payload)
+                        this._Alert.ledgerFailedToSignTransaction(body.message);
                     } else {
                         let payload = {
                             data: serializedTx,
@@ -208,7 +214,7 @@ class Ledger {
                         resolve(payload);
                     }
                 } catch (error) {
-                    resolve(error)
+                    resolve(error);
                 }
             })
         })

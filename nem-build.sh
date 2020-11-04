@@ -7,4 +7,5 @@ npm install
 npm run compile
 mkdir build/modules && cp -rf external-modules/nem-ledger-bridge build/modules && rm external-modules/nem-ledger-bridge/nem-ledger-bridge
 cd build
+npm install opn
 nexe run.js -o NanoWallet
