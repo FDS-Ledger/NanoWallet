@@ -39,7 +39,7 @@ class Ledger {
             throw message;
         }
         else {
-            this._Alert.ledgerFollowInstruction();
+            alert("Follow instructions on your device. Click OK to continue.");
             return this.createAccount(network, 0, "Primary")
                 .then((account) => ({
                     "name": "LEDGER",
