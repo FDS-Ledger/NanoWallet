@@ -33,13 +33,6 @@ class Ledger {
     // Service methods region //
 
     async createWallet(network) {
-        const checkVersion = await this.getAppVersion();
-        if (!checkVersion) {
-            message = 'old_bolos_app';
-            throw message;
-        }
-        else {
-            alert("Follow instructions on your device. Click OK to continue.");
             return this.createAccount(network, 0, "Primary")
                 .then((account) => ({
                     "name": "LEDGER",
@@ -51,7 +44,6 @@ class Ledger {
                     throw err;
                 });
         }
-    }
 
     bip44(network, index) {
         // recognize networkId by bip32Path;
@@ -60,35 +52,6 @@ class Ledger {
         return (`44'/43'/${networkId}'/${index}'/0'`);
     }
 
-    async getAppVersion() {
-        return new Promise(async (resolve) => {
-            var JSONObject = {
-                "requestType": "getAppVersion",
-            };
-            var option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    let appVersion = body;
-                    if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
-                        resolve(false);
-                    } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
-                        resolve(false);
-                    } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
-                        resolve(false);
-                    } else {
-                        resolve(true);
-                    }
-                } catch (error) {
-                    resolve(error);
-                }
-            })
-        })
-    }
 
     createAccount(network, index, label) {
         const hdKeypath = this.bip44(network, index);
@@ -96,10 +59,11 @@ class Ledger {
     }
 
     showAccount(account) {
-        this._Alert.ledgerFollowInstruction();
+        
         return new Promise((resolve, reject) => {
             this.getAccount(account.hdKeypath, account.network, (result) => {
                 if (result.success) {
+                   
                     resolve(result.address);
                 } else {
                     reject(result.error);
@@ -152,7 +116,6 @@ class Ledger {
     }
 
     serialize(transaction, account) {
-        this._Alert.ledgerFollowInstruction();
         return new Promise(async (resolve, reject) => {
             //Transaction with testnet and mainnet
             //Correct the signer
@@ -167,6 +130,7 @@ class Ledger {
             let serializedTx = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction));
             let payload = await this.signTransaction(account, serializedTx);
             if (payload.signature) {
+                this._Alert.ledgerFollowInstruction();
                 resolve(payload);
             } else {
                 if (payload.statusCode == '26368') {
