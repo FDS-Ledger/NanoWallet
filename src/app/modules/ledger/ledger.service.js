@@ -121,15 +121,12 @@ class Ledger {
                 body: JSONObject
             }
             request(option, function (error, response, body) {
-                console.log(error);
-                console.log(response);
                 try {
                     if (error != null) {
                         message = 'bridge_problem';
                         reject(message);
                     } else if (body.message != null) {
                         //Exporting the wallet was denied
-                        console.log('message code ', body.message);
                         if(body.statusCode == '26368') {
                             message = 'close_bolos_app';
                         } else if (body.statusCode == '27013') {
@@ -199,8 +196,6 @@ class Ledger {
                 body: JSONObject
             }
             request(option, function (error, response, body) {
-                console.log('error ' + error);
-                console.log('response ' + response);
                 try {
                     if (body.statusCode) {
                         resolve(body)

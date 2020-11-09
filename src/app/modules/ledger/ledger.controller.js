@@ -77,7 +77,6 @@ class LedgerCtrl {
             })
             .catch(error => {
                 this._$timeout(() => {
-                    console.log(error);
                     switch (error) {
                         case 'NoDevice':
                             this._Alert.ledgerDeviceNotFound();
