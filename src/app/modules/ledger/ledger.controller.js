@@ -71,6 +71,35 @@ class LedgerCtrl {
     }
 
     /**
+     * Pop-up alert handler
+     */
+    alertHandler(inputErrorCode) {
+        switch (inputErrorCode) {
+            case 'NoDevice':
+                this._Alert.ledgerDeviceNotFound();
+                break;
+            case 'bridge_problem':
+                this._Alert.ledgerBridgeNotRunning();
+                break;
+            case 27904:
+                this._Alert.ledgerNotOpenApp();
+                break;
+            case 27264:
+                this._Alert.ledgerNotUsingNemApp();
+                break;
+            case 27013:
+                this._Alert.ledgerLoginCancelByUser();
+                break;
+            case 2:
+                this._Alert.ledgerNotSupportApp();
+                break;
+            default:
+                this._Alert.createWalletFailed(inputErrorCode);
+                break;
+        }
+    }
+
+    /**
      * Get NEM Ledger app version
      */
     getAppVersion() {
@@ -87,23 +116,24 @@ class LedgerCtrl {
             request(option, function (error, response, body) {
                 try {
                     let appVersion = body;
-                    if (appVersion.majorVersion == 0
-                        && appVersion.minorVersion == 0
-                        && appVersion.patchVersion == 2) {
-                        resolve(1);
-                    }
-                    else if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
-                        resolve(2);
-                    } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
-                        resolve(2);
-                    } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
-                        resolve(2);
-                    }
-                    else {
-                        resolve(3);
+                    if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
+                        if (body.statusCode != null) resolve(body.statusCode);
+                        else resolve(body.id);
+                    } else {
+                        let statusCode;
+                        if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
+                            statusCode = 2;
+                        } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
+                            statusCode = 2;
+                        } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
+                            statusCode = 2;
+                        } else {
+                            statusCode = 1;
+                        }
+                        resolve(statusCode);
                     }
                 } catch (error) {
-                    alert(error);
+                    resolve('bridge_problem');
                 }
             })
         })
@@ -115,60 +145,24 @@ class LedgerCtrl {
     async login() {
         this.okPressed = true;
         let checkVersion = await this.getAppVersion();
-        try {
-            if (checkVersion == 1) {
-                this._$timeout(() => {
-                    this._Alert.ledgerFollowInstruction();
-                });
-                this._Ledger.createWallet(this.network)
-                    .then(wallet => {
-                        this._Login.login({}, wallet);
-                        this.okPressed = false;
-                    })
-                    .catch(error => {
-                        this._$timeout(() => {
-                            switch (error) {
-                                case 'NoDevice':
-                                    this._Alert.ledgerDeviceNotFound();
-                                    break;
-                                case 'bridge_problem':
-                                    this._Alert.ledgerBridgeNotRunning();
-                                    break;
-                                case 'close_bolos_app':
-                                    this._Alert.ledgerNotOpenApp();
-                                    break;
-                                case 'not_using_nem_app':
-                                    this._Alert.ledgerNotUsingNemApp();
-                                    break;
-                                case 'user_reject_login':
-                                    this._Alert.ledgerLoginCancelByUser();
-                                    break;
-                                case 'old_bolos_app':
-                                    this._Alert.ledgerNotSupportApp();
-                                    break;
-                                default:
-                                    this._Alert.createWalletFailed(error);
-                                    break;
-                            }
-                        });
-                        this.okPressed = false;
-                    });
-            }
-            else if (checkVersion == 2){
-                this._$timeout(() => {
-                    this._Alert.ledgerNotSupportApp();
-                });
-                this.okPressed = false;
-            }
-            else{
-                this._$timeout(() => {
-                    this._Alert.ledgerDeviceNotFound();
-                });
-                this.okPressed = false;
-            }
-        } catch (error) {
+        if (checkVersion == 1) {
             this._$timeout(() => {
-                this._Alert.createWalletFailed(error);
+                this._Alert.ledgerFollowInstruction();
+            });
+            this._Ledger.createWallet(this.network)
+                .then(wallet => {
+                    this._Login.login({}, wallet);
+                    this.okPressed = false;
+                })
+                .catch(error => {
+                    this._$timeout(() => {
+                        this.alertHandler(error);
+                    });
+                    this.okPressed = false;
+                });
+        } else {
+            this._$timeout(() => {
+                this.alertHandler(checkVersion);
             });
             this.okPressed = false;
         }

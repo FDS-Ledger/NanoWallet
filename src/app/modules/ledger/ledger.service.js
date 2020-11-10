@@ -33,17 +33,17 @@ class Ledger {
     // Service methods region //
 
     async createWallet(network) {
-            return this.createAccount(network, 0, "Primary")
-                .then((account) => ({
-                    "name": "LEDGER",
-                    "accounts": {
-                        "0": account
-                    }
-                }))
-                .catch((err) => {
-                    throw err;
-                });
-        }
+        return this.createAccount(network, 0, "Primary")
+            .then((account) => ({
+                "name": "LEDGER",
+                "accounts": {
+                    "0": account
+                }
+            }))
+            .catch((err) => {
+                throw err;
+            });
+    }
 
     bip44(network, index) {
         // recognize networkId by bip32Path;
@@ -59,11 +59,9 @@ class Ledger {
     }
 
     showAccount(account) {
-        
         return new Promise((resolve, reject) => {
             this.getAccount(account.hdKeypath, account.network, (result) => {
                 if (result.success) {
-                   
                     resolve(result.address);
                 } else {
                     reject(result.error);
@@ -86,30 +84,15 @@ class Ledger {
             }
             request(option, function (error, response, body) {
                 try {
-                    if (error != null) {
-                        message = 'bridge_problem';
-                        reject(message);
-                    } else if (body.message != null) {
+                    if (body.statusCode != null) {
                         //Exporting the wallet was denied
-                        if(body.statusCode == '26368') {
-                            message = 'close_bolos_app';
-                        } else if (body.statusCode == '27013') {
-                            message = 'user_reject_login';
-                        } else if (body.statusCode == '27264') {
-                            message = 'not_using_nem_app';
-                        } else {
-                            message = body.message;
-                        }
-                        reject(message);
-                    }
-                    resolve(body);
-                } catch (error) {
-                    if (error == null) {
-                        reject(body.message);
+                        reject(body.statusCode);
                     } else {
-                        message = 'bridge_problem';
-                        reject(message);
+                        // Successfully exporting the wallet
+                        resolve(body);
                     }
+                } catch (error) {
+                    reject('bridge_problem');
                 }
             })
         })
