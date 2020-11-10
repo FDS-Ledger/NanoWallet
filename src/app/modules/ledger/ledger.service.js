@@ -1,8 +1,12 @@
 import nem from "nem-sdk";
 var request = require('request');
-const SUPPORT_VERSION = { LEDGER_MAJOR_VERSION: 0,
-                        LEDGER_MINOR_VERSION: 0,
-                        LEDGER_PATCH_VERSION: 2}
+const SUPPORT_VERSION = {
+    LEDGER_MAJOR_VERSION: 0,
+    LEDGER_MINOR_VERSION: 0,
+    LEDGER_PATCH_VERSION: 2
+}
+let message;
+
 /** Service storing Ledger utility functions. */
 class Ledger {
 
@@ -29,12 +33,7 @@ class Ledger {
     // Service methods region //
 
     async createWallet(network) {
-        let checkVersion = await this.getAppVersion();
-        if(!checkVersion){
-            throw('Not using latest NEM BOLOS app');
-        }
-        else{
-            return this.createAccount(network, 0, "Primary")
+        return this.createAccount(network, 0, "Primary")
             .then((account) => ({
                 "name": "LEDGER",
                 "accounts": {
@@ -44,7 +43,6 @@ class Ledger {
             .catch((err) => {
                 throw err;
             });
-        }
     }
 
     bip44(network, index) {
@@ -54,44 +52,14 @@ class Ledger {
         return (`44'/43'/${networkId}'/${index}'/0'`);
     }
 
-    async getAppVersion(){
-        return new Promise(async (resolve) => {
-            var JSONObject = {
-                "requestType": "getAppVersion",
-            };
-            var option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    let appVersion = body;
-                    if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
-                        resolve(false);
-                    } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
-                        resolve(false);
-                    } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
-                        resolve(false);
-                    } else {
-                        resolve(true);
-                    }
-                } catch (error) {
-                    resolve(error)
-                }
-            })
-        })
-    }
 
     createAccount(network, index, label) {
-        alert("Follow instructions on your device. Click OK to continue.");
         const hdKeypath = this.bip44(network, index);
         return this.getAccount(hdKeypath, network, label);
     }
 
     showAccount(account) {
-        alert("Follow instructions on your device. Click OK to continue.");
+        this._Alert.ledgerFollowInstruction();
         return new Promise((resolve, reject) => {
             this.getAccount(account.hdKeypath, account.network, (result) => {
                 if (result.success) {
@@ -117,30 +85,22 @@ class Ledger {
             }
             request(option, function (error, response, body) {
                 try {
-                    if (error != null) {
-                        reject("There is a problem with the ledger-bridge. Please install and check the ledger-bridge");
-                    } else if (body.message != null) {
+                    if (body.statusCode != null) {
                         //Exporting the wallet was denied
-                        if(body.statusCode == '26368' || body.statusCode == '27264') {
-                            reject('Not using latest NEM BOLOS app');
-                        } else {
-                            reject(body.message);
-                        }
-                    }
-                    resolve(body);
-                } catch (error) {
-                    if(error == null){
-                        reject(body.message);
+                        reject(body.statusCode);
                     } else {
-                        reject('Cannot connect to ledger connection server.');
+                        // Successfully exporting the wallet
+                        resolve(body);
                     }
+                } catch (error) {
+                    reject('bridge_problem');
                 }
             })
         })
     }
 
     serialize(transaction, account) {
-        alert("Follow instructions on your device. Click OK to continue.");
+        this._Alert.ledgerFollowInstruction();
         return new Promise(async (resolve, reject) => {
             //Transaction with testnet and mainnet
             //Correct the signer
@@ -155,13 +115,14 @@ class Ledger {
             let serializedTx = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction));
             let payload = await this.signTransaction(account, serializedTx);
             if (payload.signature) {
+                this._Alert.ledgerFollowInstruction();
                 resolve(payload);
-            }
-            else {
+            } else {
                 if (payload.statusCode == '26368') {
-                    this._Alert.transactionError('The transaction is too big');
-                }
-                else {
+                    this._Alert.ledgerTransactionTooBig();
+                } else if (payload.statusCode == '27013') {
+                    this._Alert.ledgerTransactionCancelByUser();
+                } else {
                     this._Alert.transactionError(payload.statusText);
                 }
                 reject(payload);
@@ -187,8 +148,9 @@ class Ledger {
                 try {
                     if (body.statusCode) {
                         resolve(body)
-                    }
-                    else {
+                    } else if (body.name == "TransportError") {
+                        this._Alert.ledgerFailedToSignTransaction(body.message);
+                    } else {
                         let payload = {
                             data: serializedTx,
                             signature: body
@@ -196,7 +158,7 @@ class Ledger {
                         resolve(payload);
                     }
                 } catch (error) {
-                    resolve(error)
+                    resolve(error);
                 }
             })
         })

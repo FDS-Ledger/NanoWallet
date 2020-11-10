@@ -794,6 +794,17 @@ function EnglishProvider($translateProvider) {
         NANO_LEDGER_TITLE: 'NANO LEDGER',
         NANO_LEDGER_TEXT: 'The NANO LEDGER hardware wallet allows you to secure your XEM, mosaics and multisig accounts',
         NANO_LEDGER_BUTTON: 'Login with NANO LEDGER',
+        NANO_LEDGER_NO_DEVICE: 'Not found Ledger device',
+        NANO_LEDGER_BRIDGE_NOT_RUNNING: 'There is a problem with the ledger-bridge. Please install and check the ledger-bridge',
+        NANO_LEDGER_NOT_USING_NEM_APP: 'You are not using NEM BOLOS app on your Ledger device',
+        NANO_LEDGER_NOT_SUPPORTED_APP: 'Please check if you have an up-to-date NEM application open on your Ledger device',
+        NANO_LEDGER_NOT_OPENED_APP: 'Please open NEM BOLOS app on your Ledger device',
+        NANO_LEDGER_DEVICE_LOCKED: 'Please unlock your Ledger device',
+        NANO_LEDGER_USER_REJECT_LOGIN: 'Login cancelled by user',
+        NANO_LEDGER_FOLLOW_INSTRUCTION: 'Follow instructions on your Ledger device',
+        NANO_LEDGER_TRANSACTION_TOO_BIG: 'The transaction is too big to sign on Ledger device',
+        NANO_LEDGER_TRANSACTION_USER_CANCEL: 'Signing cancelled by user',
+        NANO_LEDGER_TRANSACTION_FAILED: 'Failed to sign transaction, reason: ',
 
         // CREATE OFFLINE TRANSACTION MODULE
         OFFLINE_TX_TITLE: 'Prepare an offline transaction',
