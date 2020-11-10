@@ -81,6 +81,9 @@ class LedgerCtrl {
             case 'bridge_problem':
                 this._Alert.ledgerBridgeNotRunning();
                 break;
+            case 26628:
+                this._Alert.ledgerDeviceLocked();
+                break;
             case 27904:
                 this._Alert.ledgerNotOpenApp();
                 break;

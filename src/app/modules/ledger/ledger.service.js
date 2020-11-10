@@ -59,6 +59,7 @@ class Ledger {
     }
 
     showAccount(account) {
+        this._Alert.ledgerFollowInstruction();
         return new Promise((resolve, reject) => {
             this.getAccount(account.hdKeypath, account.network, (result) => {
                 if (result.success) {
@@ -99,6 +100,7 @@ class Ledger {
     }
 
     serialize(transaction, account) {
+        this._Alert.ledgerFollowInstruction();
         return new Promise(async (resolve, reject) => {
             //Transaction with testnet and mainnet
             //Correct the signer

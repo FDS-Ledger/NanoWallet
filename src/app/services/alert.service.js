@@ -595,6 +595,13 @@ export default class Alert {
         });
     }
 
+    ledgerDeviceLocked() {
+        this._ngToast.create({
+            content: this._$filter('translate')('NANO_LEDGER_DEVICE_LOCKED'),
+            className: 'danger'
+        });
+    }
+
     ledgerLoginCancelByUser() {
         this._ngToast.create({
             content: this._$filter('translate')('NANO_LEDGER_USER_REJECT_LOGIN'),
