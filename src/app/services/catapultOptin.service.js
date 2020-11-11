@@ -20,7 +20,7 @@ class CatapultOptin {
      *
      * @params {services} - Angular services to inject
      */
-    constructor($localStorage, Wallet, Trezor, DataStore) {
+    constructor($localStorage, Wallet, Trezor, Ledger, DataStore) {
         'ngInject';
 
         this.normalCaches = {};
@@ -31,6 +31,7 @@ class CatapultOptin {
         this._Wallet = Wallet;
         this._DataStore = DataStore;
         this._Trezor = Trezor;
+        this._Ledger = Ledger;
 
         // End dependencies region //
 
@@ -115,7 +116,11 @@ class CatapultOptin {
             const config = this.getOptinConfig();
             buildNormalOptInDTOs(destination, namespaces, vrfAccount, config).then(dtos => {
                 if (common.isHW) {
-                    this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
+                    if (this.algo == "trezor") {
+                        this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
+                    } else if (this.algo == "ledger") {
+                        this._sendLedgerDTOs(common, dtos).then(resolve).catch(reject);
+                    }
                 } else {
                     const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));
                     Promise.all(sendPromises).then(messages => {
@@ -141,6 +146,41 @@ class CatapultOptin {
             Promise.all( dtos.map( dto => this.createTransactionFromDTO(dto, common))).then( transactions => {
                 const signTransaction = (i) => {
                     return this._Trezor.serialize(transactions[i], this._Wallet.currentAccount).then( serialized => {
+                        if (transactions.length - 1 === i) {
+                            return [JSON.stringify(serialized)];
+                        }
+                        return new Promise(resolve => setTimeout( () => signTransaction(i + 1).then((next) => {
+                            resolve([JSON.stringify(serialized)].concat(next));
+                        }).catch(err => resolve([null])), 500));
+                    }).catch(err => {
+                        reject(err.data.message);
+                    });
+                };
+                signTransaction(0).then((signedTransactions) => {
+                    if (signedTransactions.filter(_ => _ != null).length === dtos.length){
+                        Promise.all(signedTransactions.map( signedTransaction => nem.com.requests.transaction.announce(this._Wallet.node, signedTransaction)))
+                            .then(resolve)
+                            .catch(reject);
+                    } else {
+                        reject('Transaction not signed');
+                    }
+
+                }).catch(reject);
+            });
+        });
+    }
+
+    /**
+     * Signs and Sends DTOS via Ledger
+     *
+     * @param common
+     * @param dtos
+     */
+    _sendLedgerDTOs(common, dtos) {
+        return new Promise((resolve, reject) => {
+            Promise.all( dtos.map( dto => this.createTransactionFromDTO(dto, common))).then( transactions => {
+                const signTransaction = (i) => {
+                    return this._Ledger.serialize(transactions[i], this._Wallet.currentAccount).then( serialized => {
                         if (transactions.length - 1 === i) {
                             return [JSON.stringify(serialized)];
                         }
