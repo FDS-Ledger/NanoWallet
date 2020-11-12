@@ -10,7 +10,7 @@ import {
 } from "catapult-optin-module";
 import {PublicAccount, NetworkType, Account} from "symbol-sdk";
 import {broadcastDTO, buildStartMultisigOptInDTOs} from "catapult-optin-module/dist/src/Broadcast";
-
+var request = require('request');
 
 /** Service with relative functions on symbol opt in books. */
 class CatapultOptin {
@@ -20,7 +20,7 @@ class CatapultOptin {
      *
      * @params {services} - Angular services to inject
      */
-    constructor($localStorage, Wallet, Trezor, Ledger, DataStore) {
+    constructor($localStorage, Wallet, Trezor, Ledger, DataStore, Alert) {
         'ngInject';
 
         this.normalCaches = {};
@@ -33,6 +33,7 @@ class CatapultOptin {
         this._Trezor = Trezor;
         this._Ledger = Ledger;
 
+        this._Alert = Alert;
         // End dependencies region //
 
         // Service properties region //
@@ -115,12 +116,10 @@ class CatapultOptin {
         return new Promise( (resolve, reject) => {
             const config = this.getOptinConfig();
             buildNormalOptInDTOs(destination, namespaces, vrfAccount, config).then(dtos => {
-                if (common.isHW) {
-                    if (this.algo == "trezor") {
-                        this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
-                    } else if (this.algo == "ledger") {
-                        this._sendLedgerDTOs(common, dtos).then(resolve).catch(reject);
-                    }
+                if (this._Wallet.algo == "trezor") {
+                    this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
+                } else if (this._Wallet.algo == "ledger") {
+                    this._sendLedgerDTOs(common, dtos).then(resolve).catch(reject);
                 } else {
                     const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));
                     Promise.all(sendPromises).then(messages => {
@@ -170,6 +169,82 @@ class CatapultOptin {
         });
     }
 
+     /**
+     * Serialize transaction
+     *
+     * @param transaction
+     * @param account
+     */
+    serialize(transaction, account) {
+        return new Promise(async (resolve, reject) => {
+            //Transaction with testnet and mainnet
+            //Correct the signer
+            transaction.signer = account.publicKey;
+
+            //If it is a MosaicDefinition Creation Transaction, then correct the creator
+            if (transaction.type == 0x4001) {
+                transaction.mosaicDefinition.creator = account.publicKey;
+            }
+
+            //Serialize the transaction
+            let serializedTx = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction));
+            let payload = await this.signTransaction(account, serializedTx);
+            if (payload.signature) {
+                this._Alert.ledgerFollowInstruction();
+                resolve(payload);
+            } else {
+                if (payload.statusCode == '26368') {
+                    this._Alert.ledgerTransactionTooBig();
+                } else if (payload.statusCode == '27013') {
+                    this._Alert.ledgerTransactionCancelByUser();
+                } else {
+                    this._Alert.transactionError(payload.statusText);
+                }
+                reject(payload);
+            }
+
+        });
+    }
+
+    /**
+     * Sign transaction with ledger
+     *
+     * @param account
+     * @param serializedTx
+     */
+    signTransaction(account, serializedTx) {
+        return new Promise(async (resolve) => {
+            var JSONObject = {
+                "requestType": "signTransaction",
+                "serializedTx": serializedTx,
+                "hdKeypath": account.hdKeypath
+            };
+            var option = {
+                url: "http://localhost:21335",
+                method: "POST",
+                json: true,
+                body: JSONObject
+            }
+            request(option, function (error, response, body) {
+                try {
+                    if (body.statusCode) {
+                        resolve(body)
+                    } else if (body.name == "TransportError") {
+                        this._Alert.ledgerFailedToSignTransaction(body.message);
+                    } else {
+                        let payload = {
+                            data: serializedTx,
+                            signature: body
+                        }
+                        resolve(payload);
+                    }
+                } catch (error) {
+                    resolve(error);
+                }
+            })
+        })
+    }
+
     /**
      * Signs and Sends DTOS via Ledger
      *
@@ -180,7 +255,7 @@ class CatapultOptin {
         return new Promise((resolve, reject) => {
             Promise.all( dtos.map( dto => this.createTransactionFromDTO(dto, common))).then( transactions => {
                 const signTransaction = (i) => {
-                    return this._Ledger.serialize(transactions[i], this._Wallet.currentAccount).then( serialized => {
+                    return this.serialize(transactions[i], this._Wallet.currentAccount).then( serialized => {
                         if (transactions.length - 1 === i) {
                             return [JSON.stringify(serialized)];
                         }
@@ -263,8 +338,10 @@ class CatapultOptin {
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
                 buildStartMultisigOptInDTOs(origin, cosigner, destination, namespaces, config).then( dtos => {
-                    if (common.isHW) {
+                    if (this.algo == "trezor") {
                         this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
+                    } else if (this.algo == "ledger") {
+                        this._sendLedgerDTOs(common, dtos).then(resolve).catch(reject);
                     } else {
                         const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));
                         Promise.all(sendPromises).then(messages => {
