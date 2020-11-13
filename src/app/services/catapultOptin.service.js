@@ -10,7 +10,7 @@ import {
 } from "catapult-optin-module";
 import {PublicAccount, NetworkType, Account} from "symbol-sdk";
 import {broadcastDTO, buildStartMultisigOptInDTOs} from "catapult-optin-module/dist/src/Broadcast";
-var request = require('request');
+
 
 /** Service with relative functions on symbol opt in books. */
 class CatapultOptin {
