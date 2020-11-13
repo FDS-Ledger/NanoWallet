@@ -15,11 +15,12 @@ class Ledger {
      *
      * @params {services} - Angular services to inject
      */
-    constructor(Alert) {
+    constructor(Alert, $timeout) {
         'ngInject';
 
         // Service dependencies region //
         this._Alert = Alert;
+        this._$timeout = $timeout;
 
         // End dependencies region //
 
@@ -99,8 +100,10 @@ class Ledger {
         })
     }
 
-    serialize(transaction, account) {
-        this._Alert.ledgerFollowInstruction();
+    serialize(transaction, account, symbolOptin) {
+        this._$timeout(() => {
+            this._Alert.ledgerFollowInstruction();
+        });
         return new Promise(async (resolve, reject) => {
             //Transaction with testnet and mainnet
             //Correct the signer
@@ -115,15 +118,16 @@ class Ledger {
             let serializedTx = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction));
             let payload = await this.signTransaction(account, serializedTx);
             if (payload.signature) {
-                this._Alert.ledgerFollowInstruction();
                 resolve(payload);
             } else {
-                if (payload.statusCode == '26368') {
-                    this._Alert.ledgerTransactionTooBig();
-                } else if (payload.statusCode == '27013') {
-                    this._Alert.ledgerTransactionCancelByUser();
-                } else {
-                    this._Alert.transactionError(payload.statusText);
+                if (!symbolOptin) {
+                    if (payload.statusCode == '26368') {
+                        this._Alert.ledgerTransactionTooBig();
+                    } else if (payload.statusCode == '27013') {
+                        this._Alert.ledgerTransactionCancelByUser();
+                    } else {
+                        this._Alert.transactionError(payload.statusText);
+                    }
                 }
                 reject(payload);
             }
