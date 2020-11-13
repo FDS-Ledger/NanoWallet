@@ -32,7 +32,6 @@ class CatapultOptin {
         this._DataStore = DataStore;
         this._Trezor = Trezor;
         this._Ledger = Ledger;
-
         this._Alert = Alert;
         // End dependencies region //
 
@@ -169,82 +168,6 @@ class CatapultOptin {
         });
     }
 
-     /**
-     * Serialize transaction
-     *
-     * @param transaction
-     * @param account
-     */
-    serialize(transaction, account) {
-        return new Promise(async (resolve, reject) => {
-            //Transaction with testnet and mainnet
-            //Correct the signer
-            transaction.signer = account.publicKey;
-
-            //If it is a MosaicDefinition Creation Transaction, then correct the creator
-            if (transaction.type == 0x4001) {
-                transaction.mosaicDefinition.creator = account.publicKey;
-            }
-
-            //Serialize the transaction
-            let serializedTx = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction));
-            let payload = await this.signTransaction(account, serializedTx);
-            if (payload.signature) {
-                this._Alert.ledgerFollowInstruction();
-                resolve(payload);
-            } else {
-                if (payload.statusCode == '26368') {
-                    this._Alert.ledgerTransactionTooBig();
-                } else if (payload.statusCode == '27013') {
-                    this._Alert.ledgerTransactionCancelByUser();
-                } else {
-                    this._Alert.transactionError(payload.statusText);
-                }
-                reject(payload);
-            }
-
-        });
-    }
-
-    /**
-     * Sign transaction with ledger
-     *
-     * @param account
-     * @param serializedTx
-     */
-    signTransaction(account, serializedTx) {
-        return new Promise(async (resolve) => {
-            var JSONObject = {
-                "requestType": "signTransaction",
-                "serializedTx": serializedTx,
-                "hdKeypath": account.hdKeypath
-            };
-            var option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    if (body.statusCode) {
-                        resolve(body)
-                    } else if (body.name == "TransportError") {
-                        this._Alert.ledgerFailedToSignTransaction(body.message);
-                    } else {
-                        let payload = {
-                            data: serializedTx,
-                            signature: body
-                        }
-                        resolve(payload);
-                    }
-                } catch (error) {
-                    resolve(error);
-                }
-            })
-        })
-    }
-
     /**
      * Signs and Sends DTOS via Ledger
      *
@@ -255,7 +178,7 @@ class CatapultOptin {
         return new Promise((resolve, reject) => {
             Promise.all( dtos.map( dto => this.createTransactionFromDTO(dto, common))).then( transactions => {
                 const signTransaction = (i) => {
-                    return this.serialize(transactions[i], this._Wallet.currentAccount).then( serialized => {
+                    return this._Ledger.serialize(transactions[i], this._Wallet.currentAccount, true).then( serialized => {
                         if (transactions.length - 1 === i) {
                             return [JSON.stringify(serialized)];
                         }
@@ -263,7 +186,8 @@ class CatapultOptin {
                             resolve([JSON.stringify(serialized)].concat(next));
                         }).catch(err => resolve([null])), 500));
                     }).catch(err => {
-                        reject(err.data.message);
+                        const message = err.statusCode == 27013 ? 'Signing Symbol Opt-in cancelled by user': err.message;
+                        reject(message);
                     });
                 };
                 signTransaction(0).then((signedTransactions) => {
