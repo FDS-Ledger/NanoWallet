@@ -71,83 +71,11 @@ class LedgerCtrl {
     }
 
     /**
-     * Pop-up alert handler
-     */
-    alertHandler(inputErrorCode) {
-        switch (inputErrorCode) {
-            case 'NoDevice':
-                this._Alert.ledgerDeviceNotFound();
-                break;
-            case 'bridge_problem':
-                this._Alert.ledgerBridgeNotRunning();
-                break;
-            case 26628:
-                this._Alert.ledgerDeviceLocked();
-                break;
-            case 27904:
-                this._Alert.ledgerNotOpenApp();
-                break;
-            case 27264:
-                this._Alert.ledgerNotUsingNemApp();
-                break;
-            case 27013:
-                this._Alert.ledgerLoginCancelByUser();
-                break;
-            case 2:
-                this._Alert.ledgerNotSupportApp();
-                break;
-            default:
-                this._Alert.createWalletFailed(inputErrorCode);
-                break;
-        }
-    }
-
-    /**
-     * Get NEM Ledger app version
-     */
-    getAppVersion() {
-        return new Promise(async (resolve) => {
-            var JSONObject = {
-                "requestType": "getAppVersion",
-            };
-            var option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    let appVersion = body;
-                    if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
-                        if (body.statusCode != null) resolve(body.statusCode);
-                        else resolve(body.id);
-                    } else {
-                        let statusCode;
-                        if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
-                            statusCode = 2;
-                        } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
-                            statusCode = 2;
-                        } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
-                            statusCode = 2;
-                        } else {
-                            statusCode = 1;
-                        }
-                        resolve(statusCode);
-                    }
-                } catch (error) {
-                    resolve('bridge_problem');
-                }
-            })
-        })
-    }
-
-    /**
      * Login with LEDGER
      */
     async login() {
         this.okPressed = true;
-        let checkVersion = await this.getAppVersion();
+        const checkVersion = await this._Ledger.getAppVersion();
         if (checkVersion == 1) {
             this._$timeout(() => {
                 this._Alert.ledgerFollowInstruction();
@@ -159,13 +87,13 @@ class LedgerCtrl {
                 })
                 .catch(error => {
                     this._$timeout(() => {
-                        this.alertHandler(error);
+                        this._Ledger.alertHandler(error);
                     });
                     this.okPressed = false;
                 });
         } else {
             this._$timeout(() => {
-                this.alertHandler(checkVersion);
+                this._Ledger.alertHandler(checkVersion);
             });
             this.okPressed = false;
         }
