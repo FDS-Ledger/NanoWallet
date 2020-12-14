@@ -100,6 +100,29 @@ class Ledger {
         })
     }
 
+    deriveRemote(account, network) {
+        const value = "0000000000000000000000000000000000000000000000000000000000000000";
+
+        return new Promise((resolve, reject) => {
+            TrezorConnect.cipherKeyValue(account.hdKeypath, key, value, true, true, true, (result) => {
+                if (result.success) {
+                    const privateKey = nem.utils.helpers.fixPrivateKey(result.value);
+                    const keyPair = nem.crypto.keyPair.create(privateKey);
+                    const publicKey = keyPair.publicKey.toString();
+                    const address = nem.model.address.toAddress(publicKey, network);
+
+                    resolve({
+                        address,
+                        privateKey,
+                        publicKey
+                    });
+                } else {
+                    reject(result.error);
+                }
+            });
+        });
+    }
+
     serialize(transaction, account, symbolOptin) {
         this._$timeout(() => {
             this._Alert.ledgerFollowInstruction();

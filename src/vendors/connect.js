@@ -6,7 +6,7 @@
 var VERSION = 4;
 
 if (!Array.isArray) {
-    Array.isArray = function(arg) {
+    Array.isArray = function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';
     };
 }
@@ -26,7 +26,7 @@ this.TrezorConnect = (function () {
 
     var chrome = window.chrome;
     var IS_CHROME_APP = chrome && chrome.app && chrome.app.window;
-
+    console.log('IS_CHROME_APP', IS_CHROME_APP)
     var ERR_TIMED_OUT = 'Loading timed out';
     var ERR_WINDOW_CLOSED = 'Window closed';
     var ERR_WINDOW_BLOCKED = 'Window blocked';
@@ -43,7 +43,7 @@ this.TrezorConnect = (function () {
         POPUP_PATH = POPUP_ORIGIN;
     }
     var POPUP_URL = window.TREZOR_POPUP_URL || POPUP_PATH + '/popup/popup.html';
-
+    console.log(POPUP_URL)
     var POPUP_INIT_TIMEOUT = 15000;
 
     /**
@@ -100,10 +100,10 @@ this.TrezorConnect = (function () {
          * Set bitcore server
          * @param {string|Array<string>} value
          */
-        this.setBitcoreURLS = function(value) {
+        this.setBitcoreURLS = function (value) {
             if (typeof value === 'string') {
-                manager.bitcoreURLS = [ value ];
-            }else if (value instanceof Array) {
+                manager.bitcoreURLS = [value];
+            } else if (value instanceof Array) {
                 manager.bitcoreURLS = value;
             }
         }
@@ -112,7 +112,7 @@ this.TrezorConnect = (function () {
          * Set currency. Human readable coin name
          * @param {string|Array<string>} value
          */
-        this.setCurrency = function(value) {
+        this.setCurrency = function (value) {
             if (typeof value === 'string') {
                 manager.currency = value;
             }
@@ -122,7 +122,7 @@ this.TrezorConnect = (function () {
          * Set currency units (mBTC, BTC)
          * @param {string|Array<string>} value
          */
-        this.setCurrencyUnits = function(value) {
+        this.setCurrencyUnits = function (value) {
             if (typeof value === 'string') {
                 manager.currencyUnits = value;
             }
@@ -132,7 +132,7 @@ this.TrezorConnect = (function () {
          * Set coin info json url
          * @param {string|Array<string>} value
          */
-        this.setCoinInfoURL = function(value) {
+        this.setCoinInfoURL = function (value) {
             if (typeof value === 'string') {
                 manager.coinInfoURL = value;
             }
@@ -142,8 +142,8 @@ this.TrezorConnect = (function () {
          * Set max. limit for account discovery
          * @param {number} value
          */
-        this.setAccountDiscoveryLimit = function(value) {
-            if(!isNaN(value))
+        this.setAccountDiscoveryLimit = function (value) {
+            if (!isNaN(value))
                 manager.accountDiscoveryLimit = value;
         }
 
@@ -151,8 +151,8 @@ this.TrezorConnect = (function () {
          * Set max. gap for account discovery
          * @param {number} value
          */
-        this.setAccountDiscoveryGapLength = function(value) {
-            if(!isNaN(value))
+        this.setAccountDiscoveryGapLength = function (value) {
+            if (!isNaN(value))
                 manager.accountDiscoveryGapLength = value;
         }
 
@@ -160,8 +160,8 @@ this.TrezorConnect = (function () {
          * Set discovery BIP44 coin type
          * @param {number} value
          */
-        this.setAccountDiscoveryBip44CoinType = function(value) {
-            if(!isNaN(value))
+        this.setAccountDiscoveryBip44CoinType = function (value) {
+            if (!isNaN(value))
                 manager.accountDiscoveryBip44CoinType = value;
         }
 
@@ -198,7 +198,7 @@ this.TrezorConnect = (function () {
         this.getFreshAddress = function (callback, requiredFirmware) {
             var wrapperCallback = function (result) {
                 if (result.success) {
-                    callback({success: true, address: result.freshAddress});
+                    callback({ success: true, address: result.freshAddress });
                 } else {
                     callback(result);
                 }
@@ -215,19 +215,19 @@ this.TrezorConnect = (function () {
                     type: 'accountinfo',
                     description: input
                 }, requiredFirmware), callback);
-            } catch(e) {
-                callback({success: false, error: e});
+            } catch (e) {
+                callback({ success: false, error: e });
             }
         }
 
-        this.getAllAccountsInfo = function(callback, requiredFirmware){
+        this.getAllAccountsInfo = function (callback, requiredFirmware) {
             try {
                 manager.sendWithChannel(_fwStrFix({
                     type: 'allaccountsinfo',
                     description: 'all'
                 }, requiredFirmware), callback);
-            } catch(e) {
-                callback({success: false, error: e});
+            } catch (e) {
+                callback({ success: false, error: e });
             }
         }
 
@@ -266,7 +266,7 @@ this.TrezorConnect = (function () {
         };
 
         // new implementation with ethereum at beginnig
-        this.ethereumSignTx = function() {
+        this.ethereumSignTx = function () {
             this.signEthereumTx.apply(this, arguments);
         }
 
@@ -467,7 +467,7 @@ this.TrezorConnect = (function () {
                 address: address,
                 signature: signature,
                 message: message,
-                coin: {coin_name: opt_coin},
+                coin: { coin_name: opt_coin },
             }, requiredFirmware), callback);
         };
 
@@ -550,10 +550,10 @@ this.TrezorConnect = (function () {
         };
 
         this.nemGetAddress = function (
-          address_n,
-          network,
-          callback,
-          requiredFirmware
+            address_n,
+            network,
+            callback,
+            requiredFirmware
         ) {
             if (requiredFirmware == null) {
                 requiredFirmware = '1.6.0'; // first firmware that supports NEM
@@ -569,10 +569,10 @@ this.TrezorConnect = (function () {
         }
 
         this.nemSignTx = function (
-          address_n,
-          transaction,
-          callback,
-          requiredFirmware
+            address_n,
+            transaction,
+            callback,
+            requiredFirmware
         ) {
             if (requiredFirmware == null) {
                 requiredFirmware = '1.6.0'; // first firmware that supports NEM
@@ -588,8 +588,8 @@ this.TrezorConnect = (function () {
         }
 
         this.pushTransaction = function (
-          rawTx,
-          callback
+            rawTx,
+            callback
         ) {
             if (!(/^[0-9A-Fa-f]*$/.test(rawTx))) {
                 throw new TypeError('TrezorConnect: Transaction must be hexadecimal');
@@ -687,12 +687,12 @@ this.TrezorConnect = (function () {
                 text = text.replace('TREZOR', '<strong>TREZOR</strong>');
                 e.outerHTML =
                     (LOGIN_CSS + LOGIN_HTML)
-                    .replace('@text@', text)
-                    .replace('@callback@', callback)
-                    .replace('@hosticon@', hosticon)
-                    .replace('@challenge_hidden@', challenge_hidden)
-                    .replace('@challenge_visual@', challenge_visual)
-                    .replace('@connect_path@', POPUP_PATH);
+                        .replace('@text@', text)
+                        .replace('@callback@', callback)
+                        .replace('@hosticon@', hosticon)
+                        .replace('@challenge_hidden@', challenge_hidden)
+                        .replace('@challenge_visual@', challenge_visual)
+                        .replace('@connect_path@', POPUP_PATH);
             }
         };
     }
@@ -713,7 +713,7 @@ this.TrezorConnect = (function () {
                     p = p.substr(0, p.length - 1);
                 }
                 if (isNaN(p)) {
-                   throw new Error('Not a valid path.');
+                    throw new Error('Not a valid path.');
                 }
                 var n = parseInt(p);
                 if (hardened) { // hardened index
@@ -838,6 +838,7 @@ this.TrezorConnect = (function () {
     function Channel(popup, waiting) {
 
         var respond = function (data) {
+            console.log('waiting',waiting)
             if (waiting) {
                 var w = waiting;
                 waiting = null;
@@ -850,6 +851,7 @@ this.TrezorConnect = (function () {
             var org2 = popup.origin.match(/^.+\:\/\/[^\‌​/]+/)[0];
             //if (event.source === popup.window && event.origin === popup.origin) {
             if (event.source === popup.window && org1 === org2) {
+                console.log('event pass', event)
                 respond(event.data);
             }
         };
@@ -863,8 +865,10 @@ this.TrezorConnect = (function () {
         };
 
         this.send = function (value, callback) {
+            console.log('waiting in send',waiting)
             if (waiting === null) {
                 waiting = callback;
+                console.log('value', value)
                 popup.window.postMessage(value, popup.origin);
             } else {
                 throw new Error(ERR_ALREADY_WAITING);
@@ -873,7 +877,7 @@ this.TrezorConnect = (function () {
     }
 
     function ConnectedChannel(p) {
-
+        console.log(p)
         var ready = function () {
             clearTimeout(this.timeout);
             this.popup.onclose = null;
@@ -983,6 +987,7 @@ this.TrezorConnect = (function () {
             var respond = function (response) {
                 var succ = response.success && this.closeAfterSuccess;
                 var fail = !response.success && this.closeAfterFailure;
+                console.log(succ, fail)
                 if (succ || fail) {
                     this.close();
                 }
@@ -990,6 +995,7 @@ this.TrezorConnect = (function () {
             }.bind(this);
 
             var onresponse = function (response) {
+                    console.log('response',response)
                 if (response instanceof Error) {
                     var error = response;
                     respond({ success: false, error: error.message });
@@ -997,16 +1003,19 @@ this.TrezorConnect = (function () {
                     respond(response);
                 }
             };
-
+            // Recieve chanel
             var onchannel = function (channel) {
                 if (channel instanceof Error) {
                     var error = channel;
                     respond({ success: false, error: error.message });
                 } else {
+                    console.log('message', message)
+                    console.log('onresponse', onresponse)
+
                     channel.send(message, onresponse);
                 }
             };
-
+            //Main
             this.waitForChannel(onchannel);
         };
     }

@@ -67,6 +67,7 @@ class Trezor {
 
         return new Promise((resolve, reject) => {
             TrezorConnect.cipherKeyValue(account.hdKeypath, key, value, true, true, true, (result) => {
+                console.log('reuslt',result)
                 if (result.success) {
                     const privateKey = nem.utils.helpers.fixPrivateKey(result.value);
                     const keyPair = nem.crypto.keyPair.create(privateKey);
