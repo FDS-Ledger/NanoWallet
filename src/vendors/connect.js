@@ -538,6 +538,15 @@ this.TrezorConnect = (function () {
             if (!callback) {
                 throw new TypeError('TrezorConnect: callback not found');
             }
+            console.log('_fwStrFix',_fwStrFix({
+                type: 'cipherkeyvalue',
+                path: path,
+                key: key,
+                value: value,
+                encrypt: !!encrypt,
+                ask_on_encrypt: !!ask_on_encrypt,
+                ask_on_decrypt: !!ask_on_decrypt
+            }, requiredFirmware))
             manager.sendWithChannel(_fwStrFix({
                 type: 'cipherkeyvalue',
                 path: path,

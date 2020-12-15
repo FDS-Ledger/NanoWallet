@@ -110,11 +110,12 @@ class ImportanceTransferCtrl {
         if ((this._Wallet.algo == "trezor" || this._Wallet.algo == "ledger") && !this._Wallet.currentAccount.child) {
             // Disable send button
             this.okPressed = true;
-
+            console.log('this.common',this.common)
             this._Wallet.deriveRemote(this.common).then((res) => {
                 this._$timeout(() => {
                     // Enable send button
                     this.okPressed = false;
+                    console.log('this._Wallet',this._Wallet)
                     this.formData.remoteAccount = this._Wallet.currentAccount.child;
                     this.prepareTransaction();
                 }, 0)

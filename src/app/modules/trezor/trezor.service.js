@@ -67,21 +67,25 @@ class Trezor {
 
         return new Promise((resolve, reject) => {
             TrezorConnect.cipherKeyValue(account.hdKeypath, key, value, true, true, true, (result) => {
-                console.log('reuslt',result)
-                if (result.success) {
-                    const privateKey = nem.utils.helpers.fixPrivateKey(result.value);
-                    const keyPair = nem.crypto.keyPair.create(privateKey);
-                    const publicKey = keyPair.publicKey.toString();
-                    const address = nem.model.address.toAddress(publicKey, network);
+            // const result = {
+            //     success: true,
+            //     value: "82d6c0122c3055c0099a5a90d02dab4802ac9d062414e1c80bb05f980b8e6efe"
+            // }
+            console.log('reuslt', result)
+            if (result.success) {
+                const privateKey = nem.utils.helpers.fixPrivateKey(result.value);
+                const keyPair = nem.crypto.keyPair.create(privateKey);
+                const publicKey = keyPair.publicKey.toString();
+                const address = nem.model.address.toAddress(publicKey, network);
 
-                    resolve({
-                        address,
-                        privateKey,
-                        publicKey
-                    });
-                } else {
-                    reject(result.error);
-                }
+                resolve({
+                    address,
+                    privateKey,
+                    publicKey
+                });
+            } else {
+                reject(result.error);
+            }
             });
         });
     }

@@ -355,6 +355,7 @@ class Wallet {
         let algo = _account.algo || this.algo;
         let network = _account.network || this.network;
         return this._deriveRemote(common, _account, algo, network).then((data) => {
+            console.log('data',data)
             // Add generated child to account
             _account.child = data.publicKey;
             return Promise.resolve(data);
