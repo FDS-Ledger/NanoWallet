@@ -1,4 +1,6 @@
 import nem from "nem-sdk";
+const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
+console.log(TransportNodeHid)
 var request = require('request');
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
