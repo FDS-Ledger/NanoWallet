@@ -72,7 +72,7 @@
   "scripts": {
     "test": "gulp tests browserifyTests",
     "devApp": "nw build/",
-    "compile": "gulp && cp -rf run.js build",
+    "compile": "gulp",
     "build": "./nem-build.sh"
   },
   "repository": {

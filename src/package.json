@@ -4,7 +4,7 @@
   "description": "Cross-platform lite wallet for NEM",
   "author": "https://github.com/QuantumMechanics",
   "license": "MIT",
-  "main":"start.html",
+  "main":"electron.js",
   "window":{
     "fullscreen": false,
     "width": 1600,
@@ -12,5 +12,8 @@
     "min_width":800,
     "min_height":600,
     "icon": "images/logomark.png"
+  },
+  "scripts": {
+    "start": "electron ."
   }
 }
