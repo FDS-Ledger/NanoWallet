@@ -1,6 +1,8 @@
 import nem from "nem-sdk";
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
 console.log(TransportNodeHid)
+import NemH from "./hw-app-nem";
+import { onError } from "gulp-notify/lib/extra_api";
 var request = require('request');
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
@@ -75,31 +77,67 @@ class Ledger {
     }
 
     async getAccount(hdKeypath, network, label) {
-        return new Promise((resolve, reject) => {
-            var JSONObject = {
-                "requestType": "getAddress",
-                "hdKeypath": hdKeypath, "label": label, "network": network
-            };
-            let option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    if (body.statusCode != null) {
-                        //Exporting the wallet was denied
-                        reject(body.statusCode);
-                    } else {
-                        // Successfully exporting the wallet
-                        resolve(body);
-                    }
-                } catch (error) {
-                    reject('bridge_problem');
-                }
+        try {
+
+            const transport = await TransportNodeHid.open("");
+
+            const nemH = new NemH(transport);
+
+
+            return new Promise(async (resolve, reject) => {
+                nemH.getAddress(hdKeypath)
+                    .then(result => {
+                        transport.close();
+                        resolve(
+                            {
+                                "brain": false,
+                                "algo": "ledger",
+                                "encrypted": "",
+                                "iv": "",
+                                "address": result.address,
+                                "label": label,
+                                "network": network,
+                                "child": "",
+                                "hdKeypath": hdKeypath,
+                                "publicKey": result.publicKey
+                            }
+                        );
+                    })
+                    .catch(err => {
+                        transport.close();
+                        throw err
+                    })
             })
-        })
+        } catch (err) {
+            if (err.statusCode != null) return Promise.reject(err.statusCode);
+            else if (err.id != null) return Promise.resolve(err.id);
+            else return Promise.resolve(err);
+        }
+        // return new Promise((resolve, reject) => {
+        //     var JSONObject = {
+        //         "requestType": "getAddress",
+        //         "hdKeypath": hdKeypath, "label": label, "network": network
+        //     };
+        //     let option = {
+        //         url: "http://localhost:21335",
+        //         method: "POST",
+        //         json: true,
+        //         body: JSONObject
+        //     }
+        //     request(option, function (error, response, body) {
+        //         try {
+        //             if (body.statusCode != null) {
+        //                 //Exporting the wallet was denied
+        //                 reject(body.statusCode);
+        //             } else {
+        //                 // Successfully exporting the wallet
+        //                 resolve(body);
+        //             }
+        //         } catch (error) {
+        //             reject('bridge_problem');
+        //         }
+        //     })
+        // })
     }
 
     serialize(transaction, account, symbolOptin) {
@@ -137,37 +175,68 @@ class Ledger {
         });
     }
 
-    signTransaction(account, serializedTx) {
-        return new Promise(async (resolve) => {
-            var JSONObject = {
-                "requestType": "signTransaction",
-                "serializedTx": serializedTx,
-                "hdKeypath": account.hdKeypath
-            };
-            var option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    if (body.statusCode) {
-                        resolve(body)
-                    } else if (body.name == "TransportError") {
-                        this._Alert.ledgerFailedToSignTransaction(body.message);
-                    } else {
+    async signTransaction(account, serializedTx) {
+        try {
+            const transport = await TransportNodeHid.open("");
+            const nemH = new NemH(transport);
+
+
+            return new Promise(async (resolve, reject) => {
+                nemH.signTransaction(hdKeypath, serializedTx)
+                    .then(sig => {
+                        transport.close();
                         let payload = {
                             data: serializedTx,
-                            signature: body
+                            signature: sig.signature
                         }
                         resolve(payload);
-                    }
-                } catch (error) {
-                    resolve(error);
-                }
+
+                    })
+                    .catch(err => {
+                        transport.close();
+                        throw err
+                    })
             })
-        })
+        } catch (err) {
+            if (err.statusCode != null) return Promise.resolve(err.statusCode);
+            else if (err.id != null) return Promise.resolve(err.id);
+            else if (err.name == "TransportError") {
+                this._Alert.ledgerFailedToSignTransaction(err.message);
+                return;
+            }
+            else return Promise.resolve(err);
+        }
+
+        // return new Promise(async (resolve) => {
+        //     var JSONObject = {
+        //         "requestType": "signTransaction",
+        //         "serializedTx": serializedTx,
+        //         "hdKeypath": account.hdKeypath
+        //     };
+        //     var option = {
+        //         url: "http://localhost:21335",
+        //         method: "POST",
+        //         json: true,
+        //         body: JSONObject
+        //     }
+        //     request(option, function (error, response, body) {
+        //         try {
+        //             if (body.statusCode) {
+        //                 resolve(body)
+        //             } else if (body.name == "TransportError") {
+        //                 this._Alert.ledgerFailedToSignTransaction(body.message);
+        //             } else {
+        //                 let payload = {
+        //                     data: serializedTx,
+        //                     signature: body
+        //                 }
+        //                 resolve(payload);
+        //             }
+        //         } catch (error) {
+        //             resolve(error);
+        //         }
+        //     })
+        // })
     }
 }
 
