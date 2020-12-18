@@ -734,10 +734,10 @@ this.TrezorConnect = (function () {
         var opts = {
             id: name,
             innerBounds: {
-                width: 400,
-                height: 400,
-                left: 0,
-                top: 0
+                width,
+                height,
+                left,
+                top
             }
         };
 
@@ -809,10 +809,10 @@ this.TrezorConnect = (function () {
         var left = (screen.width - width) / 2;
         var top = (screen.height - height) / 2;
         var opts =
-            'width=' + 400 +
-            ',height=' + 400 +
-            ',left=' + 0 +
-            ',top=' + 0 +
+            'width=' + width +
+            ',height=' + height +
+            ',left=' + left +
+            ',top=' + top +
             ',menubar=no' +
             ',toolbar=no' +
             ',location=no' +
@@ -903,10 +903,10 @@ this.TrezorConnect = (function () {
         }.bind(this);
 
         if (IS_CHROME_APP) {
-            this.popup = new ChromePopup(p.chromeUrl, p.name, 400, 400);
+            this.popup = new ChromePopup(p.chromeUrl, p.name, p.width, p.height);
             this.channel = new ChromeChannel(this.popup, ready);
         } else {
-            this.popup = new Popup(p.url, p.origin, p.name, 400, 400);
+            this.popup = new Popup(p.url, p.origin, p.name, p.width, p.height);
             this.channel = new Channel(this.popup, ready);
         }
 
