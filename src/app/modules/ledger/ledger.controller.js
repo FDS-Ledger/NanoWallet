@@ -138,14 +138,15 @@ class LedgerCtrl {
                         }
                     })
                     .catch(err => {
+                        console.log('cath', err)
                         transport.close();
-                        throw err
+                        if (err.statusCode != null) resolve(err.statusCode);
+                        else if (err.id != null) resolve(err.id);
+                        else resolve(err);
                     })
             })
         } catch (err) {
-            console.log(err)
-            console.log(err.id)
-
+            console.log('getappversion', err)
             if (err.statusCode != null) return Promise.resolve(err.statusCode);
             else if (err.id != null) return Promise.resolve(err.id);
             else return Promise.resolve(err);
@@ -208,6 +209,7 @@ class LedgerCtrl {
                     this.okPressed = false;
                 });
         } else {
+            console.log('chekappversin', checkVersion)
             this._$timeout(() => {
                 this.alertHandler(checkVersion);
             });

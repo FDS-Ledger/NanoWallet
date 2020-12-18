@@ -104,11 +104,16 @@ class Ledger {
                         );
                     })
                     .catch(err => {
+                        console.log('cath', err)
                         transport.close();
-                        throw err
+                        if (err.statusCode != null) reject(err.statusCode);
+                        else if (err.id != null) resolve(err.id);
+                        else resolve(err);
+
                     })
             })
         } catch (err) {
+            console.log('getacc', err)
             if (err.statusCode != null) return Promise.reject(err.statusCode);
             else if (err.id != null) return Promise.resolve(err.id);
             else return Promise.resolve(err);
@@ -182,7 +187,7 @@ class Ledger {
 
 
             return new Promise(async (resolve, reject) => {
-                nemH.signTransaction(hdKeypath, serializedTx)
+                nemH.signTransaction(account.hdKeypath, serializedTx)
                     .then(sig => {
                         transport.close();
                         let payload = {
@@ -193,11 +198,19 @@ class Ledger {
 
                     })
                     .catch(err => {
+                        console.log('cath', err)
                         transport.close();
-                        throw err
+                        if (err.statusCode != null) resolve(err);
+                        else if (err.id != null) resolve(err.id);
+                        else if (err.name == "TransportError") {
+                            this._Alert.ledgerFailedToSignTransaction(err.message);
+                        }
+                        else resolve(err);
+
                     })
             })
         } catch (err) {
+            console.log('signTransac', err)
             if (err.statusCode != null) return Promise.resolve(err.statusCode);
             else if (err.id != null) return Promise.resolve(err.id);
             else if (err.name == "TransportError") {
