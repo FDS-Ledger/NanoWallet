@@ -5,7 +5,7 @@ const { app, BrowserWindow, shell, globalShortcut, Menu, ipcMain } = require('el
 const electron = require('electron')
 const name = electron.app.getName()
 // Set the path of the folder where the persisted data is stored
-electron.app.setPath('userData', path.join(electron.app.getPath('home'), ''))
+electron.app.setPath('userData', path.join(electron.app.getPath('home'), '.nem-wallet'))
 
 const iconUrlPath =
   process.platform === 'darwin' ? './dist/assets/logo.png' : `file://${__dirname}/../dist/assets/logo.png`
@@ -93,7 +93,7 @@ const template = [
       {
         label: 'Learn More',
         click: function () {
-          electron.shell.openExternal('https://github.com/nemfoundation/symbol-desktop-wallet')
+          electron.shell.openExternal('https://github.com/NemProject/NanoWallet.git')
         },
       },
       {

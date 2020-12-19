@@ -1,5 +1,5 @@
 {
-  "name": "NEM-Wallet",
+  "name": "nem-desktop-wallet",
   "version": "2.4.7",
   "description": "Cross-platform lite wallet for NEM",
   "author": "https://github.com/QuantumMechanics",
@@ -97,7 +97,7 @@
     "copyright": "Copyright © 2019-2020 NEM",
     "productName": "Nem Wallet",
     "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
-    "icon": "./dist/images/NanoWallet.icns",
+    "icon": "./build/images/NanoWallet.icns",
     "files": [
       "build/**/*",
       "package.json",
