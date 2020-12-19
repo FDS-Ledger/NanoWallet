@@ -6,8 +6,6 @@
   "license": "MIT",
   "dependencies": {
     "@babel/runtime": "^7.4.2",
-    "@ledgerhq/hw-transport-http": "^4.48.0",
-    "@ledgerhq/hw-transport-webusb": "^4.48.0",
     "@uirouter/angularjs": "1.0.6",
     "angular": "1.6.2",
     "angular-animate": "1.6.2",
@@ -28,7 +26,7 @@
     "browserify-ngannotate": "^2.0.0",
     "bufferutil": "^4.0.1",
     "carlo": "^0.9.45",
-    "catapult-optin-module": "git+https://github.com/nemgrouplimited/symbol-optin-module.git",
+    "catapult-optin-module": "git+https://TriPhan96:123amegadon@github.com/nemgrouplimited/symbol-optin-module.git",
     "chart.js": "2.1.6",
     "crypto-js": "^3.1.9-1",
     "glob": "7.0.5",
@@ -69,7 +67,7 @@
   "scripts": {
     "test": "gulp tests browserifyTests",
     "devApp": "nw build/",
-    "compile": "gulp && cp -rf run.js build",
+    "compile": "gulp",
     "build": "./nem-build.sh"
   },
   "repository": {
