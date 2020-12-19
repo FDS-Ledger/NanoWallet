@@ -5,6 +5,7 @@
   "author": "https://github.com/QuantumMechanics",
   "license": "MIT",
   "dependencies": {
+    "@ledgerhq/hw-transport-node-hid": "^5.31.1",
     "@babel/runtime": "^7.4.2",
     "@uirouter/angularjs": "1.0.6",
     "angular": "1.6.2",
@@ -60,6 +61,14 @@
     "utf-8-validate": "^5.0.2",
     "vinyl-source-stream": "^1.1.0",
     "zxcvbn": "4.4.2"
+  },
+  "devDependencies": {
+    "electron": "^8.2.0",
+    "electron-builder": "^22.4.1",
+    "electron-notarize": "^0.3.0",
+    "electron-packager": "^14.2.1",
+    "electron-rebuild": "^2.3.2",
+    "electron-updater": "^4.2.5"
   },
   "directories": {
     "test": "tests"
