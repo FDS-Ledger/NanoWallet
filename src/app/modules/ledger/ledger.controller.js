@@ -1,5 +1,7 @@
 import nem from 'nem-sdk';
-var request = require('request');
+const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
+console.log(TransportNodeHid)
+import NemH from "../../modules/ledger/hw-app-nem";
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
     LEDGER_MINOR_VERSION: 0,
@@ -105,41 +107,49 @@ class LedgerCtrl {
     /**
      * Get NEM Ledger app version
      */
-    getAppVersion() {
-        return new Promise(async (resolve) => {
-            var JSONObject = {
-                "requestType": "getAppVersion",
-            };
-            var option = {
-                url: "http://localhost:21335",
-                method: "POST",
-                json: true,
-                body: JSONObject
-            }
-            request(option, function (error, response, body) {
-                try {
-                    let appVersion = body;
-                    if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
-                        if (body.statusCode != null) resolve(body.statusCode);
-                        else resolve(body.id);
-                    } else {
-                        let statusCode;
-                        if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
-                            statusCode = 2;
-                        } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
-                            statusCode = 2;
-                        } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
-                            statusCode = 2;
+    async getAppVersion() {
+        try {
+            const transport = await TransportNodeHid.open("");
+            console.log(transport)
+            const nemH = new NemH(transport);
+            console.log(nemH)
+
+            return new Promise(async (resolve, reject) => {
+                nemH.getAppVersion()
+                    .then(result => {
+                        transport.close();
+                        let appVersion = result;
+                        if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
+                            if (result.statusCode != null) resolve(result.statusCode);
+                            else resolve(result.id);
                         } else {
-                            statusCode = 1;
+                            let statusCode;
+                            if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
+                                statusCode = 2;
+                            } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
+                                statusCode = 2;
+                            } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
+                                statusCode = 2;
+                            } else {
+                                statusCode = 1;
+                            }
+                            resolve(statusCode);
                         }
-                        resolve(statusCode);
-                    }
-                } catch (error) {
-                    resolve('bridge_problem');
-                }
+                    })
+                    .catch(err => {
+                        console.log('cath', err)
+                        transport.close();
+                        if (err.statusCode != null) resolve(err.statusCode);
+                        else if (err.id != null) resolve(err.id);
+                        else resolve(err);
+                    })
             })
-        })
+        } catch (err) {
+            console.log('getappversion', err)
+            if (err.statusCode != null) return Promise.resolve(err.statusCode);
+            else if (err.id != null) return Promise.resolve(err.id);
+            else return Promise.resolve(err);
+        }
     }
 
     /**
@@ -164,6 +174,7 @@ class LedgerCtrl {
                     this.okPressed = false;
                 });
         } else {
+            console.log('chekappversin', checkVersion)
             this._$timeout(() => {
                 this.alertHandler(checkVersion);
             });
