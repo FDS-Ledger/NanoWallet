@@ -77,33 +77,27 @@ class Ledger {
         try {
             const transport = await TransportNodeHid.open("");
             const nemH = new NemH(transport);
-            return new Promise(async (resolve, reject) => {
-                nemH.getAddress(hdKeypath)
-                    .then(result => {
-                        transport.close();
-                        resolve(
-                            {
-                                "brain": false,
-                                "algo": "ledger",
-                                "encrypted": "",
-                                "iv": "",
-                                "address": result.address,
-                                "label": label,
-                                "network": network,
-                                "child": "",
-                                "hdKeypath": hdKeypath,
-                                "publicKey": result.publicKey
-                            }
-                        );
-                    })
-                    .catch(err => {
-                        transport.close();
-                        if (err.statusCode != null) reject(err.statusCode);
-                        else if (err.id != null) resolve(err.id);
-                        else resolve(err);
-
-                    })
-            })
+            try {
+                const result = await nemH.getAddress(hdKeypath)
+                transport.close();
+                return Promise.resolve(
+                    {
+                        "brain": false,
+                        "algo": "ledger",
+                        "encrypted": "",
+                        "iv": "",
+                        "address": result.address,
+                        "label": label,
+                        "network": network,
+                        "child": "",
+                        "hdKeypath": hdKeypath,
+                        "publicKey": result.publicKey
+                    }
+                );
+            } catch (err) {
+                transport.close();
+                throw err
+            }
         } catch (err) {
             if (err.statusCode != null) return Promise.reject(err.statusCode);
             else if (err.id != null) return Promise.resolve(err.id);
@@ -150,30 +144,21 @@ class Ledger {
         try {
             const transport = await TransportNodeHid.open("");
             const nemH = new NemH(transport);
-            return new Promise(async (resolve, reject) => {
-                nemH.signTransaction(account.hdKeypath, serializedTx)
-                    .then(sig => {
-                        transport.close();
-                        let payload = {
-                            data: serializedTx,
-                            signature: sig.signature
-                        }
-                        resolve(payload);
-
-                    })
-                    .catch(err => {
-                        transport.close();
-                        if (err.statusCode != null) resolve(err);
-                        else if (err.id != null) resolve(err.id);
-                        else if (err.name == "TransportError") {
-                            this._Alert.ledgerFailedToSignTransaction(err.message);
-                        }
-                        else resolve(err);
-
-                    })
-            })
+            try {
+                const sig = await nemH.signTransaction(account.hdKeypath, serializedTx)
+                transport.close();
+                let payload = {
+                    data: serializedTx,
+                    signature: sig.signature
+                }
+                return Promise.resolve(payload);
+            }
+            catch (err) {
+                transport.close();
+                throw err
+            }
         } catch (err) {
-            if (err.statusCode != null) return Promise.resolve(err.statusCode);
+            if (err.statusCode != null) return Promise.resolve(err);
             else if (err.id != null) return Promise.resolve(err.id);
             else if (err.name == "TransportError") {
                 this._Alert.ledgerFailedToSignTransaction(err.message);
