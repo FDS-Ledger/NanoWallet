@@ -1,8 +1,8 @@
 {
-  "name": "nem-desktop-wallet",
+  "name": "NEM-wallet",
   "version": "2.4.7",
   "description": "Cross-platform lite wallet for NEM",
-  "author": "https://github.com/QuantumMechanics <greg.saive@nem.software>",
+  "author": "https://github.com/QuantumMechanics <quantum@mail.com>",
   "license": "MIT",
   "dependencies": {
     "@ledgerhq/hw-transport-node-hid": "^5.31.1"

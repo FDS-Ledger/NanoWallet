@@ -8,7 +8,7 @@ const name = electron.app.getName()
 electron.app.setPath('userData', path.join(electron.app.getPath('home'), '.nem-wallet'))
 
 const iconUrlPath =
-  process.platform === 'darwin' ? './dist/assets/logo.png' : `file://${__dirname}/../dist/assets/logo.png`
+  process.platform === 'darwin' ? './build/images/logomark.ico' : `file://${__dirname}/build/images/logomark.ico`
 const loadUrlPath = process.platform === 'darwin' ? './build/start.html' : `file://${__dirname}/build/start.html`
 
 let mainWindow = null
