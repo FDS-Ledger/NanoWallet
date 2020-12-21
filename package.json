@@ -74,7 +74,6 @@
     "test": "gulp tests browserifyTests",
     "devApp": "nw build/",
     "compile": "gulp",
-    "build": "./nem-build.sh",
     "start": "electron .",
     "release": "npm run build && npm run release:all",
     "release:all": "npm run release:mac && npm run release:win",
