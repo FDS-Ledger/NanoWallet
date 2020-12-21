@@ -110,35 +110,30 @@ class LedgerCtrl {
         try {
             const transport = await TransportNodeHid.open("");
             const nemH = new NemH(transport);
-            return new Promise(async (resolve, reject) => {
-                nemH.getAppVersion()
-                    .then(result => {
-                        transport.close();
-                        let appVersion = result;
-                        if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
-                            if (result.statusCode != null) resolve(result.statusCode);
-                            else resolve(result.id);
-                        } else {
-                            let statusCode;
-                            if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
-                                statusCode = 2;
-                            } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
-                                statusCode = 2;
-                            } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
-                                statusCode = 2;
-                            } else {
-                                statusCode = 1;
-                            }
-                            resolve(statusCode);
-                        }
-                    })
-                    .catch(err => {
-                        transport.close();
-                        if (err.statusCode != null) resolve(err.statusCode);
-                        else if (err.id != null) resolve(err.id);
-                        else resolve(err);
-                    })
-            })
+            try {
+                const result = await nemH.getAppVersion();
+                transport.close();
+                let appVersion = result;
+                if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
+                    if (result.statusCode != null) return Promise.resolve(result.statusCode);
+                    else return Promise.resolve(result.id);
+                } else {
+                    let statusCode;
+                    if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
+                        statusCode = 2;
+                    } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
+                        statusCode = 2;
+                    } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
+                        statusCode = 2;
+                    } else {
+                        statusCode = 1;
+                    }
+                    return Promise.resolve(statusCode);
+                }
+            } catch (err) {
+                transport.close();
+                throw err
+            }
         } catch (err) {
             if (err.statusCode != null) return Promise.resolve(err.statusCode);
             else if (err.id != null) return Promise.resolve(err.id);
