@@ -116,6 +116,20 @@ class Ledger {
 
             //Serialize the transaction
             let serializedTx = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction));
+            // If it is a Multisig Signature Transaction, then add more transaction payload to the serialized transaction
+            if (transaction.type == 0x1002) {
+                if (transaction.otherTrans.type == 0x4001 && transaction.otherTrans.mosaicDefinition.levy != null && transaction.otherTrans.mosaicDefinition.levy.type == undefined) {
+                    transaction.otherTrans.mosaicDefinition.levy = null;
+                }
+                let otherTrans = nem.utils.convert.ua2hex(nem.utils.serialization.serializeTransaction(transaction.otherTrans));
+                // If the inner transaction is transfer and the there is no message field in it
+                if (transaction.otherTrans.type == 0x0101 && transaction.otherTrans.message.type == undefined) {
+                    otherTrans += "00000000"
+                }
+                let otherTransLength = ("00000000" + (otherTrans.length/2).toString(16)).substr(-8);
+                let otherTransLengthReverse = otherTransLength.match(/[a-fA-F0-9]{2}/g).reverse().join('');
+                serializedTx = serializedTx + otherTransLengthReverse + otherTrans;
+            }
             let payload = await this.signTransaction(account, serializedTx);
             if (payload.signature) {
                 resolve(payload);
