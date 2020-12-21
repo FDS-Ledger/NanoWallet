@@ -1,6 +1,5 @@
 import nem from 'nem-sdk';
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
-console.log(TransportNodeHid)
 import NemH from "../../modules/ledger/hw-app-nem";
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
@@ -110,10 +109,7 @@ class LedgerCtrl {
     async getAppVersion() {
         try {
             const transport = await TransportNodeHid.open("");
-            console.log(transport)
             const nemH = new NemH(transport);
-            console.log(nemH)
-
             return new Promise(async (resolve, reject) => {
                 nemH.getAppVersion()
                     .then(result => {
@@ -137,7 +133,6 @@ class LedgerCtrl {
                         }
                     })
                     .catch(err => {
-                        console.log('cath', err)
                         transport.close();
                         if (err.statusCode != null) resolve(err.statusCode);
                         else if (err.id != null) resolve(err.id);
@@ -145,7 +140,6 @@ class LedgerCtrl {
                     })
             })
         } catch (err) {
-            console.log('getappversion', err)
             if (err.statusCode != null) return Promise.resolve(err.statusCode);
             else if (err.id != null) return Promise.resolve(err.id);
             else return Promise.resolve(err);
@@ -174,7 +168,6 @@ class LedgerCtrl {
                     this.okPressed = false;
                 });
         } else {
-            console.log('chekappversin', checkVersion)
             this._$timeout(() => {
                 this.alertHandler(checkVersion);
             });

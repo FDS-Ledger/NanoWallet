@@ -1,6 +1,5 @@
 import nem from "nem-sdk";
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
-console.log(TransportNodeHid)
 import NemH from "./hw-app-nem";
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
@@ -76,12 +75,8 @@ class Ledger {
 
     async getAccount(hdKeypath, network, label) {
         try {
-
             const transport = await TransportNodeHid.open("");
-
             const nemH = new NemH(transport);
-
-
             return new Promise(async (resolve, reject) => {
                 nemH.getAddress(hdKeypath)
                     .then(result => {
@@ -102,7 +97,6 @@ class Ledger {
                         );
                     })
                     .catch(err => {
-                        console.log('cath', err)
                         transport.close();
                         if (err.statusCode != null) reject(err.statusCode);
                         else if (err.id != null) resolve(err.id);
@@ -111,7 +105,6 @@ class Ledger {
                     })
             })
         } catch (err) {
-            console.log('getacc', err)
             if (err.statusCode != null) return Promise.reject(err.statusCode);
             else if (err.id != null) return Promise.resolve(err.id);
             else return Promise.resolve(err);
@@ -157,8 +150,6 @@ class Ledger {
         try {
             const transport = await TransportNodeHid.open("");
             const nemH = new NemH(transport);
-
-
             return new Promise(async (resolve, reject) => {
                 nemH.signTransaction(account.hdKeypath, serializedTx)
                     .then(sig => {
@@ -171,7 +162,6 @@ class Ledger {
 
                     })
                     .catch(err => {
-                        console.log('cath', err)
                         transport.close();
                         if (err.statusCode != null) resolve(err);
                         else if (err.id != null) resolve(err.id);
@@ -183,7 +173,6 @@ class Ledger {
                     })
             })
         } catch (err) {
-            console.log('signTransac', err)
             if (err.statusCode != null) return Promise.resolve(err.statusCode);
             else if (err.id != null) return Promise.resolve(err.id);
             else if (err.name == "TransportError") {
