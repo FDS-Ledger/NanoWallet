@@ -262,7 +262,7 @@ function initialize() {
     const height = parseInt(width / (1920 / 1080))
 
     const windowOptions = {
-  
+
       width: width,
       height: height,
       title: app.getName(),
@@ -312,7 +312,7 @@ function initialize() {
   //     event.preventDefault()
   //     shell.openExternal(url)
   //   })
-    
+
   // })
 }
 
