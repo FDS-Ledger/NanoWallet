@@ -1,6 +1,6 @@
 {
-  "name": "NEM-wallet",
-  "version": "2.4.7",
+  "name": "NanoWallet",
+  "version": "2.4.7-optin",
   "description": "Cross-platform lite wallet for NEM",
   "author": "https://github.com/QuantumMechanics <quantum@mail.com>",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "browserify-ngannotate": "^2.0.0",
     "bufferutil": "^4.0.1",
     "carlo": "^0.9.45",
-    "catapult-optin-module": "git+https://TriPhan96:123amegadon@github.com/nemgrouplimited/symbol-optin-module.git",
+    "catapult-optin-module": "git+https://github.com/nemgrouplimited/symbol-optin-module.git",
     "chart.js": "2.1.6",
     "crypto-js": "^3.1.9-1",
     "glob": "7.0.5",
@@ -75,6 +75,7 @@
     "devApp": "nw build/",
     "compile": "gulp",
     "start": "electron .",
+    "build": "npm run compile && npm run electron:rebuild",
     "release": "npm run build && npm run release:all",
     "release:all": "npm run release:mac && npm run release:win",
     "release:mac": "electron-builder --mac",
@@ -107,7 +108,7 @@
   "mac": {
     "category": "public.app-category.finance",
     "target": "tar.gz",
-    "icon": "./images/NanoWallet.icns",
+    "icon": "./images/NanoWallet.png",
     "hardenedRuntime": true,
     "gatekeeperAssess": false,
     "asarUnpack": [
