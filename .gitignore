@@ -54,5 +54,5 @@ jspm_packages
 # PhpStorm configuration
 .idea
 
-# package-lock.json
-package-lock.json
+# Electron app release
+release
