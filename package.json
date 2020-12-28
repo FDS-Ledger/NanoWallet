@@ -131,7 +131,7 @@
     "oneClick": false,
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
-    "installerIcon": "./images/NanoWallet.icns"
+    "installerIcon": "./images/logomark.ico"
   },
   "linux": {
     "category": "Finance",
