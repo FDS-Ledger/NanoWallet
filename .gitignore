@@ -56,3 +56,6 @@ jspm_packages
 
 # Electron app release
 release
+
+#.DS_Store
+.DS_Store
