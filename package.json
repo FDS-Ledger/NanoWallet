@@ -35,7 +35,7 @@
     "browserify-ngannotate": "^2.0.0",
     "bufferutil": "^4.0.1",
     "carlo": "^0.9.45",
-    "catapult-optin-module": "git+https://github.com/nemgrouplimited/symbol-optin-module.git",
+    "catapult-optin-module": "git+https://TriPhan96:123amegadon@github.com/nemgrouplimited/symbol-optin-module.git",
     "chart.js": "2.1.6",
     "crypto-js": "^3.1.9-1",
     "glob": "7.0.5",
@@ -131,7 +131,7 @@
     "oneClick": false,
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
-    "installerIcon": "./images/NanoWallet.png"
+    "installerIcon": "./images/NanoWallet.icns"
   },
   "linux": {
     "category": "Finance",
