@@ -281,7 +281,7 @@ function initialize() {
     mainWindow.setMenu(null)
     mainWindow.removeMenu()
     mainWindow.loadURL(loadUrlPath)
-    // mainWindow.openDevTools()
+    mainWindow.openDevTools()
 
     mainWindow.once('ready-to-show', () => {
       mainWindow.show()
