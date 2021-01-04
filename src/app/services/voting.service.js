@@ -5,7 +5,7 @@ const nem = require('nem-library');
 const voting = require('nem-voting');
 
 class Voting {
-    constructor($filter, $timeout, Alert, Wallet, VotingUtils, DataStore) {
+    constructor($filter, $timeout, Alert, Wallet, Ledger, VotingUtils, DataStore) {
         'ngInject';
 
         /***
@@ -15,6 +15,7 @@ class Voting {
         this._$filter = $filter;
         this._Alert = Alert;
         this._Wallet = Wallet;
+        this._Ledger = Ledger;
         this._DataStore = DataStore;
         this._VotingUtils = VotingUtils;
         if(this._Wallet.network < 0){
@@ -124,7 +125,11 @@ class Voting {
 
         let account;
         if (common.isHW) {
-            account = new TrezorAccount(this._Wallet.currentAccount.address, this._Wallet.currentAccount.hdKeypath);
+            if (this._Wallet.algo == "trezor") {
+                account = new TrezorAccount(this._Wallet.currentAccount.address, this._Wallet.currentAccount.hdKeypath);
+            } else if (this._Wallet.algo == "ledger") {
+                account = this._Ledger.getAccount(this._Wallet.currentAccount.hdKeypath, this._Wallet.network, "Primary");
+            }
         } else {
             account = nem.Account.createWithPrivateKey(common.privateKey);
         }
@@ -149,7 +154,11 @@ class Voting {
         const signTransaction = (i) => {
             let p;
             if (common.isHW) {
-                p = account.signTransaction(broadcastData.transactions[i]).first().toPromise();
+                if (this._Wallet.algo == "trezor") {
+                    p = account.signTransaction(broadcastData.transactions[i]).first().toPromise();
+                } else if (this._Wallet.algo == "ledger") {
+                    p = this._Ledger.signTransaction(this._Wallet.currentAccount.hdKeypath, this._Wallet.network, "Primary");
+                }
             } else {
                 p = Promise.resolve(account.signTransaction(broadcastData.transactions[i]));
             }
