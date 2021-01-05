@@ -357,13 +357,11 @@ class Wallet {
         let algo = _account.algo || this.algo;
         let network = _account.network || this.network;
         return this._deriveRemote(common, _account, algo, network).then((data) => {
-            console.log('inthen')
             // Add generated child to account
             _account.child = data.publicKey;
             return Promise.resolve(data);
         },
         (err) => {
-            console.log('incatch')
             this._Alert.bip32GenerationFailed(err);
             return Promise.reject(true);
         });
