@@ -157,7 +157,7 @@ class Voting {
                 } else if (this._Wallet.algo == "ledger") {
                     console.log('signTransaction-ledger', broadcastData.transactions[i])
                     // implenmet for rerurn true paartern 
-                    p = this._Ledger.serialize(broadcastData.transactions[i], this._Wallet.currentAccount);
+                    p = this._Ledger.serialize(broadcastData.transactions[i].toDTO(), this._Wallet.currentAccount);
                 }
             } else {
                 p = Promise.resolve(account.signTransaction(broadcastData.transactions[i]));
@@ -339,7 +339,7 @@ class Voting {
                 signedTransactionsPromise = account.signSerialTransactions(votes).first().toPromise();
             } else if (this._Wallet.algo == "ledger") {
                 signedTransactionsPromise = votes.map(v => {
-                    return this._Ledger.serialize(v, this._Wallet.currentAccount);
+                    return this._Ledger.serialize(v.toDTO(), this._Wallet.currentAccount);
                 });
             }
         } else {
