@@ -61,6 +61,7 @@ class Ledger {
     }
 
     showAccount(account) {
+        alert("Please check your Ledger device!");
         this._Alert.ledgerFollowInstruction();
         return new Promise((resolve, reject) => {
             this.getAccount(account.hdKeypath, account.network, (result) => {
@@ -130,6 +131,7 @@ class Ledger {
     }
 
     deriveRemote(account, network) {
+        alert("Please check your Ledger device!");
         this._$timeout(() => {
             this._Alert.ledgerFollowInstruction();
         });
@@ -169,6 +171,7 @@ class Ledger {
     }
 
     serialize(transaction, account, symbolOptin) {
+        alert("Please check your Ledger device!");
         this._$timeout(() => {
             this._Alert.ledgerFollowInstruction();
         });
