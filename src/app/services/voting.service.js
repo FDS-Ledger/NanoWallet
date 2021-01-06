@@ -338,9 +338,12 @@ class Voting {
             if (this._Wallet.algo == "trezor") {
                 signedTransactionsPromise = account.signSerialTransactions(votes).first().toPromise();
             } else if (this._Wallet.algo == "ledger") {
-                signedTransactionsPromise = votes.map(v => {
-                    return this._Ledger.serialize(v.toDTO(), this._Wallet.currentAccount);
-                });
+                signedTxs = []
+                for (const v of votes) {
+                    const signedTx = await this._Ledger.serialize(v.toDTO(), this._Wallet.currentAccount)
+                    signedTxs.push(signedTx)
+                }
+                signedTransactionsPromise = Promise.resolve(signedTxs);
             }
         } else {
             const signed = votes.map(v => {
