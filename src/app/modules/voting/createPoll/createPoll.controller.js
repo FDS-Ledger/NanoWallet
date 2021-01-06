@@ -17,11 +17,11 @@ class createPollCtrl {
         this.MOCK_ADDRESS = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
         // Default poll Index
-        if(this._Wallet.network < 0){
+        if (this._Wallet.network < 0) {
             this.pollIndexAccount = "TAVGTNCVGALLUPZC4JTLKR2WX25RQM2QOK5BHBKC";
             //this.pollIndexAccount = "TAZ73M4C3QDJRC6NFLQP3HAVW4FHYRWJOE7RASVZ";
         }
-        else{
+        else {
             this.pollIndexAccount = "NAZN26HYB7C5HVYVJ4SL3KBTDT773NZBAOMGRFZB";
         }
         this.creatorAddress = this._Wallet.currentAccount.address;
@@ -157,7 +157,7 @@ class createPollCtrl {
         if (this.formData.doe <= Date.now()) {
             this.issues.pastDate = true;
             invalid = true;
-        } else{
+        } else {
             this.issues.pastDate = false;
         }
 
@@ -172,7 +172,7 @@ class createPollCtrl {
         } else {
             this.issues.invalidAddresses = [];
         }
-        if (this.issues.invalidAddresses.some(a => a) || this.issues.blankOptions.some(a => a)){
+        if (this.issues.invalidAddresses.some(a => a) || this.issues.blankOptions.some(a => a)) {
             invalid = true;
         }
         if (this.common.password === "" && this._Wallet.algo !== 'trezor' && this._Wallet.algo !== 'ledger') {
@@ -211,7 +211,7 @@ class createPollCtrl {
         this.formDataMessage = "formData:" + JSON.stringify(formDataClone);
         this.descriptionMessage = "description:" + this.description;
         let linkMock = {};
-        for(var i = 0; i < this.options.length; i++){
+        for (var i = 0; i < this.options.length; i++) {
             linkMock[this.options[i]] = this.MOCK_ADDRESS;
         }
         let optionsObj = {
@@ -258,7 +258,7 @@ class createPollCtrl {
     }
 
     // clears all form fields
-    clearForm(){
+    clearForm() {
         // Data of the poll to be sent
         this.formData = {};
         this.formData.title = '';
@@ -339,14 +339,16 @@ class createPollCtrl {
         const indexAddress = (this.private) ? this.creatorAddress : this.pollIndexAccount;
 
         console.log("index address: ", indexAddress);
-
+        console.log('createPoll', { details, indexAddress, 'common': this.common })
         this._Voting.createPoll(details, indexAddress, this.common).then(d => {
+            console.log('inthen')
             this._$timeout(() => {
                 this.creating = false;
                 this._Alert.pollCreationSuccess();
                 this.clearForm();
             });
         }).catch(err => {
+            console.log('incatch', err)
             this._$timeout(() => {
                 this.creating = false;
                 if (err.message) {

@@ -1,5 +1,5 @@
-import {Observable} from 'rxjs';
-import {TrezorAccount} from 'nem-trezor';
+import { Observable } from 'rxjs';
+import { TrezorAccount } from 'nem-trezor';
 import nemsdk from 'nem-sdk';
 const nem = require('nem-library');
 const voting = require('nem-voting');
@@ -18,10 +18,10 @@ class Voting {
         this._Ledger = Ledger;
         this._DataStore = DataStore;
         this._VotingUtils = VotingUtils;
-        if(this._Wallet.network < 0){
+        if (this._Wallet.network < 0) {
             nem.NEMLibrary.bootstrap(nem.NetworkTypes.TEST_NET);
         }
-        else{
+        else {
             nem.NEMLibrary.bootstrap(nem.NetworkTypes.MAIN_NET);
         }
     }
@@ -31,14 +31,14 @@ class Voting {
     init() {
         if ((this._Wallet.network < 0 && nem.NEMLibrary.getNetworkType() !== nem.NetworkTypes.TEST_NET) ||
             (this._Wallet.network > 0 && nem.NEMLibrary.getNetworkType() !== nem.NetworkTypes.MAIN_NET)) {
-                nem.NEMLibrary.reset();
-                if(this._Wallet.network < 0){
-                    nem.NEMLibrary.bootstrap(nem.NetworkTypes.TEST_NET);
-                }
-                else{
-                    nem.NEMLibrary.bootstrap(nem.NetworkTypes.MAIN_NET);
-                }
+            nem.NEMLibrary.reset();
+            if (this._Wallet.network < 0) {
+                nem.NEMLibrary.bootstrap(nem.NetworkTypes.TEST_NET);
             }
+            else {
+                nem.NEMLibrary.bootstrap(nem.NetworkTypes.MAIN_NET);
+            }
+        }
     }
 
     /**
@@ -125,22 +125,20 @@ class Voting {
 
         let account;
         if (common.isHW) {
-            if (this._Wallet.algo == "trezor") {
-                account = new TrezorAccount(this._Wallet.currentAccount.address, this._Wallet.currentAccount.hdKeypath);
-            } else if (this._Wallet.algo == "ledger") {
-                account = this._Ledger.getAccount(this._Wallet.currentAccount.hdKeypath, this._Wallet.network, "Primary");
-            }
+            account = new TrezorAccount(this._Wallet.currentAccount.address, this._Wallet.currentAccount.hdKeypath);
         } else {
             account = nem.Account.createWithPrivateKey(common.privateKey);
         }
-
+        console.log('account', account)
         const index = new voting.PollIndex(new nem.Address(pollIndex), false, []);
+        console.log('account.publicKey', account.publicKey)
 
         const broadcastData = poll.broadcast(account.publicKey, index);
         broadcastData.transactions = broadcastData.transactions.map((t) => {
             t.timeWindow = nem.TimeWindow.createFromDTOInfo(timeStamp, deadline);
             return t;
         });
+        console.log('broadcastData', broadcastData)
         const nodeSplit = this._Wallet.node.host.split("://");
         const node = {
             protocol: nodeSplit[0],
@@ -157,11 +155,14 @@ class Voting {
                 if (this._Wallet.algo == "trezor") {
                     p = account.signTransaction(broadcastData.transactions[i]).first().toPromise();
                 } else if (this._Wallet.algo == "ledger") {
-                    p = this._Ledger.signTransaction(this._Wallet.currentAccount.hdKeypath, this._Wallet.network, "Primary");
+                    console.log('signTransaction-ledger', broadcastData.transactions[i])
+                    // implenmet for rerurn true paartern 
+                    p = this._Ledger.serialize(broadcastData.transactions[i], this._Wallet.currentAccount);
                 }
             } else {
                 p = Promise.resolve(account.signTransaction(broadcastData.transactions[i]));
             }
+            // recur
             return p.then((signed) => {
                 if (broadcastData.transactions.length - 1 === i) {
                     return [signed];
@@ -277,12 +278,12 @@ class Voting {
     hasVoted(address, pollDetails) {
         this.init();
         var orderedAddresses = [];
-        if(pollDetails.options.link){
-            orderedAddresses = pollDetails.options.strings.map((option)=>{
+        if (pollDetails.options.link) {
+            orderedAddresses = pollDetails.options.strings.map((option) => {
                 return pollDetails.options.link[option];
             });
         }
-        else{
+        else {
             orderedAddresses = pollDetails.options.addresses;
         }
         var confirmedPromises = orderedAddresses.map((optionAddress) => {
