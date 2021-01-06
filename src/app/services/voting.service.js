@@ -156,7 +156,6 @@ class Voting {
                     p = account.signTransaction(broadcastData.transactions[i]).first().toPromise();
                 } else if (this._Wallet.algo == "ledger") {
                     console.log('signTransaction-ledger', broadcastData.transactions[i])
-                    // implenmet for rerurn true paartern 
                     p = this._Ledger.serialize(broadcastData.transactions[i].toDTO(), this._Wallet.currentAccount);
                 }
             } else {
@@ -338,12 +337,22 @@ class Voting {
             if (this._Wallet.algo == "trezor") {
                 signedTransactionsPromise = account.signSerialTransactions(votes).first().toPromise();
             } else if (this._Wallet.algo == "ledger") {
-                signedTxs = []
-                for (const v of votes) {
-                    const signedTx = await this._Ledger.serialize(v.toDTO(), this._Wallet.currentAccount)
-                    signedTxs.push(signedTx)
+                const signTransaction = (i) => {
+                    console.log('signTransaction-ledger', votes[i])
+                    const p = this._Ledger.serialize(votes[i].toDTO(), this._Wallet.currentAccount);
+                    // recur
+                    return p.then((signed) => {
+                        if (votes.length - 1 === i) {
+                            return [signed];
+                        }
+                        return signTransaction(i + 1).then((next) => {
+                            return [signed].concat(next);
+                        });
+                    }).catch(err => {
+                        throw err;
+                    });
                 }
-                signedTransactionsPromise = Promise.resolve(signedTxs);
+                signedTransactionsPromise = signTransaction(0);
             }
         } else {
             const signed = votes.map(v => {
