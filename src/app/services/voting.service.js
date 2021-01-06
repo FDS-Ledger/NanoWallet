@@ -335,7 +335,13 @@ class Voting {
         // sign
         let signedTransactionsPromise;
         if (common.isHW) {
-            signedTransactionsPromise = account.signSerialTransactions(votes).first().toPromise();
+            if (this._Wallet.algo == "trezor") {
+                signedTransactionsPromise = account.signSerialTransactions(votes).first().toPromise();
+            } else if (this._Wallet.algo == "ledger") {
+                signedTransactionsPromise = votes.map(v => {
+                    return this._Ledger.serialize(v, this._Wallet.currentAccount);
+                });
+            }
         } else {
             const signed = votes.map(v => {
                 return account.signTransaction(v);
