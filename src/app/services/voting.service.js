@@ -129,23 +129,19 @@ class Voting {
         } else {
             account = nem.Account.createWithPrivateKey(common.privateKey);
         }
-        console.log('account', account)
         const index = new voting.PollIndex(new nem.Address(pollIndex), false, []);
-        console.log('account.publicKey', account.publicKey)
 
         const broadcastData = poll.broadcast(account.publicKey, index);
         broadcastData.transactions = broadcastData.transactions.map((t) => {
             t.timeWindow = nem.TimeWindow.createFromDTOInfo(timeStamp, deadline);
             return t;
         });
-        console.log('broadcastData', broadcastData)
         const nodeSplit = this._Wallet.node.host.split("://");
         const node = {
             protocol: nodeSplit[0],
             domain: nodeSplit[1],
             port: this._Wallet.node.port,
         }
-        console.log("node", node);
         const transactionHttp = new nem.TransactionHttp([
             node,
         ]);
@@ -155,8 +151,11 @@ class Voting {
                 if (this._Wallet.algo == "trezor") {
                     p = account.signTransaction(broadcastData.transactions[i]).first().toPromise();
                 } else if (this._Wallet.algo == "ledger") {
-                    console.log('signTransaction-ledger', broadcastData.transactions[i])
-                    p = this._Ledger.serialize(broadcastData.transactions[i].toDTO(), this._Wallet.currentAccount);
+                    const transaction = broadcastData.transactions[i];
+                    transaction.signer = nem.PublicAccount.createWithPublicKey("462ee976890916e54fa825d26bdd0235f5eb5b6a143c199ab0ae5ee9328e08ce");
+                    transaction.setNetworkType(nem.NEMLibrary.getNetworkType());
+                    const dto = transaction.toDTO();
+                    p = this._Ledger.serialize(dto, this._Wallet.currentAccount);
                 }
             } else {
                 p = Promise.resolve(account.signTransaction(broadcastData.transactions[i]));
@@ -338,8 +337,11 @@ class Voting {
                 signedTransactionsPromise = account.signSerialTransactions(votes).first().toPromise();
             } else if (this._Wallet.algo == "ledger") {
                 const signTransaction = (i) => {
-                    console.log('signTransaction-ledger', votes[i])
-                    const p = this._Ledger.serialize(votes[i].toDTO(), this._Wallet.currentAccount);
+                    const transaction = votes[i];
+                    transaction.signer = nem.PublicAccount.createWithPublicKey("462ee976890916e54fa825d26bdd0235f5eb5b6a143c199ab0ae5ee9328e08ce");
+                    transaction.setNetworkType(nem.NEMLibrary.getNetworkType());
+                    const dto = transaction.toDTO();
+                    const p = this._Ledger.serialize(dto, this._Wallet.currentAccount);
                     // recur
                     return p.then((signed) => {
                         if (votes.length - 1 === i) {
