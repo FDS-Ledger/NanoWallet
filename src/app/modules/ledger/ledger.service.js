@@ -60,6 +60,37 @@ class Ledger {
         return this.getAccount(hdKeypath, network, label);
     }
 
+    addAccount(network, index, label) {
+        const hdKeypath = this.bip44(network, index);
+        alert("Please check your Ledger device!");
+        this._$timeout(() => {
+            this._Alert.ledgerFollowInstruction();
+        });
+        return new Promise((resolve, reject) => {
+            this.getAccount(hdKeypath, network, label).then((result) => {
+                resolve(result)
+            }).catch((errorCode) => {
+                switch (errorCode) {
+                    case 26628:
+                        this._Alert.ledgerDeviceLocked();
+                        break;
+                    case 27904:
+                        this._Alert.ledgerNotOpenApp();
+                        break;
+                    case 27264:
+                        this._Alert.ledgerNotUsingNemApp();
+                        break;
+                    case 27013:
+                        this._Alert.ledgerRequestCancelByUser();
+                        break;
+                    default:
+                        this._Alert.transactionError(errorCode);
+                }
+                reject(true);
+            })
+        });
+    }
+
     showAccount(account) {
         alert("Please check your Ledger device!");
         this._Alert.ledgerFollowInstruction();
@@ -141,7 +172,6 @@ class Ledger {
                 const keyPair = nem.crypto.keyPair.create(privateKey);
                 const publicKey = keyPair.publicKey.toString();
                 const address = nem.model.address.toAddress(publicKey, network);
-
                 resolve({
                     address,
                     privateKey,
@@ -159,11 +189,10 @@ class Ledger {
                         this._Alert.ledgerNotUsingNemApp();
                         break;
                     case 27013:
-                        this._Alert.ledgerLoginCancelByUser();
+                        this._Alert.ledgerRequestCancelByUser();
                         break;
                     default:
                         this._Alert.transactionError(errorCode);
-
                 }
             })
         });

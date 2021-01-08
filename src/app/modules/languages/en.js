@@ -801,6 +801,7 @@ function EnglishProvider($translateProvider) {
         NANO_LEDGER_NOT_OPENED_APP: 'Please open NEM BOLOS app on your Ledger device',
         NANO_LEDGER_DEVICE_LOCKED: 'Please unlock your Ledger device',
         NANO_LEDGER_USER_REJECT_LOGIN: 'Login cancelled by user',
+        NANO_LEDGER_USER_REJECT_REQUEST: 'Request cancelled by user',
         NANO_LEDGER_FOLLOW_INSTRUCTION: 'Follow instructions on your Ledger device',
         NANO_LEDGER_TRANSACTION_TOO_BIG: 'The transaction is too big to sign on your Ledger device',
         NANO_LEDGER_TRANSACTION_USER_CANCEL: 'Signing cancelled by user',

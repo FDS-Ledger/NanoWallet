@@ -609,6 +609,13 @@ export default class Alert {
         });
     }
 
+    ledgerRequestCancelByUser() {
+        this._ngToast.create({
+            content: this._$filter('translate')('NANO_LEDGER_USER_REJECT_REQUEST'),
+            className: 'danger'
+        });
+    }
+
     ledgerFollowInstruction() {
         this._ngToast.create({
             content: this._$filter('translate')('NANO_LEDGER_FOLLOW_INSTRUCTION'),

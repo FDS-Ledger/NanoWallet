@@ -476,7 +476,9 @@ class Wallet {
             return Promise.resolve(true);
         },
         (err) => {
-            this._Alert.bip32GenerationFailed(err);
+            if (!(common.isHW && this.algo == "ledger")) {
+                this._Alert.bip32GenerationFailed(err);
+            }
             return Promise.reject(true);
         });
     }
