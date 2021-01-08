@@ -428,7 +428,7 @@ class Wallet {
             if (primary.algo == "trezor") {
                 return this._Trezor.createAccount(primary.network, newAccountIndex, label);
             } else if (primary.algo == "ledger") {
-                return this._Ledger.createAccount(primary.network, newAccountIndex, label);
+                return this._Ledger.addAccount(primary.network, newAccountIndex, label);
             } else {
                 return Promise.reject(true);
             }
