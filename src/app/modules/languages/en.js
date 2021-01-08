@@ -552,6 +552,7 @@ function EnglishProvider($translateProvider) {
         ALERT_SUPERNODES_ERROR: 'Error occured at fetching supernodes data!',
         ALERT_INVALID_NTY_FILE: 'Provided file is not an nty file!',
         ALERT_CREATE_WALLET_FAILED: 'Failed to create wallet, reason: ',
+        ALERT_REQUEST_FAILED: 'Request failed, reason: ',
         ALERT_DERIVATION_FROM_SEED_FAILED: 'Failed to derive account from seed, reason: ',
         ALERT_BIP32_GENERATION_FAILED: 'Failed to generate bip 32 data, reason: ',
         ALERT_NO_WALLET_DATA: 'Error, empty wallet data!',

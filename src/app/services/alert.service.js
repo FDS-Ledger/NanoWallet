@@ -199,6 +199,13 @@ export default class Alert {
             className: 'danger'
         });
     }
+    
+    requestFailed(err) {
+        this._ngToast.create({
+            content: this._$filter('translate')('ALERT_REQUEST_FAILED') + err,
+            className: 'danger'
+        });
+    }
 
     derivationFromSeedFailed(err) {
         this._ngToast.create({
