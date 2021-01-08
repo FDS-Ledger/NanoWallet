@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
-import { TrezorAccount } from 'nem-trezor';
+import {Observable} from 'rxjs';
+import {TrezorAccount} from 'nem-trezor';
 import nemsdk from 'nem-sdk';
 const nem = require('nem-library');
 const voting = require('nem-voting');
@@ -18,10 +18,10 @@ class Voting {
         this._Ledger = Ledger;
         this._DataStore = DataStore;
         this._VotingUtils = VotingUtils;
-        if (this._Wallet.network < 0) {
+        if(this._Wallet.network < 0){
             nem.NEMLibrary.bootstrap(nem.NetworkTypes.TEST_NET);
         }
-        else {
+        else{
             nem.NEMLibrary.bootstrap(nem.NetworkTypes.MAIN_NET);
         }
     }
@@ -31,14 +31,14 @@ class Voting {
     init() {
         if ((this._Wallet.network < 0 && nem.NEMLibrary.getNetworkType() !== nem.NetworkTypes.TEST_NET) ||
             (this._Wallet.network > 0 && nem.NEMLibrary.getNetworkType() !== nem.NetworkTypes.MAIN_NET)) {
-            nem.NEMLibrary.reset();
-            if (this._Wallet.network < 0) {
-                nem.NEMLibrary.bootstrap(nem.NetworkTypes.TEST_NET);
+                nem.NEMLibrary.reset();
+                if(this._Wallet.network < 0){
+                    nem.NEMLibrary.bootstrap(nem.NetworkTypes.TEST_NET);
+                }
+                else{
+                    nem.NEMLibrary.bootstrap(nem.NetworkTypes.MAIN_NET);
+                }
             }
-            else {
-                nem.NEMLibrary.bootstrap(nem.NetworkTypes.MAIN_NET);
-            }
-        }
     }
 
     /**
@@ -129,6 +129,7 @@ class Voting {
         } else {
             account = nem.Account.createWithPrivateKey(common.privateKey);
         }
+
         const index = new voting.PollIndex(new nem.Address(pollIndex), false, []);
 
         const broadcastData = poll.broadcast(account.publicKey, index);
@@ -142,6 +143,7 @@ class Voting {
             domain: nodeSplit[1],
             port: this._Wallet.node.port,
         }
+        console.log("node", node);
         const transactionHttp = new nem.TransactionHttp([
             node,
         ]);
@@ -160,7 +162,6 @@ class Voting {
             } else {
                 p = Promise.resolve(account.signTransaction(broadcastData.transactions[i]));
             }
-            // recur
             return p.then((signed) => {
                 if (broadcastData.transactions.length - 1 === i) {
                     return [signed];
@@ -276,12 +277,12 @@ class Voting {
     hasVoted(address, pollDetails) {
         this.init();
         var orderedAddresses = [];
-        if (pollDetails.options.link) {
-            orderedAddresses = pollDetails.options.strings.map((option) => {
+        if(pollDetails.options.link){
+            orderedAddresses = pollDetails.options.strings.map((option)=>{
                 return pollDetails.options.link[option];
             });
         }
-        else {
+        else{
             orderedAddresses = pollDetails.options.addresses;
         }
         var confirmedPromises = orderedAddresses.map((optionAddress) => {
@@ -342,7 +343,6 @@ class Voting {
                     transaction.setNetworkType(nem.NEMLibrary.getNetworkType());
                     const dto = transaction.toDTO();
                     const p = this._Ledger.serialize(dto, this._Wallet.currentAccount);
-                    // recur
                     return p.then((signed) => {
                         if (votes.length - 1 === i) {
                             return [signed];

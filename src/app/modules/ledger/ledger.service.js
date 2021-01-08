@@ -136,8 +136,6 @@ class Ledger {
             this._Alert.ledgerFollowInstruction();
         });
         return new Promise((resolve, reject) => {
-
-
             this.getRemoteAccount(account.hdKeypath).then((result) => {
                 const privateKey = result.remoteAccount;
                 const keyPair = nem.crypto.keyPair.create(privateKey);
@@ -150,7 +148,6 @@ class Ledger {
                     publicKey
                 });
             }).catch((errorCode) => {
-                console.log(errorCode)
                 switch (errorCode) {
                     case 26628:
                         this._Alert.ledgerDeviceLocked();
