@@ -174,7 +174,7 @@ class Voting {
                     return [signed].concat(next);
                 });
             }).catch(err => {
-                throw err;
+                throw undefined;
             });
         }
 
