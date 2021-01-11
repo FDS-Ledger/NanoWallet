@@ -82,7 +82,7 @@ class Ledger {
     bip44(network, index) {
         // recognize networkId by bip32Path;
         // "44'/43'/networkId'/walletIndex'/accountIndex'"
-        const networkId = network == -104 ? 152 : 104;
+        const networkId = network < 0 ? 256 + network : network;
         return (`44'/43'/${networkId}'/${index}'/0'`);
     }
 
@@ -96,7 +96,7 @@ class Ledger {
         const hdKeypath = this.bip44(network, index);
         return new Promise((resolve, reject) => {
             this.getAppVersion().then(checkVersion => {
-                if (checkVersion == 1) {
+                if (checkVersion === 1) {
                     alert("Please check your Ledger device!");
                     this._$timeout(() => {
                         this._Alert.ledgerFollowInstruction();
@@ -157,13 +157,18 @@ class Ledger {
                     }
                 );
             } catch (err) {
-                transport.close();
                 throw err
             }
         } catch (err) {
-            if (err.statusCode != null) return Promise.reject(err.statusCode);
-            else if (err.id != null) return Promise.reject(err.id);
-            else return Promise.reject(err);
+            if (err.statusCode != null) {
+                return Promise.reject(err.statusCode);
+            } else if (err.id != null) {
+                return Promise.reject(err.id);
+            } else {
+                return Promise.reject(err);
+            }
+        } finally {
+            transport.close();
         }
     }
 
@@ -173,7 +178,6 @@ class Ledger {
             const nemH = new NemH(transport);
             try {
                 const result = await nemH.getRemoteAccount(hdKeypath)
-                transport.close();
                 return Promise.resolve(
                     {
                         "hdKeypath": hdKeypath,
@@ -181,13 +185,18 @@ class Ledger {
                     }
                 );
             } catch (err) {
-                transport.close();
                 throw err
             }
         } catch (err) {
-            if (err.statusCode != null) return Promise.reject(err.statusCode);
-            else if (err.id != null) return Promise.reject(err.id);
-            else return Promise.reject(err);
+            if (err.statusCode != null) {
+                return Promise.reject(err.statusCode);
+            } else if (err.id != null) {
+                return Promise.reject(err.id);
+            } else {
+                return Promise.reject(err);
+            }
+        } finally {
+            transport.close();
         }
     }
 
@@ -227,7 +236,7 @@ class Ledger {
     serialize(transaction, account, symbolOptin) {
         return new Promise(async (resolve, reject) => {
             this.getAppVersion().then(async checkVersion => {
-                if (checkVersion == 1) {
+                if (checkVersion === 1) {
                     alert("Please check your Ledger device!");
                     this._$timeout(() => {
                         this._Alert.ledgerFollowInstruction();

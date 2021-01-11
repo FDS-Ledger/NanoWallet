@@ -4,7 +4,7 @@ import NemH from "../../modules/ledger/hw-app-nem";
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
     LEDGER_MINOR_VERSION: 0,
-    LEDGER_PATCH_VERSION: 2
+    LEDGER_PATCH_VERSION: 4
 }
 class LedgerCtrl {
 
@@ -106,7 +106,7 @@ class LedgerCtrl {
     async login() {
         this.okPressed = true;
         let checkVersion = await this._Ledger.getAppVersion();
-        if (checkVersion == 1) {
+        if (checkVersion === 1) {
             alert("Please check your Ledger device!");
             this._$timeout(() => {
                 this._Alert.ledgerFollowInstruction();
