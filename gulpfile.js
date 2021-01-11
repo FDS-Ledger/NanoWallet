@@ -39,37 +39,6 @@ var autoprefixerOptions = {
   browsers: ['last 6 versions']
 };
 
-// Task for app files
-gulp.task('browserify', ['views'], function() {
-    return browserify({
-      extensions: ['.jsx', '.js'],
-      debug: true,
-      cache: {},
-      packageCache: {},
-      fullPaths: true,
-      entries: './src/app/app.js',
-    })
-    // .transform(ngAnnotate)
-    .transform(babelify.configure({
-        presets: [['es2015', {
-          targets: {
-            node: "current"
-          }
-        }]],
-        plugins: [
-          "syntax-dynamic-import",
-          "transform-runtime",
-          "transform-async-to-generator"
-        ],
-        ignore: /(bower_components)|(node_modules)/
-    }))
-    .transform(ngAnnotate)
-    .bundle()
-    .on("error", interceptErrors)
-    .pipe(source('main.js'))
-    .pipe(gulp.dest('./build/'));
-});
-
 // Task for test files
 gulp.task('browserifyTests', function() {
   return browserify(specsArray)
@@ -95,7 +64,6 @@ gulp.task('browserifyTests', function() {
       // Start piping stream to tasks!
       .pipe(gulp.dest('./build/tests/'));
 });
-
 
 // Just move files to build/
 gulp.task('html', function() {
@@ -173,10 +141,39 @@ gulp.task('app', function () {
     });
   });
 
+// Task for app files
+gulp.task('browserify', gulp.parallel('views', function() {
+  return browserify({
+    extensions: ['.jsx', '.js'],
+    debug: true,
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    entries: './src/app/app.js',
+  })
+  // .transform(ngAnnotate)
+  .transform(babelify.configure({
+      presets: [['es2015', {
+        targets: {
+          node: "current"
+        }
+      }]],
+      plugins: [
+        "syntax-dynamic-import",
+        "transform-runtime",
+        "transform-async-to-generator"
+      ],
+      ignore: /(bower_components)|(node_modules)/
+  }))
+  .transform(ngAnnotate)
+  .bundle()
+  .on("error", interceptErrors)
+  .pipe(source('main.js'))
+  .pipe(gulp.dest('./build/'));
+}));
+
 // Run Tasks
-gulp.task('default', ['html', 'js', 'sass', 'css', 'images', 'package', 'browserify', 'tests', 'browserifyTests'], function() {
-});
+gulp.task('default', gulp.parallel('html', 'js', 'sass', 'css', 'images', 'package', 'browserify', 'tests', 'browserifyTests'));
 
 // Build packaged apps for production
-gulp.task('build-app', ['html', 'js', 'sass', 'css', 'images', 'package', 'app'], function() {
-});
+gulp.task('build-app', gulp.parallel('html', 'js', 'sass', 'css', 'images', 'package', 'app'));
