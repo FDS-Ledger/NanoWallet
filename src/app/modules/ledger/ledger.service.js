@@ -329,9 +329,9 @@ class Ledger {
                 let appVersion = result;
                 if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
                     if (result.statusCode != null) {
-                        return Promise.resolve(result.statusCode);
+                        return Promise.reject(result.statusCode);
                     } else {
-                        return Promise.resolve(result.id);
+                        return Promise.reject(result.id);
                     }
                 } else {
                     let statusCode;
