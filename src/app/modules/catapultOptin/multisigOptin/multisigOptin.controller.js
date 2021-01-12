@@ -412,14 +412,12 @@ class MultisigOptInCtrl {
                         this.checkOptinStatus();
                     }, 3000);
                 }).catch((e) => {
-                    if (e === 'handledLedgerErrorSignal') {
+                    this._$timeout(() => {
                         this.step = prevStep;
-                    } else {
-                        this._$timeout(() => {
-                            this.step = prevStep;
+                        if (e !== 'handledLedgerErrorSignal') {
                             this._Alert.votingUnexpectedError(e)
-                        });
-                    }
+                        }
+                    });
                 });
             }
         }
