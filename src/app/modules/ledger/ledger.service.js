@@ -140,8 +140,7 @@ class Ledger {
             const transport = await TransportNodeHid.open("");
             const nemH = new NemH(transport);
             try {
-                const result = await nemH.getAddress(hdKeypath)
-                transport.close();
+                const result = await nemH.getAddress(hdKeypath);
                 return Promise.resolve(
                     {
                         "brain": false,
@@ -158,6 +157,8 @@ class Ledger {
                 );
             } catch (err) {
                 throw err
+            } finally {
+                transport.close();
             }
         } catch (err) {
             if (err.statusCode != null) {
@@ -167,8 +168,6 @@ class Ledger {
             } else {
                 return Promise.reject(err);
             }
-        } finally {
-            transport.close();
         }
     }
 
@@ -186,6 +185,8 @@ class Ledger {
                 );
             } catch (err) {
                 throw err
+            } finally {
+                transport.close();
             }
         } catch (err) {
             if (err.statusCode != null) {
@@ -195,8 +196,6 @@ class Ledger {
             } else {
                 return Promise.reject(err);
             }
-        } finally {
-            transport.close();
         }
     }
 
@@ -293,8 +292,7 @@ class Ledger {
             const transport = await TransportNodeHid.open("");
             const nemH = new NemH(transport);
             try {
-                const sig = await nemH.signTransaction(account.hdKeypath, serializedTx)
-                transport.close();
+                const sig = await nemH.signTransaction(account.hdKeypath, serializedTx);
                 let payload = {
                     data: serializedTx,
                     signature: sig.signature
@@ -302,8 +300,9 @@ class Ledger {
                 return Promise.resolve(payload);
             }
             catch (err) {
-                transport.close();
                 throw err
+            } finally {
+                transport.close();
             }
         } catch (err) {
             if (err.statusCode != null) return Promise.resolve(err);
@@ -325,7 +324,6 @@ class Ledger {
             const nemH = new NemH(transport);
             try {
                 const result = await nemH.getAppVersion();
-                transport.close();
                 let appVersion = result;
                 if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
                     if (result.statusCode != null) return Promise.resolve(result.statusCode);
@@ -344,8 +342,9 @@ class Ledger {
                     return Promise.resolve(statusCode);
                 }
             } catch (err) {
-                transport.close();
                 throw err
+            } finally {
+                transport.close();
             }
         } catch (err) {
             if (err.statusCode != null) return Promise.resolve(err.statusCode);
