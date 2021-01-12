@@ -353,11 +353,11 @@ class Ledger {
             }
         } catch (err) {
             if (err.statusCode != null) {
-                return Promise.resolve(err.statusCode);
+                return Promise.reject(err.statusCode);
             } else if (err.id != null) {
-                return Promise.resolve(err.id);
+                return Promise.reject(err.id);
             } else {
-                return Promise.resolve(err);
+                return Promise.reject(err);
             }
         }
     }
