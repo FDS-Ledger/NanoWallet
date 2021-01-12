@@ -233,7 +233,7 @@ class Ledger {
         });
     }
 
-    serialize(transaction, account, symbolOptin) {
+    serialize(transaction, account) {
         return new Promise(async (resolve, reject) => {
             this.getAppVersion().then(async checkVersion => {
                 if (checkVersion === 1) {
@@ -244,7 +244,8 @@ class Ledger {
                     //Transaction with testnet and mainnet
                     //Correct the signer
                     transaction.signer = account.publicKey;
-
+                    console.log("transaction", transaction)
+                    console.log("transaction.mosaicDefinition", transaction.mosaicDefinition)
                     //If it is a MosaicDefinition Creation Transaction, then correct the creator
                     if (transaction.type == 0x4001) {
                         transaction.mosaicDefinition.creator = account.publicKey;
@@ -272,11 +273,9 @@ class Ledger {
                     if (payload.signature) {
                         resolve(payload);
                     } else {
-                        if (!symbolOptin) {
-                            this._$timeout(() => {
-                                this.alertHandler(payload.statusCode, true, payload.statusText);
-                            });
-                        }
+                        this._$timeout(() => {
+                            this.alertHandler(payload.statusCode, true, payload.statusText);
+                        });
                         reject(payload);
                     }
                 } else {

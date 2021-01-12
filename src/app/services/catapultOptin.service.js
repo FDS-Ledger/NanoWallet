@@ -123,7 +123,9 @@ class CatapultOptin {
                     const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));
                     Promise.all(sendPromises).then(messages => {
                         if (messages.filter(_ => _ !== 'SUCCESS').length > 0) {
-                            reject('Sending OptIn failed: ' + messages.toString());
+                            if (messages !== 'ledger_handled') {
+                                reject('Sending OptIn failed: ' + messages.toString());
+                            }
                         } else {
                             resolve(true);
                         }
@@ -178,26 +180,15 @@ class CatapultOptin {
         return new Promise((resolve, reject) => {
             Promise.all( dtos.map( dto => this.createTransactionFromDTO(dto, common))).then( transactions => {
                 const signTransaction = (i) => {
-                    return this._Ledger.serialize(transactions[i], this._Wallet.currentAccount, true).then( serialized => {
+                    return this._Ledger.serialize(transactions[i], this._Wallet.currentAccount).then( serialized => {
                         if (transactions.length - 1 === i) {
                             return [JSON.stringify(serialized)];
                         }
-                        return new Promise(resolve => setTimeout( () => signTransaction(i + 1).then((next) => {
+                        return new Promise(resolve => signTransaction(i + 1).then((next) => {
                             resolve([JSON.stringify(serialized)].concat(next));
-                        }).catch(err => resolve([null])), 500));
-                    }).catch(err => {
-                        let message;
-                        switch (err.statusCode) {
-                            case 27013:
-                                message = 'Signing Symbol Opt-in cancelled by user';
-                                break;
-                            case 26368:
-                                message = 'The transaction is too big to sign on your Ledger device';
-                                break;
-                            default:
-                                message = err.message;
-                        }
-                        reject(message);
+                        }).catch(err => resolve([null])));
+                    }).catch(_ => {
+                        reject('ledger_handled');
                     });
                 };
                 signTransaction(0).then((signedTransactions) => {
@@ -280,7 +271,9 @@ class CatapultOptin {
                         const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));
                         Promise.all(sendPromises).then(messages => {
                             if (messages.filter(_ => _ !== 'SUCCESS').length > 0) {
-                                reject('Sending OptIn failed: ' + messages.toString());
+                                if (messages.filter(_ => _ !== 'ledger_handled').length > 0) {
+                                    reject('Sending OptIn failed: ' + messages.toString());
+                                }
                             } else {
                                 resolve(true);
                             }
