@@ -222,7 +222,10 @@ function initialize() {
         autoHideMenuBar: false,
         resizable: true,
         webPreferences: {
-          nodeIntegration: true,
+          nodeIntegration: false, // is default value after Electron v5
+          contextIsolation: true, // protect against prototype pollution
+          enableRemoteModule: false, // turn off remote
+          preload: path.join(app.getAppPath(), 'preload.js'),
           nativeWindowOpen: true, // need to be set in order to display modal
 
         }
@@ -235,7 +238,10 @@ function initialize() {
         autoHideMenuBar: false,
         resizable: true,
         webPreferences: {
-          nodeIntegration: true,
+          nodeIntegration: false, // is default value after Electron v5
+          contextIsolation: true, // protect against prototype pollution
+          enableRemoteModule: false, // turn off remote
+          preload: path.join(app.getAppPath(), 'preload.js'),
           nativeWindowOpen: true, // need to be set in order to display modal
 
         }
@@ -271,9 +277,11 @@ function initialize() {
       // menuBarVisible: false,
       resizable: true,
       webPreferences: {
-        nodeIntegration: true,
+        nodeIntegration: false, // is default value after Electron v5
+        contextIsolation: true, // protect against prototype pollution
+        enableRemoteModule: false, // turn off remote
+        preload: path.join(app.getAppPath(), 'preload.js'),
         nativeWindowOpen: true, // need to be set in order to display modal
-
       }
     }
     windowOptions.icon = iconUrlPath
@@ -281,7 +289,7 @@ function initialize() {
     mainWindow.setMenu(null)
     mainWindow.removeMenu()
     mainWindow.loadURL(loadUrlPath)
-    // mainWindow.openDevTools()
+    mainWindow.openDevTools()
 
     mainWindow.once('ready-to-show', () => {
       mainWindow.show()
