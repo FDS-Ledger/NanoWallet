@@ -222,8 +222,10 @@ function initialize() {
         autoHideMenuBar: false,
         resizable: true,
         webPreferences: {
-          nodeIntegration: true,
-          nativeWindowOpen: true, // need to be set in order to display modal
+          nodeIntegration: false,
+          enableRemoteModule: false,
+          preload: path.join(app.getAppPath(), 'preload.js'),
+          nativeWindowOpen: true,
 
         }
       })
@@ -235,8 +237,10 @@ function initialize() {
         autoHideMenuBar: false,
         resizable: true,
         webPreferences: {
-          nodeIntegration: true,
-          nativeWindowOpen: true, // need to be set in order to display modal
+          nodeIntegration: false,
+          enableRemoteModule: false,
+          preload: path.join(app.getAppPath(), 'preload.js'),
+          nativeWindowOpen: true,
 
         }
       })
@@ -271,9 +275,10 @@ function initialize() {
       // menuBarVisible: false,
       resizable: true,
       webPreferences: {
-        nodeIntegration: true,
-        nativeWindowOpen: true, // need to be set in order to display modal
-
+        nodeIntegration: false,
+        enableRemoteModule: false,
+        preload: path.join(app.getAppPath(), 'preload.js'),
+        nativeWindowOpen: true,
       }
     }
     windowOptions.icon = iconUrlPath
@@ -281,7 +286,7 @@ function initialize() {
     mainWindow.setMenu(null)
     mainWindow.removeMenu()
     mainWindow.loadURL(loadUrlPath)
-    // mainWindow.openDevTools()
+    mainWindow.openDevTools()
 
     mainWindow.once('ready-to-show', () => {
       mainWindow.show()
