@@ -172,7 +172,7 @@ class Voting {
                     return [signed].concat(next);
                 });
             }).catch(err => {
-                throw undefined;
+                throw 'handledLedgerErrorSignal';
             });
         }
 
@@ -355,7 +355,7 @@ class Voting {
                             return [signed].concat(next);
                         });
                     }).catch(err => {
-                        throw undefined;
+                        throw 'handledLedgerErrorSignal';
                     });
                 }
                 signedTransactionsPromise = signTransaction(0);

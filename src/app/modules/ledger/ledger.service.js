@@ -222,6 +222,7 @@ class Ledger {
                         this._$timeout(() => {
                             this.alertHandler(errorCode);
                         });
+                        reject('handledLedgerErrorSignal');
                     });
                 } else {
                     this._$timeout(() => {
