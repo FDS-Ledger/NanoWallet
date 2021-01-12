@@ -243,8 +243,6 @@ class Ledger {
                     //Transaction with testnet and mainnet
                     //Correct the signer
                     transaction.signer = account.publicKey;
-                    console.log("transaction", transaction)
-                    console.log("transaction.mosaicDefinition", transaction.mosaicDefinition)
                     //If it is a MosaicDefinition Creation Transaction, then correct the creator
                     if (transaction.type == 0x4001) {
                         transaction.mosaicDefinition.creator = account.publicKey;
