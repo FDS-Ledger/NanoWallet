@@ -222,11 +222,10 @@ function initialize() {
         autoHideMenuBar: false,
         resizable: true,
         webPreferences: {
-          nodeIntegration: false, // is default value after Electron v5
-          contextIsolation: true, // protect against prototype pollution
-          enableRemoteModule: false, // turn off remote
+          nodeIntegration: false,
+          enableRemoteModule: false,
           preload: path.join(app.getAppPath(), 'preload.js'),
-          nativeWindowOpen: true, // need to be set in order to display modal
+          nativeWindowOpen: true,
 
         }
       })
@@ -238,11 +237,10 @@ function initialize() {
         autoHideMenuBar: false,
         resizable: true,
         webPreferences: {
-          nodeIntegration: false, // is default value after Electron v5
-          contextIsolation: true, // protect against prototype pollution
-          enableRemoteModule: false, // turn off remote
+          nodeIntegration: false,
+          enableRemoteModule: false,
           preload: path.join(app.getAppPath(), 'preload.js'),
-          nativeWindowOpen: true, // need to be set in order to display modal
+          nativeWindowOpen: true,
 
         }
       })
@@ -277,11 +275,10 @@ function initialize() {
       // menuBarVisible: false,
       resizable: true,
       webPreferences: {
-        nodeIntegration: false, // is default value after Electron v5
-        contextIsolation: true, // protect against prototype pollution
-        enableRemoteModule: false, // turn off remote
+        nodeIntegration: false,
+        enableRemoteModule: false,
         preload: path.join(app.getAppPath(), 'preload.js'),
-        nativeWindowOpen: true, // need to be set in order to display modal
+        nativeWindowOpen: true,
       }
     }
     windowOptions.icon = iconUrlPath
