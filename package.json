@@ -79,7 +79,7 @@
     "release:all": "npm run release:mac && npm run release:win && npm run release:lin",
     "release:mac": "electron-builder --mac",
     "release:win": "electron-builder --win",
-    "release:lin": "electron-builder --linux deb snap tar.gz",
+    "release:lin": "electron-builder --linux deb ",
     "electron:rebuild:nodehid": "electron-rebuild -o @ledgerhq/hw-transport-node-hid -v 8.2.0",
     "electron:rebuild": "./node_modules/.bin/electron-rebuild"
   },
@@ -97,7 +97,8 @@
     "files": [
       "build/**/*",
       "package.json",
-      "./build.js"
+      "./build.js",
+      "./preload.js"
     ],
     "directories": {
       "buildResources": "assets",

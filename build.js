@@ -224,7 +224,7 @@ function initialize() {
         webPreferences: {
           nodeIntegration: false,
           enableRemoteModule: false,
-          preload: path.join(app.getAppPath(), 'preload.js'),
+          preload: path.resolve(__dirname,'preload.js'),
           nativeWindowOpen: true,
 
         }
@@ -239,7 +239,7 @@ function initialize() {
         webPreferences: {
           nodeIntegration: false,
           enableRemoteModule: false,
-          preload: path.join(app.getAppPath(), 'preload.js'),
+          preload: path.resolve(__dirname,'preload.js'),
           nativeWindowOpen: true,
 
         }
@@ -277,7 +277,7 @@ function initialize() {
       webPreferences: {
         nodeIntegration: false,
         enableRemoteModule: false,
-        preload: path.join(app.getAppPath(), 'preload.js'),
+        preload: path.resolve(__dirname, 'preload.js'),
         nativeWindowOpen: true,
       }
     }
