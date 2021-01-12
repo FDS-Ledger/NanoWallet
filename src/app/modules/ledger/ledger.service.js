@@ -304,13 +304,16 @@ class Ledger {
                 transport.close();
             }
         } catch (err) {
-            if (err.statusCode != null) return Promise.resolve(err);
-            else if (err.id != null) return Promise.resolve(err.id);
-            else if (err.name == "TransportError") {
+            if (err.statusCode != null) {
+                return Promise.resolve(err);
+            } else if (err.id != null) {
+                return Promise.resolve(err.id);
+            } else if (err.name == "TransportError") {
                 this._Alert.ledgerFailedToSignTransaction(err.message);
                 return;
+            } else {
+                return Promise.resolve(err);
             }
-            else return Promise.resolve(err);
         }
     }
 
@@ -325,8 +328,11 @@ class Ledger {
                 const result = await nemH.getAppVersion();
                 let appVersion = result;
                 if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
-                    if (result.statusCode != null) return Promise.resolve(result.statusCode);
-                    else return Promise.resolve(result.id);
+                    if (result.statusCode != null) {
+                        return Promise.resolve(result.statusCode);
+                    } else {
+                        return Promise.resolve(result.id);
+                    }
                 } else {
                     let statusCode;
                     if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
@@ -346,9 +352,13 @@ class Ledger {
                 transport.close();
             }
         } catch (err) {
-            if (err.statusCode != null) return Promise.resolve(err.statusCode);
-            else if (err.id != null) return Promise.resolve(err.id);
-            else return Promise.resolve(err);
+            if (err.statusCode != null) {
+                return Promise.resolve(err.statusCode);
+            } else if (err.id != null) {
+                return Promise.resolve(err.id);
+            } else {
+                return Promise.resolve(err);
+            }
         }
     }
 
