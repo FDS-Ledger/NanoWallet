@@ -123,9 +123,7 @@ class CatapultOptin {
                     const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));
                     Promise.all(sendPromises).then(messages => {
                         if (messages.filter(_ => _ !== 'SUCCESS').length > 0) {
-                            if (messages !== 'ledger_handled') {
-                                reject('Sending OptIn failed: ' + messages.toString());
-                            }
+                            reject('Sending OptIn failed: ' + messages.toString());
                         } else {
                             resolve(true);
                         }
@@ -188,7 +186,7 @@ class CatapultOptin {
                             resolve([JSON.stringify(serialized)].concat(next));
                         }).catch(err => resolve([null])));
                     }).catch(_ => {
-                        reject('ledger_handled');
+                        reject('handledLedgerErrorSignal');
                     });
                 };
                 signTransaction(0).then((signedTransactions) => {
@@ -271,9 +269,7 @@ class CatapultOptin {
                         const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));
                         Promise.all(sendPromises).then(messages => {
                             if (messages.filter(_ => _ !== 'SUCCESS').length > 0) {
-                                if (messages.filter(_ => _ !== 'ledger_handled').length > 0) {
-                                    reject('Sending OptIn failed: ' + messages.toString());
-                                }
+                                reject('Sending OptIn failed: ' + messages.toString());
                             } else {
                                 resolve(true);
                             }
