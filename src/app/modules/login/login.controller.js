@@ -39,7 +39,7 @@ class LoginCtrl {
         }
         
         // Hide ledger button if not running on Electron enviroment
-        if (!window['TransportNodeHid']) {
+        if (!window['isElectronEnvironment']) {
             this.hideLedger = true;
         }
     }
