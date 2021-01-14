@@ -37,8 +37,8 @@ class LoginCtrl {
             this.hideTrezor = true;
             this.hideLedger = true;
         }
-        
-        // Hide ledger button if not running on Electron enviroment
+
+        // Hide ledger button if not running on Electron environment
         if (!window['isElectronEnvironment']) {
             this.hideLedger = true;
         }
