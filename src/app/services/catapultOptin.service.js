@@ -8,6 +8,9 @@ import {
     status,
     hasOptInStopped
 } from "catapult-optin-module";
+import {
+    buildNormalOptInDTOsLedger
+} from "../modules/ledger/optin/BroadcastLedger";
 import {PublicAccount, NetworkType, Account} from "symbol-sdk";
 import {broadcastDTO, buildStartMultisigOptInDTOs} from "catapult-optin-module/dist/src/Broadcast";
 
@@ -114,7 +117,7 @@ class CatapultOptin {
     sendSimpleOptin(common, destination, namespaces, vrfAccount) {
         return new Promise( (resolve, reject) => {
             const config = this.getOptinConfig();
-            buildNormalOptInDTOs(destination, namespaces, vrfAccount, config).then(dtos => {
+            buildNormalOptInDTOsLedger(destination, namespaces, vrfAccount, config).then(dtos => {
                 if (this._Wallet.algo == "trezor") {
                     this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
                 } else if (this._Wallet.algo == "ledger") {
