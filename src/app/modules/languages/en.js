@@ -808,6 +808,10 @@ function EnglishProvider($translateProvider) {
         NANO_LEDGER_TRANSACTION_TOO_BIG: 'The transaction is too big to sign on your Ledger device',
         NANO_LEDGER_TRANSACTION_USER_CANCEL: 'Signing cancelled by user',
         NANO_LEDGER_TRANSACTION_FAILED: 'Failed to sign transaction, reason: ',
+        NANO_LEDGER_OPTIN_INFO_1: 'You can use Symbol Ledger app to get account for Symbol Opt-in.',
+        NANO_LEDGER_OPTIN_INFO_2: 'Please open Symbol Ledger app on your device and click on Import Symbol account.',
+        NANO_LEDGER_IMPORT_SYMBOL: 'Import Symbol account',
+        NANO_LEDGER_OPEN_NEM_APP: 'Please open NEM app on your Ledger device',
 
         // CREATE OFFLINE TRANSACTION MODULE
         OFFLINE_TX_TITLE: 'Prepare an offline transaction',

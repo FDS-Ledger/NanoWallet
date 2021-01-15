@@ -34,11 +34,10 @@
                 <h4 style="margin-top: 15px;"><a href="https://nemplatform.com/symbol-migration" target="_blank" class="symbol-link"><strong>{{ 'OPTIN_LINK_INFO' | translate }}<span style="text-decoration: underline">{{('HERE' | translate) }}</span></strong></a></h4>
             </div>
             <!-- Ready button -->
-            <button class="btn symbol-button" ng-disabled="$ctrl.statusLoading" ng-click="$ctrl.step = 10; $ctrl.resetEntropy();" ng-show="$ctrl._Wallet.algo !== 'ledger'">{{ 'SIGNUP_CREATE_READY_BTN' | translate }}</button>
-            <button class="btn symbol-button" ng-disabled="$ctrl.statusLoading" ng-click="$ctrl.step = 10" ng-show="$ctrl._Wallet.algo === 'ledger'">{{ 'SIGNUP_CREATE_READY_BTN' | translate }}</button>
+            <button class="btn symbol-button" ng-disabled="$ctrl.statusLoading" ng-click="$ctrl.step = 10; $ctrl.resetEntropy();">{{ 'SIGNUP_CREATE_READY_BTN' | translate }}</button>
         </div>
 
-        <!-- STEP 1.0: ENTROPY -->
+        <!-- STEP 1.0: ENTROPY / IMPORT LEDGER ACCOUNT -->
         <div class="row container-div" ng-show="$ctrl.step == 10">
             <div class="col-md-12">
                 <img src="images/account.png">
@@ -76,10 +75,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Import Symbol Ledger account -->
             <div class="col-md-12 text-center" ng-show="$ctrl._Wallet.algo === 'ledger'">
-                <button class="btn symbol-button" ng-click="$ctrl.getLedgerSymbolAccount()"> {{ 'IMPORT_LEDGER_ACCOUNT' | translate }}</button>
+                <!-- Import Ledger account info -->
+                <div>
+                    <p>{{ 'NANO_LEDGER_OPTIN_INFO_1' | translate }}</p>
+                    <p><b>{{ 'NANO_LEDGER_OPTIN_INFO_2' | translate }}</b></p>
+                </div>
+                <div class="row mt-4">
+                    <button class="btn symbol-button" ng-click="$ctrl.getLedgerSymbolAccount()"> {{ 'NANO_LEDGER_IMPORT_SYMBOL' | translate }}</button>
+                </div>
             </div>
         </div>
+
 
         <!-- STEP 1.1: YOUR SYMBOL ACCOUNT -->
         <div class="row container-div" ng-show="$ctrl.step == 11">
@@ -105,7 +114,7 @@
             <!-- Wallet type buttons -->
             <div class="text-center">
                 <a class="btn symbol-button" id="downloadWallet" ng-click="$ctrl.step = $ctrl.skipNamespaces ? 3: 2" ng-show="$ctrl._Wallet.algo !== 'ledger'"><span class="fa fa-download" aria-hidden="true"></span> {{ 'SIGNUP_COMMON_WALLET_WARNING_DOWNLOAD' | translate }}</a>
-                <a class="btn symbol-button" ng-click="$ctrl.step = $ctrl.skipNamespaces ? 3: 2" ng-show="$ctrl._Wallet.algo === 'ledger'"> {{ 'GENERAL_NEXT' | translate }} <span class="fa fa-chevron-right" aria-hidden="true"></span></a>
+                <a class="btn symbol-button" style="margin-top: 4em;" ng-click="$ctrl.step = $ctrl.skipNamespaces ? 3: 2" ng-show="$ctrl._Wallet.algo === 'ledger'"> {{ 'GENERAL_NEXT' | translate }} <span class="fa fa-chevron-right" aria-hidden="true"></span></a>
             </div>
         </div>
 
@@ -334,6 +343,10 @@ background: linear-gradient(42deg, rgba(255,0,255,1) 0%, rgba(255,255,255,1) 100
                         <p>{{'OPTIN_ENTER_PASSWORD'| translate }}</p>
                         <input class="form-control optin-input" type="password" ng-model="$ctrl.common.password"/>
                     </fieldset>
+                </div>
+                <!-- Instruction to use NEM Ledger app -->
+                <div class="row text-center" ng-show="$ctrl._Wallet.algo === 'ledger'">
+                    <h4 class="text-white"><strong>{{ 'NANO_LEDGER_OPEN_NEM_APP' | translate }}</strong></h4>
                 </div>
                 <div class="mt-4">
                     <div class="row">
