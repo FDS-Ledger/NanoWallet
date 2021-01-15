@@ -23,7 +23,7 @@ export default class Nem {
     constructor(transport, scrambleKey = "NEM") {
         this.transport = transport;
         transport.decorateAppAPIMethods(this,
-            ["getAppVersion", "getAddress", "getRemoteAccount", "signTransaction"],
+            ["getAppVersion", "getAddress", "getRemoteAccount", "getSymbolAccount", "signTransaction"],
             scrambleKey);
     }
 
@@ -151,6 +151,52 @@ export default class Nem {
         const remoteAccountLength = response[0];
         result.remoteAccount = response.slice(1, 1 + remoteAccountLength).toString("hex");
         result.path = path;
+        return result;
+    }
+
+    /**
+     * get Symbol public key from a given BIP 44 path from the Ledger
+     *
+     * @param path a path in BIP 44 format
+     * @param display optionally enable or not the display
+     * @param chainCode optionally enable or not the chainCode request
+     * @param ed25519
+     * @return an object with a publicKey, address and (optionally) chainCode
+     * @example
+     * const result = await Ledger.getAccount(bip44path);
+     * const { publicKey } = result;
+     */
+    async getSymbolAccount(accountPath, networkType, display) {
+        const GET_ACCOUNT_INS_FIELD = 0x02;
+        const chainCode = false;
+        const ed25519 = true;
+
+        const bipPath = BIPPath.fromString(accountPath).toPathArray();
+        const curveMask = ed25519 ? 0x80 : 0x40;
+
+        // APDU fields configuration
+        const apdu = {
+            cla: CLA_FIELD,
+            ins: GET_ACCOUNT_INS_FIELD,
+            p1: display ? 0x01 : 0x00,
+            p2: curveMask | (chainCode ? 0x01 : 0x00),
+            data: Buffer.alloc(1 + bipPath.length * 4 + 1),
+        };
+
+        apdu.data.writeInt8(bipPath.length, 0);
+        bipPath.forEach((segment, index) => {
+            apdu.data.writeUInt32BE(segment, 1 + index * 4);
+        });
+        apdu.data.writeUInt8(networkType, 1 + bipPath.length * 4);
+
+        // Response from Ledger
+        const response = await this.transport.send(apdu.cla, apdu.ins, apdu.p1, apdu.p2, apdu.data);
+        const result = {
+            publicKey: '',
+        };
+
+        const publicKeyLength = response[0];
+        result.publicKey = response.slice(1, 1 + publicKeyLength).toString('hex');
         return result;
     }
 
