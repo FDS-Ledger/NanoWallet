@@ -137,7 +137,7 @@ class Ledger {
             this.getAppVersion().then(checkVersion => {
                 if (checkVersion != null) {
                     if (display) {
-                        alert("Please check your Ledger device!");
+                        // alert("Please check your Ledger device!");
                         this._$timeout(() => {
                             this._Alert.ledgerFollowInstruction();
                         });
