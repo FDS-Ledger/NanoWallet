@@ -91,6 +91,9 @@ class LedgerCtrl {
             case 27013:
                 this._Alert.ledgerLoginCancelByUser();
                 break;
+            case 26368:
+                this._Alert.ledgerNotOpenApp(false);
+                break;
             case 2:
                 this._Alert.ledgerNotSupportApp();
                 break;

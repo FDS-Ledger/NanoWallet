@@ -588,9 +588,9 @@ export default class Alert {
         });
     }
 
-    ledgerNotOpenApp() {
+    ledgerNotOpenApp(isSymbolOptin) {
         this._ngToast.create({
-            content: this._$filter('translate')('NANO_LEDGER_NOT_OPENED_APP'),
+            content: this._$filter('translate')(isSymbolOptin ? 'NANO_LEDGER_NOT_OPENED_XYM_APP': 'NANO_LEDGER_NOT_OPENED_NEM_APP'),
             className: 'danger'
         });
     }
