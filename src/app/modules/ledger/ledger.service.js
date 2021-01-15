@@ -37,7 +37,7 @@ class Ledger {
     /**
      * Pop-up alert handler
      */
-    alertHandler(inputErrorCode, isTxSigning, txStatusText) {
+    alertHandler(inputErrorCode, isSymbolOptin, isTxSigning, txStatusText) {
         switch (inputErrorCode) {
             case 'NoDevice':
                 this._Alert.ledgerDeviceNotFound();
@@ -49,7 +49,7 @@ class Ledger {
                 this._Alert.ledgerNotOpenApp();
                 break;
             case 27264:
-                this._Alert.ledgerNotUsingNemApp();
+                this._Alert.ledgerNotUsingCorrectApp(isSymbolOptin);
                 break;
             case 27013:
                 isTxSigning ? this._Alert.ledgerTransactionCancelByUser() : this._Alert.ledgerRequestCancelByUser();
@@ -126,6 +126,47 @@ class Ledger {
         });
     }
 
+    async getSymbolAccounts(defaultPath, vrfPath, network) {
+        const defaultAccount = await this.getSymbolAccount(defaultPath, network, true);
+        const vrfAccount = await this.getSymbolAccount(vrfPath, network, false);
+        return { defaultPublicKey: defaultAccount.publicKey, vrfPublicKey: vrfAccount.publicKey };
+    }
+
+    getSymbolAccount(hdKeypath, network, display) {
+        return new Promise((resolve, reject) => {
+            this.getAppVersion().then(checkVersion => {
+                if (checkVersion != null) {
+                    if (display) {
+                        alert("Please check your Ledger device!");
+                        this._$timeout(() => {
+                            this._Alert.ledgerFollowInstruction();
+                        });
+                    }
+
+                    this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((result) => {
+                        resolve(result)
+                    }).catch((error) => {
+                        this._$timeout(() => {
+                            this.alertHandler(error, true);
+                        });
+                        reject(true);
+                    });
+
+                } else {
+                    this._$timeout(() => {
+                        this.alertHandler(checkVersion, true);
+                    });
+                    reject(true);
+                }
+            }).catch(error => {
+                this._$timeout(() => {
+                    this.alertHandler(error, true);
+                });
+                reject(true);
+            });
+        });
+    }
+
     showAccount(account) {
         alert("Please check your Ledger device!");
         this._Alert.ledgerFollowInstruction();
@@ -140,14 +181,17 @@ class Ledger {
         });
     }
 
-    async getAccount(hdKeypath, network, label) {
+    async getAccount(hdKeypath, network, label, isSymbol, display) {
         try {
             const transport = await TransportNodeHid.open("");
             const nemH = new NemH(transport);
             try {
-                const result = await nemH.getAddress(hdKeypath);
-                return Promise.resolve(
-                    {
+                let account;
+                if (isSymbol) {
+                    account = await nemH.getSymbolAccount(hdKeypath, network, display);
+                } else {
+                    const result = await nemH.getAddress(hdKeypath);
+                    account = {
                         "brain": false,
                         "algo": "ledger",
                         "encrypted": "",
@@ -159,7 +203,8 @@ class Ledger {
                         "hdKeypath": hdKeypath,
                         "publicKey": result.publicKey
                     }
-                );
+                }
+                return Promise.resolve(account);
             } catch (err) {
                 throw err
             } finally {
@@ -283,13 +328,13 @@ class Ledger {
                         resolve(payload);
                     } else {
                         this._$timeout(() => {
-                            this.alertHandler(payload.statusCode, true, payload.statusText);
+                            this.alertHandler(payload.statusCode, false, true, payload.statusText);
                         });
                         reject(payload);
                     }
                 } else {
                     this._$timeout(() => {
-                        this.alertHandler(checkVersion, true);
+                        this.alertHandler(checkVersion, false, true);
                     });
                     reject(true);
                 }

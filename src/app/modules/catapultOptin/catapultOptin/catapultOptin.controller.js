@@ -17,7 +17,7 @@ const VRF_ACCOUNT_PATH = "m/44'/4343'/0'/1'/0'";
 
 class NormalOptInCtrl {
     // Set services as constructor parameter
-    constructor(Wallet, Alert, $scope, $timeout, DataStore, $location, Recipient, CatapultOptin) {
+    constructor(Wallet, Alert, $scope, $timeout, DataStore, $location, Recipient, CatapultOptin, Ledger) {
         'ngInject';
 
         // Declaring services
@@ -29,6 +29,7 @@ class NormalOptInCtrl {
         this._Recipient = Recipient;
         this._$timeout = $timeout;
         this._CatapultOptin = CatapultOptin;
+        this._Ledger = Ledger;
 
 
         // If no wallet show alert and redirect to home
@@ -201,6 +202,22 @@ class NormalOptInCtrl {
     }
 
     /**
+     * Get Ledger account from harware device
+     */
+    async getLedgerSymbolAccount() {
+        const { defaultPublicKey, vrfPublicKey } = await this._Ledger.getSymbolAccounts(DEFAULT_ACCOUNT_PATH, VRF_ACCOUNT_PATH, this.catapultNetwork);
+        const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
+        const vrfAccount = PublicAccount.createFromPublicKey(vrfPublicKey, this.catapultNetwork);
+        this.formData.optinAccount = { publicAccount: defaultAccount };
+        this.formData.optinVrfAccount = { publicAccount: vrfAccount };
+        this.formData.optinAddress = defaultAccount.address.pretty();
+        this.formData.optinVrfAddress = vrfAccount.address.pretty();
+        this.formData.optinPublicKey = defaultAccount.publicKey;
+        this.formData.optinVrfPublicKey = vrfAccount.publicKey;
+        this.step = 11;
+    }
+
+    /**
      * Arrange namespaces into an array
      */
     arrangeNamespaces() {
@@ -232,7 +249,9 @@ class NormalOptInCtrl {
         this.formData.optinVrfPublicKey = '';
         this.formData.optinPrivateKey = '';
         this.formData.optinVrfPrivateKey = '';
-        this.resetEntropy();
+        if (this._Wallet.algo !== 'ledger') {
+            this.resetEntropy();
+        }
     }
 
     /**

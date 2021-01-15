@@ -574,16 +574,9 @@ export default class Alert {
         });
     }
 
-    ledgerBridgeNotRunning() {
+    ledgerNotUsingCorrectApp(isSymbolOptin) {
         this._ngToast.create({
-            content: this._$filter('translate')('NANO_LEDGER_BRIDGE_NOT_RUNNING'),
-            className: 'danger'
-        });
-    }
-
-    ledgerNotUsingNemApp() {
-        this._ngToast.create({
-            content: this._$filter('translate')('NANO_LEDGER_NOT_USING_NEM_APP'),
+            content: this._$filter('translate')(isSymbolOptin ? 'NANO_LEDGER_NOT_USING_XYM_APP': 'NANO_LEDGER_NOT_USING_NEM_APP'),
             className: 'danger'
         });
     }
