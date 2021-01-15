@@ -208,13 +208,15 @@ class NormalOptInCtrl {
         const { defaultPublicKey, vrfPublicKey } = await this._Ledger.getSymbolAccounts(DEFAULT_ACCOUNT_PATH, VRF_ACCOUNT_PATH, this.catapultNetwork);
         const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
         const vrfAccount = PublicAccount.createFromPublicKey(vrfPublicKey, this.catapultNetwork);
-        this.formData.optinAccount = { publicAccount: defaultAccount };
-        this.formData.optinVrfAccount = { publicAccount: vrfAccount };
-        this.formData.optinAddress = defaultAccount.address.pretty();
-        this.formData.optinVrfAddress = vrfAccount.address.pretty();
-        this.formData.optinPublicKey = defaultAccount.publicKey;
-        this.formData.optinVrfPublicKey = vrfAccount.publicKey;
-        this.step = 11;
+        this._$timeout(() => {
+            this.formData.optinAccount = { publicAccount: defaultAccount };
+            this.formData.optinVrfAccount = { publicAccount: vrfAccount };
+            this.formData.optinAddress = defaultAccount.address.pretty();
+            this.formData.optinVrfAddress = vrfAccount.address.pretty();
+            this.formData.optinPublicKey = defaultAccount.publicKey;
+            this.formData.optinVrfPublicKey = vrfAccount.publicKey;
+            this.step = 11;
+        });
     }
 
     /**
