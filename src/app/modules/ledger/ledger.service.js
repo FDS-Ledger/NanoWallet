@@ -46,7 +46,7 @@ class Ledger {
                 this._Alert.ledgerDeviceLocked();
                 break;
             case 27904:
-                this._Alert.ledgerNotOpenApp();
+                this._Alert.ledgerNotOpenApp(isSymbolOptin);
                 break;
             case 27264:
                 this._Alert.ledgerNotUsingCorrectApp(isSymbolOptin);
@@ -55,7 +55,7 @@ class Ledger {
                 isTxSigning ? this._Alert.ledgerTransactionCancelByUser() : this._Alert.ledgerRequestCancelByUser();
                 break;
             case 26368:
-                this._Alert.ledgerTransactionTooBig();
+                isTxSigning ? this._Alert.ledgerNotOpenApp(isSymbolOptin) : this._Alert.ledgerTransactionTooBig();
                 break;
             case 2:
                 this._Alert.ledgerNotSupportApp();
@@ -106,20 +106,20 @@ class Ledger {
                         resolve(result)
                     }).catch((error) => {
                         this._$timeout(() => {
-                            this.alertHandler(error);
+                            this.alertHandler(error, false, false);
                         });
                         reject(true);
                     });
 
                 } else {
                     this._$timeout(() => {
-                        this.alertHandler(checkVersion);
+                        this.alertHandler(checkVersion, false, false);
                     });
                     reject(true);
                 }
             }).catch(error => {
                 this._$timeout(() => {
-                    this.alertHandler(error);
+                    this.alertHandler(error, false, false);
                 });
                 reject(true);
             });
@@ -137,30 +137,30 @@ class Ledger {
             this.getAppVersion().then(checkVersion => {
                 if (checkVersion != null) {
                     if (display) {
-                        // alert("Please check your Ledger device!");
+                        alert("Please check your Ledger device!");
                         this._$timeout(() => {
                             this._Alert.ledgerFollowInstruction();
                         });
                     }
 
                     this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((result) => {
-                        resolve(result)
+                        resolve(result);
                     }).catch((error) => {
                         this._$timeout(() => {
-                            this.alertHandler(error, true);
+                            this.alertHandler(error, true, false);
                         });
                         reject(true);
                     });
 
                 } else {
                     this._$timeout(() => {
-                        this.alertHandler(checkVersion, true);
+                        this.alertHandler(checkVersion, true, false);
                     });
                     reject(true);
                 }
             }).catch(error => {
                 this._$timeout(() => {
-                    this.alertHandler(error, true);
+                    this.alertHandler(error, true, false);
                 });
                 reject(true);
             });
@@ -270,19 +270,19 @@ class Ledger {
                         });
                     }).catch((error) => {
                         this._$timeout(() => {
-                            this.alertHandler(error);
+                            this.alertHandler(error, false, false);
                         });
                         reject('handledLedgerErrorSignal');
                     });
                 } else {
                     this._$timeout(() => {
-                        this.alertHandler(checkVersion);
+                        this.alertHandler(checkVersion, false, false);
                     });
                     reject('handledLedgerErrorSignal');
                 }
             }).catch(error => {
                 this._$timeout(() => {
-                    this.alertHandler(error);
+                    this.alertHandler(error, false, false);
                 });
                 reject('handledLedgerErrorSignal');
             });
@@ -340,7 +340,7 @@ class Ledger {
                 }
             }).catch(error => {
                 this._$timeout(() => {
-                    this.alertHandler(error);
+                    this.alertHandler(error, false, true);
                 });
                 reject(true);
             });
