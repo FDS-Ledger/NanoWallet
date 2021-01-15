@@ -6,10 +6,12 @@ import {StatusCode} from "catapult-optin-module";
 import {TransactionMapping} from "symbol-sdk";
 import {generatePaperWallet} from "symbol-paper-wallets";
 
+const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
+const VRF_ACCOUNT_PATH = "m/44'/4343'/0'/1'/0'";
 
 class MultisigOptInCtrl {
 	// Set services as constructor parameter
-    constructor(Wallet, Alert, $scope, $timeout, DataStore, $location, Recipient, CatapultOptin) {
+    constructor(Wallet, Alert, $scope, $timeout, Ledger, DataStore, $location, Recipient, CatapultOptin) {
         'ngInject';
 
         // Declaring services
@@ -17,6 +19,7 @@ class MultisigOptInCtrl {
         this._Alert = Alert;
         this._Wallet = Wallet;
         this._scope = $scope;
+        this._Ledger = Ledger;
         this._DataStore = DataStore;
         this._Recipient = Recipient;
         this._$timeout = $timeout;
@@ -77,6 +80,7 @@ class MultisigOptInCtrl {
         this.onMultisigSelectorChange();
         //Get Opt In Status
         // this.checkOptinStatus();
+        this.getLedgerSymbolAccount();
     }
 
     /**
@@ -195,6 +199,24 @@ class MultisigOptInCtrl {
     generateRandomAccount() {
         let mnemonic = MnemonicPassPhrase.createRandom();
         this.formData.optinMnemonic = mnemonic.plain;
+    }
+
+    /**
+     * Get Ledger account from harware device
+     */
+    async getLedgerSymbolAccount() {
+        const { defaultPublicKey, vrfPublicKey } = await this._Ledger.getSymbolAccounts(DEFAULT_ACCOUNT_PATH, VRF_ACCOUNT_PATH, this.catapultNetwork);
+        const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
+        const vrfAccount = PublicAccount.createFromPublicKey(vrfPublicKey, this.catapultNetwork);
+        this._$timeout(() => {
+            this.formData.optinAccount = { publicAccount: defaultAccount };
+            this.formData.optinVrfAccount = { publicAccount: vrfAccount };
+            this.formData.optinAddress = defaultAccount.address.pretty();
+            this.formData.optinVrfAddress = vrfAccount.address.pretty();
+            this.formData.optinPublicKey = defaultAccount.publicKey;
+            this.formData.optinVrfPublicKey = vrfAccount.publicKey;
+            // this.step = 11;
+        });
     }
 
     /**
