@@ -205,7 +205,8 @@ class NormalOptInCtrl {
      * Get Ledger account from harware device
      */
     async getLedgerSymbolAccount() {
-        const { defaultPublicKey, vrfPublicKey } = await this._Ledger.getSymbolAccounts(DEFAULT_ACCOUNT_PATH, VRF_ACCOUNT_PATH, this.catapultNetwork);
+        const defaultPublicKey = await this._Ledger.getSymbolAccount(DEFAULT_ACCOUNT_PATH, this.catapultNetwork, true);
+        const vrfPublicKey = await this._Ledger.getSymbolAccount(VRF_ACCOUNT_PATH, this.catapultNetwork, false);
         const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
         const vrfAccount = PublicAccount.createFromPublicKey(vrfPublicKey, this.catapultNetwork);
         this._$timeout(() => {

@@ -126,12 +126,6 @@ class Ledger {
         });
     }
 
-    async getSymbolAccounts(defaultPath, vrfPath, network) {
-        const defaultAccount = await this.getSymbolAccount(defaultPath, network, true);
-        const vrfAccount = await this.getSymbolAccount(vrfPath, network, false);
-        return { defaultPublicKey: defaultAccount.publicKey, vrfPublicKey: vrfAccount.publicKey };
-    }
-
     getSymbolAccount(hdKeypath, network, display) {
         return new Promise((resolve, reject) => {
             this.getAppVersion().then(checkVersion => {
@@ -143,8 +137,8 @@ class Ledger {
                         });
                     }
 
-                    this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((result) => {
-                        resolve(result);
+                    this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((account) => {
+                        resolve(account.publicKey);
                     }).catch((error) => {
                         this._$timeout(() => {
                             this.alertHandler(error, true, false);
