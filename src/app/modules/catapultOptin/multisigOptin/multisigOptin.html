@@ -103,10 +103,9 @@
                         </button>
                     </div>
 
-                    <!-- IMPORT LEDGER MNEMONIC -->
+                    <!-- IMPORT LEDGER ACCOUNT -->
                     <div ng-show="$ctrl.step === 2 && $ctrl._Wallet.algo === 'ledger'">
-                        <button class="btn btn-success margin-form" type="submit"
-                            ng-disabled=" (!$ctrl.formData.optinAccount)"  ng-click="$ctrl.onMnemonicClick()">
+                        <button class="btn btn-success margin-form" type="submit" ng-click="$ctrl.onLedgerUnlockClick()">
                             <i class="fa fa-unlock"></i> {{ 'CATAPULTOPTIN_UNLOCK' | translate }}
                         </button>
                     </div>
