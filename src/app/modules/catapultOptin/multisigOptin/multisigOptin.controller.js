@@ -7,7 +7,6 @@ import {TransactionMapping} from "symbol-sdk";
 import {generatePaperWallet} from "symbol-paper-wallets";
 
 const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
-const VRF_ACCOUNT_PATH = "m/44'/4343'/0'/1'/0'";
 
 class MultisigOptInCtrl {
 	// Set services as constructor parameter
@@ -80,7 +79,6 @@ class MultisigOptInCtrl {
         this.onMultisigSelectorChange();
         //Get Opt In Status
         // this.checkOptinStatus();
-        this.getLedgerSymbolAccount();
     }
 
     /**
@@ -157,6 +155,33 @@ class MultisigOptInCtrl {
     }
 
     /**
+     * Ledger account click handler
+     */
+    onLedgerUnlockClick() {
+        const nisPubKey = this._DataStore.account.metaData.account.publicKey;
+        this._Ledger.getSymbolAccount(DEFAULT_ACCOUNT_PATH, this.catapultNetwork, true).then(publicKey => {
+            const account = PublicAccount.createFromPublicKey(publicKey, this.catapultNetwork);
+            this.formData.origin.account = account;
+            if (account && account.address.pretty() === this.cosignersMapping[nisPubKey]) {
+                this._$timeout(() => {
+                    if (this.optinStatus === StatusCode.OPTIN_MS_PENDING ) {
+                        this.generateRandomAccount();
+                        this.buildOptinAccount();
+                        this.step = 3;
+                    } else if (this.optinStatus === StatusCode.OPTIN_MS_CONVERT) {
+                        this.step = 4;
+                    }
+                });
+            } else {
+                this._Alert.votingUnexpectedError("Symbol Ledger account doesn't match the account that you made normal OptIn");
+            }
+        }).catch (err => {
+            this._Alert.votingUnexpectedError("Error importing Symbol Ledger account");
+            console.log(err);
+        });
+    }
+
+    /**
      * Build optin destination data
      */
     buildCosignData() {
@@ -199,24 +224,6 @@ class MultisigOptInCtrl {
     generateRandomAccount() {
         let mnemonic = MnemonicPassPhrase.createRandom();
         this.formData.optinMnemonic = mnemonic.plain;
-    }
-
-    /**
-     * Get Ledger account from harware device
-     */
-    async getLedgerSymbolAccount() {
-        const { defaultPublicKey, vrfPublicKey } = await this._Ledger.getSymbolAccounts(DEFAULT_ACCOUNT_PATH, VRF_ACCOUNT_PATH, this.catapultNetwork);
-        const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
-        const vrfAccount = PublicAccount.createFromPublicKey(vrfPublicKey, this.catapultNetwork);
-        this._$timeout(() => {
-            this.formData.optinAccount = { publicAccount: defaultAccount };
-            this.formData.optinVrfAccount = { publicAccount: vrfAccount };
-            this.formData.optinAddress = defaultAccount.address.pretty();
-            this.formData.optinVrfAddress = vrfAccount.address.pretty();
-            this.formData.optinPublicKey = defaultAccount.publicKey;
-            this.formData.optinVrfPublicKey = vrfAccount.publicKey;
-            // this.step = 11;
-        });
     }
 
     /**
