@@ -108,12 +108,12 @@ class LedgerCtrl {
      */
     login() {
         this.okPressed = true;
-        this._Ledger.getAppVersion().then(checkVersion => {
-            if (checkVersion === 1) {
-                alert("Please check your Ledger device!");
-                this._$timeout(() => {
-                    this._Alert.ledgerFollowInstruction();
-                });
+        // this._Ledger.getAppVersion().then(checkVersion => {
+        //     if (checkVersion === 1) {
+        //         alert("Please check your Ledger device!");
+        //         this._$timeout(() => {
+        //             this._Alert.ledgerFollowInstruction();
+        //         });
                 this._Ledger.createWallet(this.network)
                     .then(wallet => {
                         this._Login.login({}, wallet);
@@ -125,19 +125,19 @@ class LedgerCtrl {
                         });
                         this.okPressed = false;
                     });
-            } else {
-                this._$timeout(() => {
-                    this.alertHandler(checkVersion);
-                });
-                this.okPressed = false;
-            }
-        })
-        .catch(error => {
-            this._$timeout(() => {
-                this.alertHandler(error);
-            });
-            this.okPressed = false;
-        });
+        //     } else {
+        //         this._$timeout(() => {
+        //             this.alertHandler(checkVersion);
+        //         });
+        //         this.okPressed = false;
+        //     }
+        // })
+        // .catch(error => {
+        //     this._$timeout(() => {
+        //         this.alertHandler(error);
+        //     });
+        //     this.okPressed = false;
+        // });
     }
     //// End methods region ////
 }
