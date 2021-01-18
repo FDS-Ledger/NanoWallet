@@ -24,4 +24,13 @@ declare const buildNamespaceDTO: (destination: Account, namespace: string, confi
  * @param config
  */
 declare const buildNormalOptInDTOsLedger: (destination: Account, namespaces: string[], vrfAccount: Account | null, config: OptinConfig) => Promise<OptInDTO[]>;
-export { buildSimpleDTO, buildNamespaceDTO, buildNormalOptInDTOsLedger };
+/**
+ * Build Start Multisig Opt in DTOs
+ * @param origin
+ * @param cosigner
+ * @param destination
+ * @param namespaces
+ * @param config
+ */
+declare const buildStartMultisigOptInDTOs: (origin: any, cosigner: Account, destination: Account, namespaces: string[], config: OptinConfig) => Promise<OptInDTO[]>;
+export { buildSimpleDTO, buildNamespaceDTO, buildNormalOptInDTOsLedger, buildStartMultisigOptInDTOs };

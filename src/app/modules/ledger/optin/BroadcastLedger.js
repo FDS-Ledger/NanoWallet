@@ -9,9 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const symbol_sdk_1 = require("symbol-sdk");
 const simpleOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/simpleOptinDTO");
 const namespaceOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/namespaceOptinDTO");
 const vrfOptinDTO_1 = require("./vrfOptinDTOLedger");
+const signalOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/signalOptinDTO");
+const convertOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/convertOptinDTO");
+const MultisigCache_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/MultisigCache");
+const cosigOptinDTO_1 = require("./cosigOptinDTOLedger");
 
 /**
  * Prepares Simple dto
@@ -61,3 +66,112 @@ const buildNormalOptInDTOsLedger = (destination, namespaces, vrfAccount, config)
   return yield Promise.all(buildDTOs);
 });
 exports.buildNormalOptInDTOsLedger = buildNormalOptInDTOsLedger;
+
+/**
+ * Build Start Multisig Opt in DTOs
+ * @param origin
+ * @param cosigner
+ * @param destination
+ * @param namespaces
+ * @param config
+ */
+
+const buildStartMultisigOptInDTOsLedger = (origin, cosigner, destination, namespaces, config) => __awaiter(void 0, void 0, void 0, function* () {
+  const cache = new MultisigCache_1.MultisigCache(origin, config);
+  yield cache.loadFromChain();
+  const signalDTO = yield buildSignalDTO(origin, destination.publicAccount);
+  cache.signalDTO = signalDTO;
+  const namespaceDTOs = [];
+  for (let namespace of namespaces) {
+      namespaceDTOs.push(yield buildNamespaceDTO(destination, namespace, config));
+  }
+  cache.namespaceDTOs = namespaceDTOs;
+  const convertDTO = yield buildConvertDTO(origin, destination, config, cache);
+  cache.convertDTO = convertDTO;
+  const cosignDTO = yield buildCosignDTO(origin, cosigner, destination.publicAccount, config, cache);
+  return [signalDTO, ...namespaceDTOs, convertDTO, cosignDTO];
+});
+exports.buildStartMultisigOptInDTOsLedger = buildStartMultisigOptInDTOsLedger;
+
+/**
+ * Prepares Signal dto
+ * @param origin
+ * @param destination
+ */
+const buildSignalDTO = (origin, destination) => __awaiter(void 0, void 0, void 0, function* () {
+  return new signalOptinDTO_1.SignalOptinDTO(origin.account.publicKey, destination.publicKey);
+});
+exports.buildSignalDTO = buildSignalDTO;
+
+/**
+ * Prepares Convert dto
+ * @param origin
+ * @param destination
+ * @param config
+ * @param cache
+ */
+const buildConvertDTO = (origin, destination, config, cache) => __awaiter(void 0, void 0, void 0, function* () {
+  if (!cache) {
+      cache = new MultisigCache_1.MultisigCache(origin, config);
+      yield cache.loadFromChain();
+  }
+  if (!cache.signalDTO) {
+      throw new Error('Signal transaction not done yet');
+  }
+  if (cache.signalDTO.destination !== destination.publicKey) {
+      throw new Error('SignalDTO destination is not the same that you are trying to convert');
+  }
+  const NISCosignerPublicKeys = origin.meta.cosignatories.map(cosignatory => cosignatory.publicKey);
+  const cosignersDestinations = cache.cosignersDestinations;
+  for (let pubKey of NISCosignerPublicKeys) {
+      if (!cosignersDestinations[pubKey]) {
+          throw new Error('Some cosignatories are pending to make simple OptIn');
+      }
+  }
+  const cosigners = Object.values(cosignersDestinations)
+      .map((pubKey) => symbol_sdk_1.PublicAccount.createFromPublicKey(pubKey, config.CATNetwork));
+  const n = origin.account.multisigInfo.minCosignatories;
+  const m = origin.account.multisigInfo.cosignatoriesCount;
+  let minRemoval;
+  if (n == 1 && m == 1) {
+      minRemoval = 1;
+  }
+  else if (n == m) {
+      minRemoval = m;
+  }
+  else if (n < m) {
+      minRemoval = m - 1;
+  }
+  else {
+      throw new Error('Invalid n/m values');
+  }
+  return convertOptinDTO_1.ConvertOptinDTO.create(destination, cosigners, n, minRemoval, config.CATNetwork);
+});
+exports.buildConvertDTO = buildConvertDTO;
+
+/**
+ * Prepares Cosign dto
+ * @param origin
+ * @param cosigner
+ * @param destination
+ * @param config
+ * @param cache
+ */
+const buildCosignDTO = (origin, cosigner, destination, config, cache) => __awaiter(void 0, void 0, void 0, function* () {
+  if (!cache) {
+      cache = new MultisigCache_1.MultisigCache(origin, config);
+      yield cache.loadFromChain();
+  }
+  if (!cache.signalDTO) {
+      throw new Error('Signal transaction not done yet');
+  }
+  if (cache.signalDTO.destination !== destination.publicKey) {
+      throw new Error('SignalDTO destination is not the same that you are trying to cosign');
+  }
+  if (!cache.convertDTO) {
+      throw new Error('No Convert DTO found');
+  }
+  return cosigOptinDTO_1.CosigOptinDTOLedger.createLedger(cosigner, cache.convertDTO, destination);
+});
+exports.buildCosignDTO = buildCosignDTO;
+
