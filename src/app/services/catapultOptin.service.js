@@ -9,7 +9,8 @@ import {
     hasOptInStopped
 } from "catapult-optin-module";
 import {
-    buildNormalOptInDTOsLedger
+    buildNormalOptInDTOsLedger,
+    buildStartMultisigOptInDTOsLedger
 } from "../modules/ledger/optin/BroadcastLedger";
 import {PublicAccount, NetworkType, Account} from "symbol-sdk";
 import {broadcastDTO, buildStartMultisigOptInDTOs} from "catapult-optin-module/dist/src/Broadcast";
@@ -263,7 +264,7 @@ class CatapultOptin {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                buildStartMultisigOptInDTOs(origin, cosigner, destination, namespaces, config).then( dtos => {
+                buildStartMultisigOptInDTOsLedger(origin, cosigner, destination, namespaces, config).then( dtos => {
                     if (this._Wallet.algo == "trezor") {
                         this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
                     } else if (this._Wallet.algo == "ledger") {
