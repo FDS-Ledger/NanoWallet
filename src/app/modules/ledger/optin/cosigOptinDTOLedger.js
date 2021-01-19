@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const nem_sdk_1 = require("nem-sdk");
 const symbol_sdk_1 = require("symbol-sdk");
+const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
 const OptInDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/OptInDTO");
 import { LedgerService } from './LedgerService';
 const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
@@ -44,7 +45,7 @@ exports.CosigOptinDTOLedger = CosigOptinDTOLedger;
  * @param convertDTO
  * @param multisigDestination
  */
-CosigOptinDTOLedger.createLedger = async (cosigner, convertDTO, multisigDestination) => {
+CosigOptinDTOLedger.createLedger = async (cosigner, convertDTO, multisigDestination, network) => {
     const transaction = symbol_sdk_1.TransactionMapping.createFromPayload(convertDTO.p);
     if (transaction instanceof symbol_sdk_1.AggregateTransaction) {
         const cosignatureTransaction = symbol_sdk_1.CosignatureTransaction.create(transaction);
@@ -52,8 +53,8 @@ CosigOptinDTOLedger.createLedger = async (cosigner, convertDTO, multisigDestinat
         let signature;
         const ledgerService = new LedgerService();
         if (cosigner.privateKey === undefined) {
-            signature = await ledgerService.signCosignatureTransaction(DEFAULT_ACCOUNT_PATH, cosignatureTransaction, cosigner.publicKey);
-
+            signature = await ledgerService.signTransaction(DEFAULT_ACCOUNT_PATH, cosignatureTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
+            
         } else {
             signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;
         }

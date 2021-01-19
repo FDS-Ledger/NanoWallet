@@ -15,12 +15,11 @@ export class LedgerService {
         return error.statusCode || error.id ? { errorCode: error.statusCode || error.id } : error;
     }
 
-    async signCosignatureTransaction(path, cosignatureTransaction, signerPublicKey) {
-        try {
- 
+    async signTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
+        try { 
             this.transport = await this.openTransport();
             const symbolLedger = new SymbolLedger(this.transport, 'XYM');
-            const result = await symbolLedger.signCosignatureTransaction(path, cosignatureTransaction, signerPublicKey);
+            const result = await symbolLedger.signTransaction(path, transaction, networkGenerationHash, signerPublicKey);
             await this.closeTransport();
             return result;
         } catch (error) {
