@@ -171,7 +171,7 @@ const buildCosignDTO = (origin, cosigner, destination, config, cache) => __await
   if (!cache.convertDTO) {
       throw new Error('No Convert DTO found');
   }
-  return cosigOptinDTO_1.CosigOptinDTOLedger.createLedger(cosigner, cache.convertDTO, destination);
+  return cosigOptinDTO_1.CosigOptinDTOLedger.createLedger(cosigner, cache.convertDTO, destination, config.CATNetwork);
 });
 exports.buildCosignDTO = buildCosignDTO;
 

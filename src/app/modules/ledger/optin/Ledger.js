@@ -34,27 +34,33 @@ export class SymbolLedger {
 
 
     /**
-     * sign a Symbol Cosignature transaction with a given BIP 44 path
+     * sign a Symbol transaction by account on Ledger at given BIP 44 path
      *
      * @param path a path in BIP 44 format
      * @param transferTransaction a transfer transaction needs to be signed
+     * @param networkGenerationHash the network generation hash of block 1
      * @param signerPublicKey the public key of signer
-     * @return a Signed Cosignature Transaction
+     * @return a signed Transaction which is signed by account at path on Ledger
      */
-    async signCosignatureTransaction(path, cosignatureTransaction, signerPublicKey) {
-        const rawPayload = cosignatureTransaction.serialize();
-        const signingBytes = cosignatureTransaction.transactionInfo.hash + rawPayload.slice(216);
+    async signTransaction(path, transferTransaction, networkGenerationHash, signerPublicKey) {
+        const rawPayload = transferTransaction.transactionToCosign.serialize();
+        const signingBytes = networkGenerationHash + rawPayload.slice(216);
         const rawTx = Buffer.from(signingBytes, 'hex');
         const response = await this.ledgerMessageHandler(path, rawTx);
         // Response from Ledger
         const h = response.toString('hex');
         const signature = h.slice(0, 128);
-        const cosignatureSignedTransaction = new CosignatureSignedTransaction(
-            cosignatureTransaction.transactionInfo.hash,
-            signature,
+        const payload = rawPayload.slice(0, 16) + signature + signerPublicKey + rawPayload.slice(16 + 128 + 64, rawPayload.length);
+        const generationHashBytes = Array.from(Convert.hexToUint8(networkGenerationHash));
+        const transactionHash = Transaction.createTransactionHash(payload, generationHashBytes);
+        const signedTransaction = new SignedTransaction(
+            payload,
+            transactionHash,
             signerPublicKey,
+            transferTransaction.type,
+            transferTransaction.networkType,
         );
-        return cosignatureSignedTransaction;
+        return signedTransaction;
     }
     /**
      * handle sending and receiving packages between Ledger and Wallet
