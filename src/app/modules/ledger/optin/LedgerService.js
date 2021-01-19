@@ -1,10 +1,8 @@
-import { DerivationPathValidator } from '@/core/validation/validators';
 import { SymbolLedger } from './Ledger';
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
 
 export class LedgerService {
-    transport;
-
+  
     async openTransport() {
         return await TransportNodeHid.open();
     }
@@ -19,10 +17,7 @@ export class LedgerService {
 
     async signCosignatureTransaction(path, cosignatureTransaction, signerPublicKey) {
         try {
-            if (false === DerivationPathValidator.validate(path)) {
-                const errorMessage = 'Invalid derivation path: ' + path;
-                throw new Error(errorMessage);
-            }
+ 
             this.transport = await this.openTransport();
             const symbolLedger = new SymbolLedger(this.transport, 'XYM');
             const result = await symbolLedger.signCosignatureTransaction(path, cosignatureTransaction, signerPublicKey);
