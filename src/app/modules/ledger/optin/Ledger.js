@@ -22,7 +22,7 @@ const SUPPORT_VERSION = { LEDGER_MAJOR_VERSION: '0', LEDGER_MINOR_VERSION: '0', 
 const CLA_FIELD = 0xe0;
 
 export class SymbolLedger {
-    transport
+
     constructor(transport, scrambleKey) {
         this.transport = transport;
         transport.decorateAppAPIMethods(
