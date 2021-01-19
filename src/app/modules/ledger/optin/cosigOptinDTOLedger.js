@@ -44,7 +44,8 @@ CosigOptinDTOLedger.createLedger = (cosigner, convertDTO, multisigDestination) =
     const transaction = symbol_sdk_1.TransactionMapping.createFromPayload(convertDTO.p);
     if (transaction instanceof symbol_sdk_1.AggregateTransaction) {
         const cosignatureTransaction = symbol_sdk_1.CosignatureTransaction.create(transaction);
-        const signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;
+        // const signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;
+        
         return new CosigOptinDTOLedger(multisigDestination.publicKey, signature);
     }
     else {
