@@ -94,13 +94,13 @@ class Ledger {
 
     addAccount(network, index, label) {
         const hdKeypath = this.bip44(network, index);
-        // return new Promise((resolve, reject) => {
-        //     this.getAppVersion().then(checkVersion => {
-        //         if (checkVersion === 1) {
-        //             alert("Please check your Ledger device!");
-        //             this._$timeout(() => {
-        //                 this._Alert.ledgerFollowInstruction();
-        //             });
+        return new Promise((resolve, reject) => {
+            this.getAppVersion().then(checkVersion => {
+                if (checkVersion === 1) {
+                    alert("Please check your Ledger device!");
+                    this._$timeout(() => {
+                        this._Alert.ledgerFollowInstruction();
+                    });
 
                     this.getAccount(hdKeypath, network, label).then((result) => {
                         resolve(result)
@@ -111,19 +111,19 @@ class Ledger {
                         reject(true);
                     });
 
-        //         } else {
-        //             this._$timeout(() => {
-        //                 this.alertHandler(checkVersion, false, false);
-        //             });
-        //             reject(true);
-        //         }
-        //     }).catch(error => {
-        //         this._$timeout(() => {
-        //             this.alertHandler(error, false, false);
-        //         });
-        //         reject(true);
-        //     });
-        // });
+                } else {
+                    this._$timeout(() => {
+                        this.alertHandler(checkVersion, false, false);
+                    });
+                    reject(true);
+                }
+            }).catch(error => {
+                this._$timeout(() => {
+                    this.alertHandler(error, false, false);
+                });
+                reject(true);
+            });
+        });
     }
 
     getSymbolAccount(hdKeypath, network, display) {
@@ -138,8 +138,8 @@ class Ledger {
                     }
 
                     this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((account) => {
-                        // resolve(account.publicKey);
-                        resolve("07193C0AA5699376AE8BCFEDC0168C069947A5E6D48C4F2A70AB39377F95205F");
+                        resolve(account.publicKey);
+                        // resolve("07193C0AA5699376AE8BCFEDC0168C069947A5E6D48C4F2A70AB39377F95205F");
                     }).catch((error) => {
                         this._$timeout(() => {
                             this.alertHandler(error, true, false);
@@ -178,32 +178,32 @@ class Ledger {
 
     async getAccount(hdKeypath, network, label, isSymbol, display) {
         try {
-            // const transport = await TransportNodeHid.open("");
-            // const nemH = new NemH(transport);
+            const transport = await TransportNodeHid.open("");
+            const nemH = new NemH(transport);
             try {
                 let account;
-                // if (isSymbol) {
-                //     account = await nemH.getSymbolAccount(hdKeypath, network, display);
-                // } else {
-                //     const result = await nemH.getAddress(hdKeypath);
+                if (isSymbol) {
+                    account = await nemH.getSymbolAccount(hdKeypath, network, display);
+                } else {
+                    const result = await nemH.getAddress(hdKeypath);
                     account = {
                         "brain": false,
                         "algo": "ledger",
                         "encrypted": "",
                         "iv": "",
-                        "address": 'TB7IB6DSJKWBVQEK7PD7TWO66ECW5LY6SISM2CJJ',
+                        "address": result.address,
                         "label": label,
                         "network": network,
                         "child": "",
                         "hdKeypath": hdKeypath,
-                        "publicKey": '9f96df7e7a639b4034b8bee5b88ab1d640db66eb5a47afe018e320cb130c183d'
+                        "publicKey": result.publicKey
                     }
-                // }
+                }
                 return Promise.resolve(account);
             } catch (err) {
                 throw err
             } finally {
-                // transport.close();
+                transport.close();
             }
         } catch (err) {
             if (err.statusCode != null) {
