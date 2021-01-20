@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nem_sdk_1 = require("nem-sdk");
 const symbol_sdk_1 = require("symbol-sdk");
 const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
-const OptInDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/OptInDTO");
+const OptInDTO_1 = require("./OptInDTO");
 import { LedgerService } from './LedgerService';
 const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
 
