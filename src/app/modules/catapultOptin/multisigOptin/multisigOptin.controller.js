@@ -159,8 +159,8 @@ class MultisigOptInCtrl {
      */
     onLedgerUnlockClick() {
         const nisPubKey = this._DataStore.account.metaData.account.publicKey;
-        // this._Ledger.getSymbolAccount(DEFAULT_ACCOUNT_PATH, this.catapultNetwork, false).then(publicKey => {
-            const account = PublicAccount.createFromPublicKey('07193C0AA5699376AE8BCFEDC0168C069947A5E6D48C4F2A70AB39377F95205F', this.catapultNetwork);
+        this._Ledger.getSymbolAccount(DEFAULT_ACCOUNT_PATH, this.catapultNetwork, false).then(publicKey => {
+            const account = PublicAccount.createFromPublicKey(publicKey, this.catapultNetwork);
             this.formData.origin.account = account;
             if (account && account.address.pretty() === this.cosignersMapping[nisPubKey]) {
                 this._$timeout(() => {
@@ -175,10 +175,10 @@ class MultisigOptInCtrl {
             } else {
                 this._Alert.votingUnexpectedError("Symbol Ledger account doesn't match the account that you made normal OptIn");
             }
-        // }).catch (err => {
-        //     this._Alert.votingUnexpectedError("Error importing Symbol Ledger account");
-        //     console.log(err);
-        // });
+        }).catch (err => {
+            this._Alert.votingUnexpectedError("Error importing Symbol Ledger account");
+            console.log(err);
+        });
     }
 
     /**
