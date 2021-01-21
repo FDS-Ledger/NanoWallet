@@ -50,15 +50,14 @@ exports.VrfOptinDTOLedger = VrfOptinDTOLedger;
  */
 VrfOptinDTOLedger.createLedger = async (destinationAccount, vrfAccount, network) => {
     let signedTransaction;
-    const notUsingMnemmonic = destinationAccount.privateKey === undefined;
-    const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), notUsingMnemmonic ? vrfAccount.publicAccount.publicKey : vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
-    if (notUsingMnemmonic) {
+    const isLedger = destinationAccount.privateKey === undefined;
+    const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), isLedger ? vrfAccount.publicAccount.publicKey : vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
+    if (isLedger) {
         const ledgerService = new LedgerService();
         signedTransaction = await ledgerService.signTransaction(VRF_ACCOUNT_PATH, vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, vrfAccount.publicAccount.publicKey);
     } else {
-        const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
         signedTransaction = destinationAccount.sign(vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH);
     }
-    return new VrfOptinDTOLedger(notUsingMnemmonic ? destinationAccount.publicAccount.publicKey : destinationAccount.publicKey, signedTransaction.payload, signedTransaction.hash);
+    return new VrfOptinDTOLedger(isLedger ? destinationAccount.publicAccount.publicKey : destinationAccount.publicKey, signedTransaction.payload, signedTransaction.hash);
 };
 //# sourceMappingURL=vrfOptinDTO.js.map
