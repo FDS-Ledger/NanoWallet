@@ -267,9 +267,11 @@
             <!-- Wallet type buttons -->
             <div class="col-md-offset-1 col-md-10">
 
-                <input id="backup_confirm" type="checkbox" ng-model="$ctrl.formData.backupConfirm">
-                <label for="backup_confirm" style="color: #44004E"><b>{{
-                    'CATAPULT_OPT_IN_CONFIRM_BACKUP' | translate }}</b></label>
+                <div ng-show="$ctrl._Wallet.algo !== 'ledger'">
+                    <input id="backup_confirm" type="checkbox" ng-model="$ctrl.formData.backupConfirm">
+                    <label for="backup_confirm" style="color: #44004E"><b>{{
+                        'CATAPULT_OPT_IN_CONFIRM_BACKUP' | translate }}</b></label>
+                </div>
 
                 <input id="understand_confirm" type="checkbox" ng-model="$ctrl.formData.understandConfirm">
                 <label class="mt-2" for="understand_confirm" style="color: #44004E" ><b>{{
@@ -288,7 +290,7 @@
                             <button class="btn symbol-button symbol-button__block" style="float:left; background: rgb(255,0,255);
 background: linear-gradient(42deg, rgba(255,0,255,1) 0%, rgba(255,255,255,1) 100%);"
                                     ng-click="$ctrl.step = 5; $ctrl.calculateFee();"
-                                    ng-disabled="!$ctrl.formData.backupConfirm || !$ctrl.formData.understandConfirm|| !$ctrl.formData.acceptTerms"
+                                    ng-disabled="$ctrl._Wallet.algo !== 'ledger' && !$ctrl.formData.backupConfirm || !$ctrl.formData.understandConfirm || !$ctrl.formData.acceptTerms"
                             >{{ 'SIGNUP_COMMON_WALLET_WARNING_CONFIRM_3' | translate }}</button>
                         </div>
                     </div>
@@ -344,9 +346,10 @@ background: linear-gradient(42deg, rgba(255,0,255,1) 0%, rgba(255,255,255,1) 100
                         <input class="form-control optin-input" type="password" ng-model="$ctrl.common.password"/>
                     </fieldset>
                 </div>
-                <!-- Instruction to use NEM Ledger app -->
+                <!-- Instruction to use correct Ledger app -->
                 <div class="row text-center" ng-show="$ctrl._Wallet.algo === 'ledger'">
-                    <h4 class="text-white"><strong>{{ 'NANO_LEDGER_OPEN_NEM_APP' | translate }}</strong></h4>
+                    <h4 class="text-white" ng-show="$ctrl.namespaces && !$ctrl.includeVrf"><strong>{{ 'NANO_LEDGER_OPEN_NEM_APP' | translate }}</strong></h4>
+                    <h4 class="text-white" ng-show="!$ctrl.namespaces || $ctrl.includeVrf"><strong>{{ 'NANO_LEDGER_OPEN_XYM_APP' | translate }}</strong></h4>
                 </div>
                 <div class="mt-4">
                     <div class="row">

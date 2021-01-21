@@ -812,6 +812,7 @@ function EnglishProvider($translateProvider) {
         NANO_LEDGER_OPTIN_INFO_2: 'Please open Symbol Ledger app on your device and click on Import Symbol account.',
         NANO_LEDGER_IMPORT_SYMBOL: 'Import Symbol account',
         NANO_LEDGER_OPEN_NEM_APP: 'Please open NEM app on your Ledger device',
+        NANO_LEDGER_OPEN_XYM_APP: 'Please open XYM app on your Ledger device',
 
         // CREATE OFFLINE TRANSACTION MODULE
         OFFLINE_TX_TITLE: 'Prepare an offline transaction',
