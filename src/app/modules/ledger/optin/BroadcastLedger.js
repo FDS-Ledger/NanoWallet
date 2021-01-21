@@ -59,9 +59,11 @@ const buildVrfDTO = (destination, vrfAccount, config) => __awaiter(void 0, void 
 const buildNormalOptInDTOsLedger = (destination, namespaces, vrfAccount, config) => __awaiter(void 0, void 0, void 0, function* () {
   const buildDTOs = [];
   buildDTOs.push(buildSimpleDTO(destination.publicAccount));
-  buildDTOs.push(...namespaces.map(namespace => buildNamespaceDTO(destination, namespace, config)));
+  for (const namespace of namespaces) {
+      buildDTOs.push(yield buildNamespaceDTO(destination, namespace, config));
+  }
   if (vrfAccount) {
-      buildDTOs.push(buildVrfDTO(destination, vrfAccount, config));
+      buildDTOs.push(yield buildVrfDTO(destination, vrfAccount, config));
   }
   return yield Promise.all(buildDTOs);
 });
