@@ -2,7 +2,7 @@ import { SymbolLedger } from './Ledger';
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
 
 export class LedgerService {
-  
+
     async openTransport() {
         return await TransportNodeHid.open();
     }
@@ -16,15 +16,15 @@ export class LedgerService {
     }
 
     async signTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
-        try { 
+        try {
             this.transport = await this.openTransport();
             const symbolLedger = new SymbolLedger(this.transport, 'XYM');
             const result = await symbolLedger.signTransaction(path, transaction, networkGenerationHash, signerPublicKey);
-            await this.closeTransport();
             return result;
         } catch (error) {
-            await this.closeTransport();
             throw this.formatError(error);
+        } finally {
+            await this.closeTransport();
         }
     }
 }

@@ -15,11 +15,7 @@
  */
 // internal dependencies
 import * as BIPPath from 'bip32-path';
-// configuration
-import { Transaction, SignedTransaction, Convert, CosignatureSignedTransaction, AggregateTransaction } from 'symbol-sdk';
-
-const SUPPORT_VERSION = { LEDGER_MAJOR_VERSION: '0', LEDGER_MINOR_VERSION: '0', LEDGER_PATCH_VERSION: '4' };
-const CLA_FIELD = 0xe0;
+import { Transaction, SignedTransaction, Convert } from 'symbol-sdk';
 
 export class SymbolLedger {
 
@@ -27,11 +23,10 @@ export class SymbolLedger {
         this.transport = transport;
         transport.decorateAppAPIMethods(
             this,
-            ['signCosignatureTransaction'],
+            ['signTransaction'],
             scrambleKey,
         );
     }
-
 
     /**
      * sign a Symbol transaction by account on Ledger at given BIP 44 path
@@ -43,14 +38,24 @@ export class SymbolLedger {
      * @return a signed Transaction which is signed by account at path on Ledger
      */
     async signTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
-        const rawPayload = transaction.transactionToCosign.serialize();
+        const rawPayload = transaction.serialize();
         const signingBytes = networkGenerationHash + rawPayload.slice(216);
         const rawTx = Buffer.from(signingBytes, 'hex');
         const response = await this.ledgerMessageHandler(path, rawTx);
         // Response from Ledger
         const h = response.toString('hex');
         const signature = h.slice(0, 128);
-        return signature;
+        const payload = rawPayload.slice(0, 16) + signature + signerPublicKey + rawPayload.slice(16 + 128 + 64, rawPayload.length);
+        const generationHashBytes = Array.from(Convert.hexToUint8(networkGenerationHash));
+        const transactionHash = Transaction.createTransactionHash(payload, generationHashBytes);
+        const signedTransaction = new SignedTransaction(
+            payload,
+            transactionHash,
+            signerPublicKey,
+            transaction.type,
+            transaction.networkType,
+        );
+        return signedTransaction;
     }
 
     /**
@@ -60,6 +65,7 @@ export class SymbolLedger {
      * @returns respond package from Ledger
      */
     async ledgerMessageHandler(path, rawTx) {
+        const CLA_FIELD = 0xe0;
         const TX_INS_FIELD = 0x04;
         const MAX_CHUNK_SIZE = 255;
         const CONTINUE_SENDING = '0x9000';

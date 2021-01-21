@@ -314,6 +314,11 @@ class NormalOptInCtrl {
         });
     }
 
+    getSymbolAccount(isLedgerWallet) {
+        if (!isLedgerWallet) {
+            this.resetEntropy();
+        }
+    }
 
     //NEW METHODS FOR REFACTOR
     resetEntropy() {
