@@ -34,7 +34,7 @@
                 <h4 style="margin-top: 15px;"><a href="https://nemplatform.com/symbol-migration" target="_blank" class="symbol-link"><strong>{{ 'OPTIN_LINK_INFO' | translate }}<span style="text-decoration: underline">{{('HERE' | translate) }}</span></strong></a></h4>
             </div>
             <!-- Ready button -->
-            <button class="btn symbol-button" ng-disabled="$ctrl.statusLoading" ng-click="$ctrl.step = 10; $ctrl.resetEntropy();">{{ 'SIGNUP_CREATE_READY_BTN' | translate }}</button>
+            <button class="btn symbol-button" ng-disabled="$ctrl.statusLoading" ng-click="$ctrl.step = 10; $ctrl.getSymbolAccount($ctrl._Wallet.algo === 'ledger');">{{ 'SIGNUP_CREATE_READY_BTN' | translate }}</button>
         </div>
 
         <!-- STEP 1.0: ENTROPY / IMPORT LEDGER ACCOUNT -->

@@ -53,8 +53,8 @@ CosigOptinDTOLedger.createLedger = async (cosigner, convertDTO, multisigDestinat
         let signature;
         const ledgerService = new LedgerService();
         if (cosigner.privateKey === undefined) {
-            signature = await ledgerService.signTransaction(DEFAULT_ACCOUNT_PATH, cosignatureTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
-            
+            const result = await ledgerService.signTransaction(DEFAULT_ACCOUNT_PATH, cosignatureTransaction.transactionToCosign, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
+            signature = result.hash;
         } else {
             signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;
         }

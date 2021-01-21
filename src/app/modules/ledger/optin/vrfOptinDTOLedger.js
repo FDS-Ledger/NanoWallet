@@ -1,24 +1,64 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const symbol_sdk_1 = require("symbol-sdk");
+const nem_sdk_1 = require("nem-sdk");
 const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
-const VrfOptInDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/vrfOptinDTO");
+const OptInDTO_1 = require("./OptInDTO");
+import { LedgerService } from './LedgerService';
+const VRF_ACCOUNT_PATH = "m/44'/4343'/0'/1'/0'";
 
-class VrfOptinDTOLedger extends VrfOptInDTO_1.VrfOptinDTO {
+class VrfOptinDTOLedger extends OptInDTO_1.OptInDTO {
     constructor(destination, payload, hash) {
-        super(destination, payload, hash);
+        super(OptInDTO_1.OptInDTOType.VRF_DTO_TYPE);
+        if (symbol_sdk_1.PublicAccount.createFromPublicKey(destination, symbol_sdk_1.NetworkType.MAIN_NET) == null)
+            throw new Error('Invalid destination public key');
+        this.destination = destination;
+        const vrfTx = symbol_sdk_1.TransactionMapping.createFromPayload(payload);
+        if (!(vrfTx instanceof symbol_sdk_1.VrfKeyLinkTransaction))
+            throw new Error('Invalid payload');
+        this.payload = payload;
+        this.hash = hash;
+    }
+    /**
+     * Create NamespaceOptinDTO from transaction
+     * @param transaction
+     */
+    static createFromTransaction(transaction) {
+        try {
+            const message = nem_sdk_1.default.utils.format.hexMessage(transaction.transaction.message);
+            const dto = JSON.parse(message);
+            if (dto.hasOwnProperty('type') && dto.type === OptInDTO_1.OptInDTOType.VRF_DTO_TYPE &&
+                dto.hasOwnProperty('destination') &&
+                dto.hasOwnProperty('payload') &&
+                dto.hasOwnProperty('hash')) {
+                return new VrfOptinDTOLedger(dto.destination, dto.payload, dto.hash);
+            }
+            else
+                return null;
+        }
+        catch (e) {
+            return null;
+        }
     }
 }
-exports.VrfOptinDTO = VrfOptinDTOLedger;
+exports.VrfOptinDTOLedger = VrfOptinDTOLedger;
 /**
  *
  * @param destinationAccount
  * @param vrfAccount
  * @param network
  */
-VrfOptinDTOLedger.createLedger = (destinationAccount, vrfAccount, network) => {
-    const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
-    const signedTransaction = destinationAccount.sign(vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH);
-    return new VrfOptinDTO(destinationAccount.publicKey, signedTransaction.payload, signedTransaction.hash);
+VrfOptinDTOLedger.createLedger = async (destinationAccount, vrfAccount, network) => {
+    let signedTransaction;
+    const notUsingMnemmonic = destinationAccount.privateKey === undefined;
+    const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), notUsingMnemmonic ? vrfAccount.publicAccount.publicKey : vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
+    if (notUsingMnemmonic) {
+        const ledgerService = new LedgerService();
+        signedTransaction = await ledgerService.signTransaction(VRF_ACCOUNT_PATH, vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, vrfAccount.publicAccount.publicKey);
+    } else {
+        const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
+        signedTransaction = destinationAccount.sign(vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH);
+    }
+    return new VrfOptinDTOLedger(notUsingMnemmonic ? destinationAccount.publicAccount.publicKey : destinationAccount.publicKey, signedTransaction.payload, signedTransaction.hash);
 };
 //# sourceMappingURL=vrfOptinDTO.js.map
