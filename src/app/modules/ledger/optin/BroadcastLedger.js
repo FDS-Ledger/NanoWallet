@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const symbol_sdk_1 = require("symbol-sdk");
 const simpleOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/simpleOptinDTO");
-const namespaceOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/namespaceOptinDTO");
+const namespaceOptinDTO_1 = require("./namespaceOptinDTOLedger");
 const vrfOptinDTO_1 = require("./vrfOptinDTOLedger");
 const signalOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/signalOptinDTO");
 const convertOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/convertOptinDTO");
@@ -34,7 +34,7 @@ exports.buildSimpleDTO = buildSimpleDTO;
  * @param config
  */
 const buildNamespaceDTO = (destination, namespace, config) => __awaiter(void 0, void 0, void 0, function* () {
-  return namespaceOptinDTO_1.NamespaceOptinDTO.create(destination, namespace, config.CATNetwork);
+  return namespaceOptinDTO_1.NamespaceOptinDTOLedger.createLedger(destination, namespace, config.CATNetwork);
 });
 exports.buildNamespaceDTO = buildNamespaceDTO;
 
