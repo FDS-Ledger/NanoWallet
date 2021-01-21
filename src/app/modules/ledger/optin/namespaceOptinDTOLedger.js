@@ -7,7 +7,7 @@ const OptInDTO_1 = require("./OptInDTO");
 import { LedgerService } from './LedgerService';
 const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
 
-class NamespaceOptinDTOLedger extends OptInDTO_1.OptInDTO {
+class NamespaceOptinDTO extends OptInDTO_1.OptInDTO {
     constructor(destination, payload, hash) {
         super(OptInDTO_1.OptInDTOType.NAMESPACE_DTO_TYPE);
         if (symbol_sdk_1.PublicAccount.createFromPublicKey(destination, symbol_sdk_1.NetworkType.MAIN_NET) == null)
@@ -31,7 +31,7 @@ class NamespaceOptinDTOLedger extends OptInDTO_1.OptInDTO {
                 dto.hasOwnProperty('destination') &&
                 dto.hasOwnProperty('payload') &&
                 dto.hasOwnProperty('hash')) {
-                return new NamespaceOptinDTOLedger(dto.destination, dto.payload, dto.hash);
+                return new NamespaceOptinDTO(dto.destination, dto.payload, dto.hash);
             }
             else
                 return null;
@@ -41,14 +41,14 @@ class NamespaceOptinDTOLedger extends OptInDTO_1.OptInDTO {
         }
     }
 }
-exports.NamespaceOptinDTOLedger = NamespaceOptinDTOLedger;
+exports.NamespaceOptinDTOLedger = NamespaceOptinDTO;
 /**
  *
  * @param destination
  * @param namespace
  * @param network
  */
-NamespaceOptinDTOLedger.createLedger = async (destination, namespace, network) => {
+NamespaceOptinDTO.createLedger = async (destination, namespace, network) => {
     let signedTransaction;
     const isLedger = destination.privateKey === undefined;
     const registerNamespaceTransaction = symbol_sdk_1.NamespaceRegistrationTransaction.createRootNamespace(symbol_sdk_1.Deadline['createFromDTO']('1'), namespace, symbol_sdk_1.UInt64.fromUint(2102400), network);
@@ -58,6 +58,6 @@ NamespaceOptinDTOLedger.createLedger = async (destination, namespace, network) =
     } else {
         signedTransaction = destination.sign(registerNamespaceTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH);
     }
-    return new NamespaceOptinDTOLedger(isLedger ? destination.publicAccount.publicKey : destination.publicKey, signedTransaction.payload, signedTransaction.hash);
+    return new NamespaceOptinDTO(isLedger ? destination.publicAccount.publicKey : destination.publicKey, signedTransaction.payload, signedTransaction.hash);
 };
 //# sourceMappingURL=namespaceOptinDTO.js.map

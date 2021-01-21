@@ -34,7 +34,7 @@ exports.buildSimpleDTO = buildSimpleDTO;
  * @param config
  */
 const buildNamespaceDTO = (destination, namespace, config) => __awaiter(void 0, void 0, void 0, function* () {
-  return namespaceOptinDTO_1.NamespaceOptinDTOLedger.createLedger(destination, namespace, config.CATNetwork);
+    return namespaceOptinDTO_1.NamespaceOptinDTOLedger.createLedger(destination, namespace, config.CATNetwork);
 });
 exports.buildNamespaceDTO = buildNamespaceDTO;
 
