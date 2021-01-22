@@ -122,6 +122,7 @@ class CatapultOptin {
                 if (this._Wallet.algo == "trezor") {
                     this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
                 } else if (this._Wallet.algo == "ledger") {
+                    alert("Please open NEM BOLOS app");
                     this._sendLedgerDTOs(common, dtos).then(resolve).catch(reject);
                 } else {
                     const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));
@@ -268,6 +269,7 @@ class CatapultOptin {
                     if (this._Wallet.algo == "trezor") {
                         this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
                     } else if (this._Wallet.algo == "ledger") {
+                        alert("Please open NEM BOLOS app");
                         this._sendLedgerDTOs(common, dtos).then(resolve).catch(reject);
                     } else {
                         const sendPromises = dtos.map(dto => broadcastDTO(common.privateKey, dto, config));

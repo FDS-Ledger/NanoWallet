@@ -346,11 +346,6 @@ background: linear-gradient(42deg, rgba(255,0,255,1) 0%, rgba(255,255,255,1) 100
                         <input class="form-control optin-input" type="password" ng-model="$ctrl.common.password"/>
                     </fieldset>
                 </div>
-                <!-- Instruction to use correct Ledger app -->
-                <div class="row text-center" ng-show="$ctrl._Wallet.algo === 'ledger'">
-                    <h4 class="text-white" ng-show="$ctrl.namespaces && !$ctrl.includeVrf"><strong>{{ 'NANO_LEDGER_OPEN_NEM_APP' | translate }}</strong></h4>
-                    <h4 class="text-white" ng-show="!$ctrl.namespaces || $ctrl.includeVrf"><strong>{{ 'NANO_LEDGER_OPEN_XYM_APP' | translate }}</strong></h4>
-                </div>
                 <div class="mt-4">
                     <div class="row">
                         <div class="col-md-6">

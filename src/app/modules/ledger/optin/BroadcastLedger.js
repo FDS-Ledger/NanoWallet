@@ -59,7 +59,10 @@ const buildVrfDTO = (destination, vrfAccount, config) => __awaiter(void 0, void 
 const buildNormalOptInDTOsLedger = (destination, namespaces, vrfAccount, config) => __awaiter(void 0, void 0, void 0, function* () {
   const buildDTOs = [];
   buildDTOs.push(buildSimpleDTO(destination.publicAccount));
-  for (const namespace of namespaces) {
+  if (namespaces.length > 0 || vrfAccount) {
+    alert("Please open XYM BOLOS app");
+  }
+  for (let namespace of namespaces) {
       buildDTOs.push(yield buildNamespaceDTO(destination, namespace, config));
   }
   if (vrfAccount) {
@@ -84,6 +87,7 @@ const buildStartMultisigOptInDTOsLedger = (origin, cosigner, destination, namesp
   const signalDTO = yield buildSignalDTO(origin, destination.publicAccount);
   cache.signalDTO = signalDTO;
   const namespaceDTOs = [];
+  alert("Please open XYM BOLOS app");
   for (let namespace of namespaces) {
       namespaceDTOs.push(yield buildNamespaceDTO(destination, namespace, config));
   }
