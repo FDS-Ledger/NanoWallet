@@ -6,7 +6,6 @@ const SUPPORT_VERSION = {
     LEDGER_MINOR_VERSION: 0,
     LEDGER_PATCH_VERSION: 4
 }
-let message;
 
 /** Service storing Ledger utility functions. */
 class Ledger {
@@ -139,7 +138,6 @@ class Ledger {
 
                     this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((account) => {
                         resolve(account.publicKey);
-                        // resolve("07193C0AA5699376AE8BCFEDC0168C069947A5E6D48C4F2A70AB39377F95205F");
                     }).catch((error) => {
                         this._$timeout(() => {
                             this.alertHandler(error, true, false);

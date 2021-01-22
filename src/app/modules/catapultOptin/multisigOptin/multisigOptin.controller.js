@@ -158,8 +158,9 @@ class MultisigOptInCtrl {
      * Ledger account click handler
      */
     onLedgerUnlockClick() {
+        alert("Please open Symbol BOLOS app");
         const nisPubKey = this._DataStore.account.metaData.account.publicKey;
-        this._Ledger.getSymbolAccount(DEFAULT_ACCOUNT_PATH, this.catapultNetwork, false).then(publicKey => {
+        this._Ledger.getSymbolAccount(DEFAULT_ACCOUNT_PATH, this.catapultNetwork, true).then(publicKey => {
             const account = PublicAccount.createFromPublicKey(publicKey, this.catapultNetwork);
             this.formData.origin.account = account;
             if (account && account.address.pretty() === this.cosignersMapping[nisPubKey]) {
