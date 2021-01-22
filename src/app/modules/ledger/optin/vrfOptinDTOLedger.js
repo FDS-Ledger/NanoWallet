@@ -4,7 +4,7 @@ const symbol_sdk_1 = require("symbol-sdk");
 const nem_sdk_1 = require("nem-sdk");
 const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
 const OptInDTO_1 = require("./OptInDTO");
-import { LedgerService } from './LedgerService';
+import LedgerService from '../ledger.service';
 const VRF_ACCOUNT_PATH = "m/44'/4343'/0'/1'/0'";
 
 class VrfOptinDTOLedger extends OptInDTO_1.OptInDTO {
@@ -54,7 +54,7 @@ VrfOptinDTOLedger.createLedger = async (destinationAccount, vrfAccount, network)
     const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), isLedger ? vrfAccount.publicAccount.publicKey : vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
     if (isLedger) {
         const ledgerService = new LedgerService();
-        signedTransaction = await ledgerService.signTransaction(VRF_ACCOUNT_PATH, vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, vrfAccount.publicAccount.publicKey);
+        signedTransaction = await ledgerService.signSymbolTransaction(VRF_ACCOUNT_PATH, vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, vrfAccount.publicAccount.publicKey);
     } else {
         signedTransaction = destinationAccount.sign(vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH);
     }

@@ -1,6 +1,7 @@
 import nem from "nem-sdk";
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
 import NemH from "./hw-app-nem";
+import SymbolH from "./hw-app-symbol";
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
     LEDGER_MINOR_VERSION: 0,
@@ -160,6 +161,67 @@ class Ledger {
         });
     }
 
+    async signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
+        return new Promise((resolve, reject) => {
+            this.getAppVersion().then(checkVersion => {
+                if (checkVersion != null) {
+                    if (display) {
+                        alert("Please check your Ledger device!");
+                        this._$timeout(() => {
+                            this._Alert.ledgerFollowInstruction();
+                        });
+                    }
+
+                    this.signTransactionSym(path, transaction, networkGenerationHash, signerPublicKey).then((result) => {
+                        resolve(result);
+                    }).catch((error) => {
+                        this._$timeout(() => {
+                            this.alertHandler(error, true, false);
+                        });
+                        reject(true);
+                    });
+
+                } else {
+                    this._$timeout(() => {
+                        this.alertHandler(checkVersion, true, false);
+                    });
+                    reject(true);
+                }
+            }).catch(error => {
+                // this._$timeout(() => {
+                    this.alertHandler(error, true, false);
+                // });
+                reject(true);
+            });
+        });
+    }
+
+    async signTransactionSym(path, transaction, networkGenerationHash, signerPublicKey) {
+        try {
+            const transport = await TransportNodeHid.open("");
+            const symbolH = new SymbolH(transport);
+            try {
+                const result = await symbolH.signTransaction(path, transaction, networkGenerationHash, signerPublicKey);
+                return Promise.resolve(result);
+            }
+            catch (err) {
+                throw err
+            } finally {
+                transport.close();
+            }
+        } catch (err) {
+            if (err.statusCode != null) {
+                return Promise.resolve(err);
+            } else if (err.id != null) {
+                return Promise.resolve(err.id);
+            } else if (err.name == "TransportError") {
+                this._Alert.ledgerFailedToSignTransaction(err.message);
+                return;
+            } else {
+                return Promise.resolve(err);
+            }
+        }
+    }
     showAccount(account) {
         alert("Please check your Ledger device!");
         this._Alert.ledgerFollowInstruction();
