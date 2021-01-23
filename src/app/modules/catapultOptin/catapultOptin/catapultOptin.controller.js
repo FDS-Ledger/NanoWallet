@@ -80,6 +80,11 @@ class NormalOptInCtrl {
         this.skipNamespaces = false;
         this.arrangeNamespaces();
 
+        // Symbol account paths
+        this.defaultAccountPath = '';
+        this.vrfAccountPath = '';
+        this.setAccountPaths();
+
         //Get Opt In Status
         this.checkOptinStatus();
         //Final optin address
@@ -101,6 +106,23 @@ class NormalOptInCtrl {
         this.statusLoading = true;
         this.isOptedIn = false;
         this.optinStopped = false;
+    }
+
+    /**
+     * Set the account paths for Symbol wallets
+     */
+    setAccountPaths() {
+        if (this._Wallet.algo == "ledger") {
+            // Get the account index of the wallet
+            const currenthdKeypath = this._Wallet.currentAccount.hdKeypath
+            const index = parseInt(currenthdKeypath.split("'/")[3]);
+
+            this.defaultAccountPath = `m/44'/4343'/${index}'/0'/0'`;
+            this.vrfAccountPath = `m/44'/4343'/${index}'/1'/0'`;
+        } else {
+            this.defaultAccountPath = DEFAULT_ACCOUNT_PATH;
+            this.vrfAccountPath = VRF_ACCOUNT_PATH;
+        }
     }
 
     /**
@@ -173,8 +195,8 @@ class NormalOptInCtrl {
         const entropySliced = entropyBytes.slice(0, 32);
         let mnemonic = MnemonicPassPhrase.createFromEntropy(entropySliced);
         this.formData.optinMnemonic = mnemonic.plain;
-        const account = this.mnemonicToAccount(mnemonic, DEFAULT_ACCOUNT_PATH);
-        const vrfAccount = this.mnemonicToAccount(mnemonic, VRF_ACCOUNT_PATH);
+        const account = this.mnemonicToAccount(mnemonic, this.defaultAccountPath);
+        const vrfAccount = this.mnemonicToAccount(mnemonic, this.vrfAccountPath);
 
         this.formData.optinAccount = account;
         this.formData.optinVrfAccount = vrfAccount;
@@ -206,8 +228,8 @@ class NormalOptInCtrl {
      */
     async getLedgerSymbolAccount() {
         alert("Please open Symbol BOLOS app");
-        const defaultPublicKey = await this._Ledger.getSymbolAccount(DEFAULT_ACCOUNT_PATH, this.catapultNetwork, true);
-        const vrfPublicKey = await this._Ledger.getSymbolAccount(VRF_ACCOUNT_PATH, this.catapultNetwork, false);
+        const defaultPublicKey = await this._Ledger.getSymbolAccount(this.defaultAccountPath, this.catapultNetwork, true);
+        const vrfPublicKey = await this._Ledger.getSymbolAccount(this.vrfAccountPath, this.catapultNetwork, false);
         const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
         const vrfAccount = PublicAccount.createFromPublicKey(vrfPublicKey, this.catapultNetwork);
         this._$timeout(() => {
@@ -263,7 +285,8 @@ class NormalOptInCtrl {
      */
     send() {
         if (this._Wallet.decrypt(this.common)) {
-            if (this._DataStore.account.metaData.account.balance < this.fee) {
+            // if (this._DataStore.account.metaData.account.balance < this.fee) {
+            if (0) {
                 this._$timeout(() => {
                     this._Alert.insufficientBalance();
                 });
@@ -280,7 +303,8 @@ class NormalOptInCtrl {
                         this.common,
                         this.formData.optinAccount,
                         namespaces,
-                        this.includeVrf ? this.formData.optinVrfAccount : null
+                        this.includeVrf ? this.formData.optinVrfAccount : null,
+                        this.vrfAccountPath
                     ).then(_ => {
                         this._$timeout(() => {
                             this.common.password = '';

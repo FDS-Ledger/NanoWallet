@@ -44,8 +44,8 @@ exports.buildNamespaceDTO = buildNamespaceDTO;
  * @param vrfAccount
  * @param config
  */
-const buildVrfDTO = (destination, vrfAccount, config) => __awaiter(void 0, void 0, void 0, function* () {
-  return vrfOptinDTO_1.VrfOptinDTOLedger.createLedger(destination, vrfAccount, config.CATNetwork);
+const buildVrfDTO = (destination, vrfAccount, vrfAcountPath, config) => __awaiter(void 0, void 0, void 0, function* () {
+  return vrfOptinDTO_1.VrfOptinDTOLedger.createLedger(destination, vrfAccount, vrfAcountPath, config.CATNetwork);
 });
 
 /**
@@ -56,7 +56,7 @@ const buildVrfDTO = (destination, vrfAccount, config) => __awaiter(void 0, void 
  * @param vrfAccount
  * @param config
  */
-const buildNormalOptInDTOsLedger = (destination, namespaces, vrfAccount, config) => __awaiter(void 0, void 0, void 0, function* () {
+const buildNormalOptInDTOsLedger = (destination, namespaces, vrfAccount, vrfAccountPath,config = 0) => __awaiter(void 0, void 0, void 0, function* () {
   const buildDTOs = [];
   buildDTOs.push(buildSimpleDTO(destination.publicAccount));
   if (namespaces.length > 0 || vrfAccount) {
@@ -66,7 +66,7 @@ const buildNormalOptInDTOsLedger = (destination, namespaces, vrfAccount, config)
       buildDTOs.push(yield buildNamespaceDTO(destination, namespace, config));
   }
   if (vrfAccount) {
-      buildDTOs.push(yield buildVrfDTO(destination, vrfAccount, config));
+      buildDTOs.push(yield buildVrfDTO(destination, vrfAccount, vrfAccountPath, config));
   }
   return yield Promise.all(buildDTOs);
 });
