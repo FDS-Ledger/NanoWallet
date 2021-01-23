@@ -1,4 +1,4 @@
-import nem from 'nem-sdk';
+    import nem from 'nem-sdk';
 import {
     buildCosignDTO,
     buildNormalOptInDTOs,
@@ -114,11 +114,12 @@ class CatapultOptin {
      * @param destination
      * @param namespaces
      * @param vrfAccount
+     * @param vrfAccountPath
      */
-    sendSimpleOptin(common, destination, namespaces, vrfAccount) {
+    sendSimpleOptin(common, destination, namespaces, vrfAccount, vrfAccountPath) {
         return new Promise( (resolve, reject) => {
             const config = this.getOptinConfig();
-            buildNormalOptInDTOsLedger(destination, namespaces, vrfAccount, config).then(dtos => {
+            buildNormalOptInDTOsLedger(destination, namespaces, vrfAccount, vrfAccountPath, config).then(dtos => {
                 if (this._Wallet.algo == "trezor") {
                     this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
                 } else if (this._Wallet.algo == "ledger") {
