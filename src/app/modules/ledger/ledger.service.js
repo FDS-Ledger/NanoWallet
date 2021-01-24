@@ -1,6 +1,8 @@
 import nem from "nem-sdk";
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
 import NemH from "./hw-app-nem";
+import SymbolH from "./hw-app-symbol";
+
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
     LEDGER_MINOR_VERSION: 0,
@@ -82,7 +84,7 @@ class Ledger {
         // recognize networkId by bip32Path;
         // "44'/43'/networkId'/walletIndex'/accountIndex'"
         const networkId = network < 0 ? 256 + network : network;
-        return (`44'/43'/${networkId}'/${index}'/0'`);
+        return (`44'/43'/${networkId}'/${index}'/1'`);
     }
 
 
@@ -136,7 +138,7 @@ class Ledger {
                         });
                     }
 
-                    this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((account) => {
+                    this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, false).then((account) => {
                         resolve(account.publicKey);
                     }).catch((error) => {
                         this._$timeout(() => {
@@ -354,6 +356,32 @@ class Ledger {
             }
             catch (err) {
                 throw err
+            } finally {
+                transport.close();
+            }
+        } catch (err) {
+            if (err.statusCode != null) {
+                return Promise.resolve(err);
+            } else if (err.id != null) {
+                return Promise.resolve(err.id);
+            } else if (err.name == "TransportError") {
+                this._Alert.ledgerFailedToSignTransaction(err.message);
+                return;
+            } else {
+                return Promise.resolve(err);
+            }
+        }
+    }
+
+    async signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
+        try {
+            const transport = await TransportNodeHid.open("");
+            const symbolH = new SymbolH(transport);
+            try {
+                const result = await symbolH.signTransaction(path, transaction, networkGenerationHash, signerPublicKey);
+                return result;
+            } catch (err) {
+                throw err;
             } finally {
                 transport.close();
             }

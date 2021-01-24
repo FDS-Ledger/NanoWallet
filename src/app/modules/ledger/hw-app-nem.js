@@ -76,7 +76,7 @@ export default class Nem {
      */
     async getAddress(path) {
         const GET_ADDRESS_INS_FIELD = 0x02
-        const display = true;
+        const display = false;
         const chainCode = false;
         const ed25519 = true;
 
