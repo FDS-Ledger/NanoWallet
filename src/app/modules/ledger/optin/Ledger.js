@@ -70,10 +70,7 @@ export class SymbolLedger {
         const MAX_CHUNK_SIZE = 255;
         const CONTINUE_SENDING = '0x9000';
 
-        const chainCode = false;
-        const ed25519 = true;
-
-        const curveMask = ed25519 ? 0x80 : 0x40;
+        const curveMask = 0x80; // use ed25519 curve
         const bipPath = BIPPath.fromString(path).toPathArray();
         const apduArray = [];
         let offset = 0;
@@ -86,7 +83,7 @@ export class SymbolLedger {
                 cla: CLA_FIELD,
                 ins: TX_INS_FIELD,
                 p1: offset === 0 ? (chunkSize < maxChunkSize ? 0x00 : 0x80) : chunkSize < maxChunkSize ? 0x01 : 0x81,
-                p2: curveMask | (chainCode ? 0x01 : 0x00),
+                p2: curveMask,
                 data: offset === 0 ? Buffer.alloc(1 + bipPath.length * 4 + chunkSize) : Buffer.alloc(chunkSize),
             };
 
