@@ -47,13 +47,13 @@ exports.VrfOptinDTOLedger = VrfOptinDTOLedger;
  * @param vrfAccount
  * @param network
  */
-VrfOptinDTOLedger.createLedger = async (destinationAccount, vrfAccount, vrfAcountPath, network) => {
+VrfOptinDTOLedger.createLedger = async (destinationAccount, destinationAccountPath, vrfAccount, network) => {
     let signedTransaction;
     const isLedger = destinationAccount.privateKey === undefined;
     const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), isLedger ? vrfAccount.publicAccount.publicKey : vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
     if (isLedger) {
         const ledgerService = new LedgerService();
-        signedTransaction = await ledgerService.signTransaction(vrfAcountPath, vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, vrfAccount.publicAccount.publicKey);
+        signedTransaction = await ledgerService.signTransaction(destinationAccountPath, vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, vrfAccount.publicAccount.publicKey);
     } else {
         signedTransaction = destinationAccount.sign(vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH);
     }

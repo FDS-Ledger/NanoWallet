@@ -451,6 +451,7 @@ class MultisigOptInCtrl {
                     this.common,
                     this.formData.multisigSelector.address,
                     this.formData.origin.account,
+                    this.defaultAccountPath,
                     this.formData.optinAccount,
                     this.includeNamespaces ? this.namespaces: []
                 ).then( _ => {

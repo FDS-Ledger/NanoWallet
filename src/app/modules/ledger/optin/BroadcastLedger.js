@@ -33,8 +33,8 @@ exports.buildSimpleDTO = buildSimpleDTO;
  * @param namespace
  * @param config
  */
-const buildNamespaceDTO = (destination, namespace, config) => __awaiter(void 0, void 0, void 0, function* () {
-    return namespaceOptinDTO_1.NamespaceOptinDTOLedger.createLedger(destination, namespace, config.CATNetwork);
+const buildNamespaceDTO = (destination, destinationPath, namespace, config) => __awaiter(void 0, void 0, void 0, function* () {
+    return namespaceOptinDTO_1.NamespaceOptinDTOLedger.createLedger(destination, destinationPath, namespace, config.CATNetwork);
 });
 exports.buildNamespaceDTO = buildNamespaceDTO;
 
@@ -44,8 +44,8 @@ exports.buildNamespaceDTO = buildNamespaceDTO;
  * @param vrfAccount
  * @param config
  */
-const buildVrfDTO = (destination, vrfAccount, vrfAcountPath, config) => __awaiter(void 0, void 0, void 0, function* () {
-  return vrfOptinDTO_1.VrfOptinDTOLedger.createLedger(destination, vrfAccount, vrfAcountPath, config.CATNetwork);
+const buildVrfDTO = (destination, destinationPath, vrfAccount, config) => __awaiter(void 0, void 0, void 0, function* () {
+  return vrfOptinDTO_1.VrfOptinDTOLedger.createLedger(destination, destinationPath, vrfAccount, config.CATNetwork);
 });
 
 /**
@@ -56,17 +56,17 @@ const buildVrfDTO = (destination, vrfAccount, vrfAcountPath, config) => __awaite
  * @param vrfAccount
  * @param config
  */
-const buildNormalOptInDTOsLedger = (destination, namespaces, vrfAccount, vrfAccountPath,config = 0) => __awaiter(void 0, void 0, void 0, function* () {
+const buildNormalOptInDTOsLedger = (destination, destinationPath, namespaces, vrfAccount, config = 0) => __awaiter(void 0, void 0, void 0, function* () {
   const buildDTOs = [];
   buildDTOs.push(buildSimpleDTO(destination.publicAccount));
   if (namespaces.length > 0 || vrfAccount) {
     alert("Please open XYM BOLOS app");
   }
   for (let namespace of namespaces) {
-      buildDTOs.push(yield buildNamespaceDTO(destination, namespace, config));
+      buildDTOs.push(yield buildNamespaceDTO(destination, destinationPath, namespace, config));
   }
   if (vrfAccount) {
-      buildDTOs.push(yield buildVrfDTO(destination, vrfAccount, vrfAccountPath, config));
+      buildDTOs.push(yield buildVrfDTO(destination, destinationPath, vrfAccount, config));
   }
   return yield Promise.all(buildDTOs);
 });
@@ -81,7 +81,7 @@ exports.buildNormalOptInDTOsLedger = buildNormalOptInDTOsLedger;
  * @param config
  */
 
-const buildStartMultisigOptInDTOsLedger = (origin, cosigner, destination, namespaces, config) => __awaiter(void 0, void 0, void 0, function* () {
+const buildStartMultisigOptInDTOsLedger = (origin, cosigner, cosignerPath, destination, namespaces, config) => __awaiter(void 0, void 0, void 0, function* () {
   const cache = new MultisigCache_1.MultisigCache(origin, config);
   yield cache.loadFromChain();
   const signalDTO = yield buildSignalDTO(origin, destination.publicAccount);
@@ -89,12 +89,12 @@ const buildStartMultisigOptInDTOsLedger = (origin, cosigner, destination, namesp
   const namespaceDTOs = [];
   alert("Please open XYM BOLOS app");
   for (let namespace of namespaces) {
-      namespaceDTOs.push(yield buildNamespaceDTO(destination, namespace, config));
+      namespaceDTOs.push(yield buildNamespaceDTO(destination, cosignerPath, namespace, config));
   }
   cache.namespaceDTOs = namespaceDTOs;
   const convertDTO = yield buildConvertDTO(origin, destination, config, cache);
   cache.convertDTO = convertDTO;
-  const cosignDTO = yield buildCosignDTO(origin, cosigner, destination.publicAccount, config, cache);
+  const cosignDTO = yield buildCosignDTO(origin, cosigner, cosignerPath, destination.publicAccount, config, cache);
   return [signalDTO, ...namespaceDTOs, convertDTO, cosignDTO];
 });
 exports.buildStartMultisigOptInDTOsLedger = buildStartMultisigOptInDTOsLedger;
@@ -163,7 +163,7 @@ exports.buildConvertDTO = buildConvertDTO;
  * @param config
  * @param cache
  */
-const buildCosignDTO = (origin, cosigner, destination, config, cache) => __awaiter(void 0, void 0, void 0, function* () {
+const buildCosignDTO = (origin, cosigner, cosignerPath, destination, config, cache) => __awaiter(void 0, void 0, void 0, function* () {
   if (!cache) {
       cache = new MultisigCache_1.MultisigCache(origin, config);
       yield cache.loadFromChain();
@@ -177,7 +177,7 @@ const buildCosignDTO = (origin, cosigner, destination, config, cache) => __await
   if (!cache.convertDTO) {
       throw new Error('No Convert DTO found');
   }
-  return cosigOptinDTO_1.CosigOptinDTOLedger.createLedger(cosigner, cache.convertDTO, destination, config.CATNetwork);
+  return cosigOptinDTO_1.CosigOptinDTOLedger.createLedger(cosigner, cosignerPath, cache.convertDTO, destination, config.CATNetwork);
 });
 exports.buildCosignDTO = buildCosignDTO;
 

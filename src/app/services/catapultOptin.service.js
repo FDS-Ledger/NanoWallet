@@ -112,14 +112,14 @@ class CatapultOptin {
      *
      * @param common
      * @param destination
+     * @param destinationPath
      * @param namespaces
      * @param vrfAccount
-     * @param vrfAccountPath
      */
-    sendSimpleOptin(common, destination, namespaces, vrfAccount, vrfAccountPath) {
+    sendSimpleOptin(common, destination, destinationPath, namespaces, vrfAccount) {
         return new Promise( (resolve, reject) => {
             const config = this.getOptinConfig();
-            buildNormalOptInDTOsLedger(destination, namespaces, vrfAccount, vrfAccountPath, config).then(dtos => {
+            buildNormalOptInDTOsLedger(destination, destinationPath, namespaces, vrfAccount, config).then(dtos => {
                 if (this._Wallet.algo == "trezor") {
                     this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
                 } else if (this._Wallet.algo == "ledger") {
@@ -262,11 +262,11 @@ class CatapultOptin {
      * @param namespaces
      * @return {Promise<unknown>}
      */
-    sendMultisigStartOptIn(common, originAddress, cosigner, destination, namespaces) {
+    sendMultisigStartOptIn(common, originAddress, cosigner, cosignerPath, destination, namespaces) {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                buildStartMultisigOptInDTOsLedger(origin, cosigner, destination, namespaces, config).then( dtos => {
+                buildStartMultisigOptInDTOsLedger(origin, cosigner, cosignerPath, destination, namespaces, config).then( dtos => {
                     if (this._Wallet.algo == "trezor") {
                         this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
                     } else if (this._Wallet.algo == "ledger") {

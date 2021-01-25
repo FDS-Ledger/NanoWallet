@@ -23,7 +23,7 @@ declare const buildNamespaceDTO: (destination: Account, namespace: string, confi
  * @param vrfAccount
  * @param config
  */
-declare const buildNormalOptInDTOsLedger: (destination: Account, namespaces: string[], vrfAccount: Account | null, vrfAccountPath: string, config: OptinConfig) => Promise<OptInDTO[]>;
+declare const buildNormalOptInDTOsLedger: (destination: Account, destinationPath: string, namespaces: string[], vrfAccount: Account | null, config: OptinConfig) => Promise<OptInDTO[]>;
 /**
  * Build Start Multisig Opt in DTOs
  * @param origin

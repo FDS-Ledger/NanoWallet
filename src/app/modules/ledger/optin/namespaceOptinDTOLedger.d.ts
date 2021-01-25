@@ -4,6 +4,6 @@ import { OptInDTO } from "./OptInDTO";
 declare class NamespaceOptinDTOLedger extends NamespaceOptinDTO {
     constructor(destination: string, payload: string, hash: string);
     static createFromTransaction(transaction: any): NamespaceOptinDTOLedger | null;
-    static createLedger: (destination: Account, namespace: string, network: NetworkType) => NamespaceOptinDTOLedger;
+    static createLedger: (destination: Account, destinationPath: string, namespace: string, network: NetworkType) => NamespaceOptinDTOLedger;
 }
 export { NamespaceOptinDTOLedger };

@@ -45,7 +45,7 @@ exports.CosigOptinDTOLedger = CosigOptinDTOLedger;
  * @param convertDTO
  * @param multisigDestination
  */
-CosigOptinDTOLedger.createLedger = async (cosigner, convertDTO, multisigDestination, network) => {
+CosigOptinDTOLedger.createLedger = async (cosigner, cosignerAcountPath, convertDTO, multisigDestination, network) => {
     const transaction = symbol_sdk_1.TransactionMapping.createFromPayload(convertDTO.p);
     if (transaction instanceof symbol_sdk_1.AggregateTransaction) {
         const cosignatureTransaction = symbol_sdk_1.CosignatureTransaction.create(transaction);
@@ -53,7 +53,7 @@ CosigOptinDTOLedger.createLedger = async (cosigner, convertDTO, multisigDestinat
         let signature;
         const ledgerService = new LedgerService();
         if (cosigner.privateKey === undefined) {
-            const result = await ledgerService.signTransaction(DEFAULT_ACCOUNT_PATH, cosignatureTransaction.transactionToCosign, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
+            const result = await ledgerService.signTransaction(cosignerAcountPath, cosignatureTransaction.transactionToCosign, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
             signature = result.hash;
         } else {
             signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;

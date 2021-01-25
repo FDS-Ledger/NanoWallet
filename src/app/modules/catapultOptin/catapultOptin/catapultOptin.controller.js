@@ -195,8 +195,8 @@ class NormalOptInCtrl {
         const entropySliced = entropyBytes.slice(0, 32);
         let mnemonic = MnemonicPassPhrase.createFromEntropy(entropySliced);
         this.formData.optinMnemonic = mnemonic.plain;
-        const account = this.mnemonicToAccount(mnemonic, this.defaultAccountPath);
-        const vrfAccount = this.mnemonicToAccount(mnemonic, this.vrfAccountPath);
+        const account = this.mnemonicToAccount(mnemonic, DEFAULT_ACCOUNT_PATH);
+        const vrfAccount = this.mnemonicToAccount(mnemonic, VRF_ACCOUNT_PATH);
 
         this.formData.optinAccount = account;
         this.formData.optinVrfAccount = vrfAccount;
@@ -302,9 +302,9 @@ class NormalOptInCtrl {
                     this._CatapultOptin.sendSimpleOptin(
                         this.common,
                         this.formData.optinAccount,
+                        this.defaultAccountPath,
                         namespaces,
-                        this.includeVrf ? this.formData.optinVrfAccount : null,
-                        this.vrfAccountPath
+                        this.includeVrf ? this.formData.optinVrfAccount : null
                     ).then(_ => {
                         this._$timeout(() => {
                             this.common.password = '';
