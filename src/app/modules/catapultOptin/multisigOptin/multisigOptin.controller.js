@@ -63,6 +63,11 @@ class MultisigOptInCtrl {
         else {
             this.catapultNetwork = NetworkType.MIJIN_TEST;
         }
+
+        // Symbol account paths
+        this.defaultAccountPath = '';
+        this.setAccountPath();
+
         //Cosigners mapping status
         this.cosignersMapping = {};
         //Optin step
@@ -79,6 +84,21 @@ class MultisigOptInCtrl {
         this.onMultisigSelectorChange();
         //Get Opt In Status
         // this.checkOptinStatus();
+    }
+
+    /**
+     * Set the account path for Symbol wallet
+     */
+    setAccountPath() {
+        if (this._Wallet.algo == "ledger") {
+            // Get the account index of the wallet
+            const currenthdKeypath = this._Wallet.currentAccount.hdKeypath
+            const index = parseInt(currenthdKeypath.split("'/")[3]);
+
+            this.defaultAccountPath = `m/44'/4343'/${index}'/0'/0'`;
+        } else {
+            this.defaultAccountPath = DEFAULT_ACCOUNT_PATH;
+        }
     }
 
     /**
@@ -160,7 +180,7 @@ class MultisigOptInCtrl {
     onLedgerUnlockClick() {
         alert("Please open Symbol BOLOS app");
         const nisPubKey = this._DataStore.account.metaData.account.publicKey;
-        this._Ledger.getSymbolAccount(DEFAULT_ACCOUNT_PATH, this.catapultNetwork, true).then(publicKey => {
+        this._Ledger.getSymbolAccount(this.defaultAccountPath, this.catapultNetwork, true).then(publicKey => {
             const account = PublicAccount.createFromPublicKey(publicKey, this.catapultNetwork);
             this.formData.origin.account = account;
             if (account && account.address.pretty() === this.cosignersMapping[nisPubKey]) {
@@ -174,7 +194,9 @@ class MultisigOptInCtrl {
                     }
                 });
             } else {
-                this._Alert.votingUnexpectedError("Symbol Ledger account doesn't match the account that you made normal OptIn");
+                this._$timeout(() => {
+                    this._Alert.votingUnexpectedError("Symbol Ledger account doesn't match the account that you made normal OptIn");
+                });
             }
         }).catch (err => {
             this._Alert.votingUnexpectedError("Error importing Symbol Ledger account");
