@@ -15,4 +15,12 @@ ledgerModule.controller('LedgerCtrl', ledgerCtrl);
 import ledgerService from './ledger.service';
 ledgerModule.service('Ledger', ledgerService);
 
+import {CosigOptinDTOLedger} from './optin/cosigOptinDTOLedger';
+ledgerModule.service('CosigOptinDTOLedgerService', CosigOptinDTOLedger);
+
+import {NamespaceOptinDTOLedger} from './optin/namespaceOptinDTOLedger';
+ledgerModule.service('NamespaceOptinDTOLedgerService', NamespaceOptinDTOLedger);
+
+import {VrfOptinDTOLedger} from './optin/vrfOptinDTOLedger';
+ledgerModule.service('VrfOptinDTOLedgerService', VrfOptinDTOLedger);
 export default ledgerModule;

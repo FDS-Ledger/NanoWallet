@@ -83,7 +83,7 @@ class Ledger {
         // recognize networkId by bip32Path;
         // "44'/43'/networkId'/walletIndex'/accountIndex'"
         const networkId = network < 0 ? 256 + network : network;
-        return (`44'/43'/${networkId}'/${index}'/0'`);
+        return (`44'/43'/${networkId}'/${index}'/'1`);
     }
 
 

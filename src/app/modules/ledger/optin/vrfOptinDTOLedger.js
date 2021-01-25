@@ -4,12 +4,15 @@ const symbol_sdk_1 = require("symbol-sdk");
 const nem_sdk_1 = require("nem-sdk");
 const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
 const OptInDTO_1 = require("./OptInDTO");
-import LedgerService from '../ledger.service';
+// import LedgerService from '../ledger.service';
 const VRF_ACCOUNT_PATH = "m/44'/4343'/0'/1'/0'";
-
+var ledger; 
 class VrfOptinDTOLedger extends OptInDTO_1.OptInDTO {
-    constructor(destination, payload, hash) {
+    constructor(destination, payload, hash, Ledger) {
+        console.log('Ledger vf',Ledger)
+        
         super(OptInDTO_1.OptInDTOType.VRF_DTO_TYPE);
+        ledger=Ledger;
         if (symbol_sdk_1.PublicAccount.createFromPublicKey(destination, symbol_sdk_1.NetworkType.MAIN_NET) == null)
             throw new Error('Invalid destination public key');
         this.destination = destination;
@@ -53,8 +56,9 @@ VrfOptinDTOLedger.createLedger = async (destinationAccount, vrfAccount, network)
     const isLedger = destinationAccount.privateKey === undefined;
     const vrfKeyLinkTransaction = symbol_sdk_1.VrfKeyLinkTransaction.create(symbol_sdk_1.Deadline['createFromDTO']('1'), isLedger ? vrfAccount.publicAccount.publicKey : vrfAccount.publicKey, symbol_sdk_1.LinkAction.Link, network);
     if (isLedger) {
-        const ledgerService = new LedgerService();
-        signedTransaction = await ledgerService.signSymbolTransaction(VRF_ACCOUNT_PATH, vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, vrfAccount.publicAccount.publicKey);
+        // const ledgerService = new LedgerService();
+        console.log('ledger' , ledger)
+        signedTransaction = await ledger.signSymbolTransaction(VRF_ACCOUNT_PATH, vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, vrfAccount.publicAccount.publicKey);
     } else {
         signedTransaction = destinationAccount.sign(vrfKeyLinkTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH);
     }

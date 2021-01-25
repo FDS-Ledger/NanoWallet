@@ -4,13 +4,16 @@ const nem_sdk_1 = require("nem-sdk");
 const symbol_sdk_1 = require("symbol-sdk");
 const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
 const OptInDTO_1 = require("./OptInDTO");
-import LedgerService from '../ledger.service';
+// import LedgerService from '../ledger.service';
 const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
-
+var ledger;
 
 class CosigOptinDTOLedger extends OptInDTO_1.OptInDTO {
-    constructor(multisig, signature) {
+    constructor(multisig, signature, Ledger) {
+        console.log('Ledger cogsi',Ledger)
         super(OptInDTO_1.OptInDTOType.COSIGN_DTO_TYPE);
+        ledger=Ledger;
+
         if (symbol_sdk_1.PublicAccount.createFromPublicKey(multisig, symbol_sdk_1.NetworkType.MAIN_NET) == null)
             throw new Error('Invalid multisig public key');
         this.multisig = multisig;
@@ -51,9 +54,9 @@ CosigOptinDTOLedger.createLedger = async (cosigner, convertDTO, multisigDestinat
         const cosignatureTransaction = symbol_sdk_1.CosignatureTransaction.create(transaction);
         // const signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;
         let signature;
-        const ledgerService = new LedgerService();
+        // const ledgerService = new LedgerService();
         if (cosigner.privateKey === undefined) {
-            const result = await ledgerService.signSymbolTransaction(DEFAULT_ACCOUNT_PATH, cosignatureTransaction.transactionToCosign, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
+            const result = await ledger.signSymbolTransaction(DEFAULT_ACCOUNT_PATH, cosignatureTransaction.transactionToCosign, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
             signature = result.hash;
         } else {
             signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;
