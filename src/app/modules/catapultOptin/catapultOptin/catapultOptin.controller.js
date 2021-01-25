@@ -285,8 +285,7 @@ class NormalOptInCtrl {
      */
     send() {
         if (this._Wallet.decrypt(this.common)) {
-            // if (this._DataStore.account.metaData.account.balance < this.fee) {
-            if (0) {
+            if (this._DataStore.account.metaData.account.balance < this.fee) {
                 this._$timeout(() => {
                     this._Alert.insufficientBalance();
                 });
