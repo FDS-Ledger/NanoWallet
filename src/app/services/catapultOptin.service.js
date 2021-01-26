@@ -168,9 +168,9 @@ class CatapultOptin {
                         }
                     }).catch(reject);
                 }
-            }).catch((error)=>{
-                if(error.ledgerError){
-                    this._$timeout(()=>{
+            }).catch((error) => {
+                if (error.ledgerError) {
+                    this._$timeout(() => {
                         this.alertHandler(...error.ledgerError);
                     });
                     reject('handledLedgerErrorSignal');
@@ -324,7 +324,16 @@ class CatapultOptin {
                             }
                         }).catch(reject);
                     }
-                }).catch(reject);
+                }).catch((error) => {
+                    if (error.ledgerError) {
+                        this._$timeout(() => {
+                            this.alertHandler(...error.ledgerError);
+                        });
+                        reject('handledLedgerErrorSignal');
+                    } else {
+                        reject(error);
+                    }
+                });
             }).catch(reject);
         });
     }

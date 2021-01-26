@@ -177,31 +177,27 @@ class MultisigOptInCtrl {
     /**
      * Ledger account click handler
      */
-    onLedgerUnlockClick() {
+    async onLedgerUnlockClick() {
         alert("Please open Symbol BOLOS app");
         const nisPubKey = this._DataStore.account.metaData.account.publicKey;
-        this._Ledger.getSymbolAccount(this.defaultAccountPath, this.catapultNetwork, true).then(publicKey => {
-            const account = PublicAccount.createFromPublicKey(publicKey, this.catapultNetwork);
-            this.formData.origin.account = account;
-            if (account && account.address.pretty() === this.cosignersMapping[nisPubKey]) {
-                this._$timeout(() => {
-                    if (this.optinStatus === StatusCode.OPTIN_MS_PENDING ) {
-                        this.generateRandomAccount();
-                        this.buildOptinAccount();
-                        this.step = 3;
-                    } else if (this.optinStatus === StatusCode.OPTIN_MS_CONVERT) {
-                        this.step = 4;
-                    }
-                });
-            } else {
-                this._$timeout(() => {
-                    this._Alert.votingUnexpectedError("Symbol Ledger account doesn't match the account that you made normal OptIn");
-                });
-            }
-        }).catch (err => {
-            this._Alert.votingUnexpectedError("Error importing Symbol Ledger account");
-            console.log(err);
-        });
+        const defaultPublicKey = await this._Ledger.getSymbolAccount(this.defaultAccountPath, this.catapultNetwork, true);
+        const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
+        this.formData.origin.account = defaultAccount;
+        if (defaultAccount && defaultAccount.address.pretty() === this.cosignersMapping[nisPubKey]) {
+            this._$timeout(() => {
+                if (this.optinStatus === StatusCode.OPTIN_MS_PENDING ) {
+                    this.generateRandomAccount();
+                    this.buildOptinAccount();
+                    this.step = 3;
+                } else if (this.optinStatus === StatusCode.OPTIN_MS_CONVERT) {
+                    this.step = 4;
+                }
+            });
+        } else {
+            this._$timeout(() => {
+                this._Alert.votingUnexpectedError("Symbol Ledger account doesn't match the account that you made normal OptIn");
+            });
+        }
     }
 
     /**
