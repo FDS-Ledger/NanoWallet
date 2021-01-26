@@ -60,7 +60,7 @@ const buildNormalOptInDTOsLedger = (destination, destinationPath, namespaces, vr
   const buildDTOs = [];
   buildDTOs.push(buildSimpleDTO(destination.publicAccount));
   if (namespaces.length > 0 || vrfAccount) {
-    alert("Please open XYM BOLOS app");
+    alert("Please open Symbol BOLOS app");
   }
   for (let namespace of namespaces) {
       buildDTOs.push(yield buildNamespaceDTO(destination, destinationPath, namespace, config));
@@ -87,7 +87,7 @@ const buildStartMultisigOptInDTOsLedger = (origin, cosigner, cosignerPath, desti
   const signalDTO = yield buildSignalDTO(origin, destination.publicAccount);
   cache.signalDTO = signalDTO;
   const namespaceDTOs = [];
-  alert("Please open XYM BOLOS app");
+  alert("Please open Symbol BOLOS app");
   for (let namespace of namespaces) {
       namespaceDTOs.push(yield buildNamespaceDTO(destination, cosignerPath, namespace, config));
   }

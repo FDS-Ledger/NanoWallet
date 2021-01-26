@@ -4,7 +4,7 @@ const symbol_sdk_1 = require("symbol-sdk");
 const nem_sdk_1 = require("nem-sdk");
 const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
 const OptInDTO_1 = require("./OptInDTO");
-import { LedgerService } from './LedgerService';
+import LedgerService from '../ledger.service';
 
 class NamespaceOptinDTO extends OptInDTO_1.OptInDTO {
     constructor(destination, payload, hash) {
@@ -53,7 +53,7 @@ NamespaceOptinDTO.createLedger = async (destination, destinationPath, namespace,
     const registerNamespaceTransaction = symbol_sdk_1.NamespaceRegistrationTransaction.createRootNamespace(symbol_sdk_1.Deadline['createFromDTO']('1'), namespace, symbol_sdk_1.UInt64.fromUint(2102400), network);
     if (isLedger) {
         const ledgerService = new LedgerService();
-        signedTransaction = await ledgerService.signTransaction(destinationPath, registerNamespaceTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, destination.publicAccount.publicKey);
+        signedTransaction = await ledgerService.signSymbolTransaction(destinationPath, registerNamespaceTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, destination.publicAccount.publicKey);
     } else {
         signedTransaction = destination.sign(registerNamespaceTransaction, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH);
     }

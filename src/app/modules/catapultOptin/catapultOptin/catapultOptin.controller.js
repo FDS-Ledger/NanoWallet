@@ -291,8 +291,6 @@ class NormalOptInCtrl {
                 });
             }
             else {
-                this.step = 0;
-                this.statusLoading = true;
                 this._$timeout(() => {
                     const namespaces = [];
                     for (let namespace of Object.keys(this.includedNamespaces)) {
@@ -306,6 +304,8 @@ class NormalOptInCtrl {
                         this.includeVrf ? this.formData.optinVrfAccount : null
                     ).then(_ => {
                         this._$timeout(() => {
+                            this.step = 0;
+                            this.statusLoading = true;
                             this.common.password = '';
                             this.checkOptinStatus();
                         });

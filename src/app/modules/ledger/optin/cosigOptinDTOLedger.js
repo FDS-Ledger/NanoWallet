@@ -4,7 +4,8 @@ const nem_sdk_1 = require("nem-sdk");
 const symbol_sdk_1 = require("symbol-sdk");
 const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
 const OptInDTO_1 = require("./OptInDTO");
-import { LedgerService } from './LedgerService';
+import LedgerService from '../ledger.service';
+
 const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
 
 
@@ -53,7 +54,7 @@ CosigOptinDTOLedger.createLedger = async (cosigner, cosignerAcountPath, convertD
         let signature;
         const ledgerService = new LedgerService();
         if (cosigner.privateKey === undefined) {
-            const result = await ledgerService.signTransaction(cosignerAcountPath, cosignatureTransaction.transactionToCosign, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
+            const result = await ledgerService.signSymbolTransaction(cosignerAcountPath, cosignatureTransaction.transactionToCosign, constants_1.OptinConstants[network].CATAPULT_GENERATION_HASH, cosigner.publicKey);
             signature = result.hash;
         } else {
             signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;

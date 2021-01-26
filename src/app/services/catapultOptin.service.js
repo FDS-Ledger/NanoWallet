@@ -24,7 +24,7 @@ class CatapultOptin {
      *
      * @params {services} - Angular services to inject
      */
-    constructor($localStorage, Wallet, Trezor, Ledger, DataStore, Alert) {
+    constructor($localStorage, Wallet, Trezor, Ledger, DataStore, Alert, $timeout ) {
         'ngInject';
 
         this.normalCaches = {};
@@ -37,6 +37,7 @@ class CatapultOptin {
         this._Trezor = Trezor;
         this._Ledger = Ledger;
         this._Alert = Alert;
+        this._$timeout = $timeout;
         // End dependencies region //
 
         // Service properties region //
@@ -108,6 +109,38 @@ class CatapultOptin {
     }
 
     /**
+     * Pop-up alert handler
+     */
+    alertHandler(inputErrorCode, isSymbolOptin, isTxSigning, txStatusText) {
+        switch (inputErrorCode) {
+            case 'NoDevice':
+                this._Alert.ledgerDeviceNotFound();
+                break;
+            case 26628:
+                this._Alert.ledgerDeviceLocked();
+                break;
+            case 27904:
+                this._Alert.ledgerNotOpenApp(isSymbolOptin);
+                break;
+            case 27264:
+                this._Alert.ledgerNotUsingCorrectApp(isSymbolOptin);
+                break;
+            case 27013:
+                isTxSigning ? this._Alert.ledgerTransactionCancelByUser() : this._Alert.ledgerRequestCancelByUser();
+                break;
+            case 26368:
+                isTxSigning ? this._Alert.ledgerNotOpenApp(isSymbolOptin) : this._Alert.ledgerTransactionTooBig();
+                break;
+            case 2:
+                this._Alert.ledgerNotSupportApp();
+                break;
+            default:
+                isTxSigning ? this._Alert.transactionError(txStatusText) : this._Alert.requestFailed(inputErrorCode);
+                break;
+        }
+    }
+
+    /**
      * Sends simple optin status
      *
      * @param common
@@ -135,7 +168,16 @@ class CatapultOptin {
                         }
                     }).catch(reject);
                 }
-            }).catch(reject);
+            }).catch((error)=>{
+                if(error.ledgerError){
+                    this._$timeout(()=>{
+                        this.alertHandler(...error.ledgerError);
+                    });
+                    reject('handledLedgerErrorSignal');
+                } else {
+                    reject(error);
+                }
+            });
         });
     }
 

@@ -1,6 +1,8 @@
 import nem from "nem-sdk";
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
 import NemH from "./hw-app-nem";
+import SymbolH from "./hw-app-symbol";
+
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
     LEDGER_MINOR_VERSION: 0,
@@ -158,6 +160,52 @@ class Ledger {
                 reject(true);
             });
         });
+    }
+
+    async signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
+        return new Promise((resolve, reject) => {
+            this.getAppVersion().then(checkVersion => {
+                if (checkVersion === 1) {
+                    alert("Please check your Ledger device!");
+                    this._signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey).then((result) => {
+                        resolve(result);
+                    }).catch((error) => {
+                        reject({ ledgerError: [error, true, false] });
+                    });
+
+                } else {
+                    reject({ ledgerError: [checkVersion, true, false] });
+                }
+            }).catch(error => {
+                reject({ ledgerError: [error, true, false] });
+            });
+        });
+    }
+
+    async _signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
+        try {
+            const transport = await TransportNodeHid.open("");
+            const symbolH = new SymbolH(transport);
+            try {
+                const result = await symbolH.signTransaction(path, transaction, networkGenerationHash, signerPublicKey);
+                return Promise.resolve(result);
+            } catch (err) {
+                throw err
+            } finally {
+                transport.close();
+            }
+        } catch (err) {
+            if (err.statusCode != null) {
+                return Promise.reject(err.statusCode);
+            } else if (err.id != null) {
+                return Promise.reject(err.id);
+            } else if (err.name == "TransportError") {
+                Promise.reject(err.message);
+                return;
+            } else {
+                return Promise.reject(err);
+            }
+        }
     }
 
     showAccount(account) {
