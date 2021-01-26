@@ -6,8 +6,6 @@ const constants_1 = require("../../../../../node_modules/catapult-optin-module/d
 const OptInDTO_1 = require("./OptInDTO");
 import LedgerService from '../ledger.service';
 
-const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
-
 
 class CosigOptinDTOLedger extends OptInDTO_1.OptInDTO {
     constructor(multisig, signature) {

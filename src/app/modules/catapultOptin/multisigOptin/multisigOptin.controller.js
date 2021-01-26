@@ -519,14 +519,15 @@ class MultisigOptInCtrl {
                 });
             }
             else {
-                this.step = 0;
                 this._$timeout(() => {
                     this._CatapultOptin.sendMultisigSignOptIn(
                         this.common,
                         this.formData.multisigSelector.address,
                         this.formData.origin.account,
+                        this.defaultAccountPath,
                         this.formData.cosign.account
                     ).then(_ => {
+                        this.step = 0;
                         this.common.password = '';
                         this.resetMultisigData();
                         setTimeout(() => {
@@ -539,7 +540,9 @@ class MultisigOptInCtrl {
                     }).catch((e) => {
                         this._$timeout(() => {
                             this.step = prevStep;
-                            this._Alert.votingUnexpectedError(e)
+                            if (e !== 'handledLedgerErrorSignal') {
+                                this._Alert.votingUnexpectedError(e);
+                            }
                         });
                     });
                 });

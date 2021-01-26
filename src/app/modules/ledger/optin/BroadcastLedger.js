@@ -59,9 +59,6 @@ const buildVrfDTO = (destination, destinationPath, vrfAccount, config) => __awai
 const buildNormalOptInDTOsLedger = (destination, destinationPath, namespaces, vrfAccount, config = 0) => __awaiter(void 0, void 0, void 0, function* () {
   const buildDTOs = [];
   buildDTOs.push(buildSimpleDTO(destination.publicAccount));
-  if (namespaces.length > 0 || vrfAccount) {
-    alert("Please open Symbol BOLOS app");
-  }
   for (let namespace of namespaces) {
       buildDTOs.push(yield buildNamespaceDTO(destination, destinationPath, namespace, config));
   }
@@ -87,14 +84,13 @@ const buildStartMultisigOptInDTOsLedger = (origin, cosigner, cosignerPath, desti
   const signalDTO = yield buildSignalDTO(origin, destination.publicAccount);
   cache.signalDTO = signalDTO;
   const namespaceDTOs = [];
-  alert("Please open Symbol BOLOS app");
   for (let namespace of namespaces) {
       namespaceDTOs.push(yield buildNamespaceDTO(destination, cosignerPath, namespace, config));
   }
   cache.namespaceDTOs = namespaceDTOs;
   const convertDTO = yield buildConvertDTO(origin, destination, config, cache);
   cache.convertDTO = convertDTO;
-  const cosignDTO = yield buildCosignDTO(origin, cosigner, cosignerPath, destination.publicAccount, config, cache);
+  const cosignDTO = yield buildCosignDTOLedger(origin, cosigner, cosignerPath, destination.publicAccount, config, cache);
   return [signalDTO, ...namespaceDTOs, convertDTO, cosignDTO];
 });
 exports.buildStartMultisigOptInDTOsLedger = buildStartMultisigOptInDTOsLedger;
@@ -163,7 +159,7 @@ exports.buildConvertDTO = buildConvertDTO;
  * @param config
  * @param cache
  */
-const buildCosignDTO = (origin, cosigner, cosignerPath, destination, config, cache) => __awaiter(void 0, void 0, void 0, function* () {
+const buildCosignDTOLedger = (origin, cosigner, cosignerPath, destination, config, cache) => __awaiter(void 0, void 0, void 0, function* () {
   if (!cache) {
       cache = new MultisigCache_1.MultisigCache(origin, config);
       yield cache.loadFromChain();
@@ -179,5 +175,5 @@ const buildCosignDTO = (origin, cosigner, cosignerPath, destination, config, cac
   }
   return cosigOptinDTO_1.CosigOptinDTOLedger.createLedger(cosigner, cosignerPath, cache.convertDTO, destination, config.CATNetwork);
 });
-exports.buildCosignDTO = buildCosignDTO;
+exports.buildCosignDTOLedger = buildCosignDTOLedger;
 

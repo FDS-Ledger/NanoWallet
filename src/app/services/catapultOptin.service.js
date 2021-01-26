@@ -1,4 +1,4 @@
-    import nem from 'nem-sdk';
+import nem from 'nem-sdk';
 import {
     buildCosignDTO,
     buildNormalOptInDTOs,
@@ -9,6 +9,7 @@ import {
     hasOptInStopped
 } from "catapult-optin-module";
 import {
+    buildCosignDTOLedger,
     buildNormalOptInDTOsLedger,
     buildStartMultisigOptInDTOsLedger
 } from "../modules/ledger/optin/BroadcastLedger";
@@ -152,6 +153,13 @@ class CatapultOptin {
     sendSimpleOptin(common, destination, destinationPath, namespaces, vrfAccount) {
         return new Promise( (resolve, reject) => {
             const config = this.getOptinConfig();
+            if (this._Wallet.algo == "ledger" && (namespaces.length > 0 || vrfAccount)) {
+                alert("Please open Symbol BOLOS app");
+                alert("Please check your Ledger device!");
+                this._$timeout(() => {
+                    this._Alert.ledgerFollowInstruction();
+                });
+            }
             buildNormalOptInDTOsLedger(destination, destinationPath, namespaces, vrfAccount, config).then(dtos => {
                 if (this._Wallet.algo == "trezor") {
                     this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
@@ -300,6 +308,7 @@ class CatapultOptin {
      * @param common
      * @param originAddress
      * @param cosigner
+     * @param cosignerPath
      * @param destination
      * @param namespaces
      * @return {Promise<unknown>}
@@ -308,6 +317,13 @@ class CatapultOptin {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
+                if (this._Wallet.algo = "ledger") {
+                    alert("Please open Symbol BOLOS app");
+                    alert("Please check your Ledger device!");
+                    this._$timeout(() => {
+                        this._Alert.ledgerFollowInstruction();
+                    });
+                }
                 buildStartMultisigOptInDTOsLedger(origin, cosigner, cosignerPath, destination, namespaces, config).then( dtos => {
                     if (this._Wallet.algo == "trezor") {
                         this._sendTrezorDTOs(common, dtos).then(resolve).catch(reject);
@@ -345,19 +361,40 @@ class CatapultOptin {
      * @param common
      * @param originAddress
      * @param cosigner
+     * @param cosignerPath
      * @param destination
      */
-    sendMultisigSignOptIn(common, originAddress, cosigner, destination) {
+    sendMultisigSignOptIn(common, originAddress, cosigner, cosignerPath, destination) {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                buildCosignDTO(origin, cosigner, destination, config).then(cosignDTO => {
-                     this.createTransactionFromDTO(cosignDTO, common).then( transaction => {
+                if (this._Wallet.algo == "ledger") {
+                    alert("Please open Symbol BOLOS app");
+                    this._$timeout(() => {
+                        this._Alert.ledgerFollowInstruction();
+                    });
+                }
+                buildCosignDTOLedger(origin, cosigner, cosignerPath, destination, config).then(cosignDTO => {
+                    this.createTransactionFromDTO(cosignDTO, common).then( transaction => {
+                        if (this._Wallet.algo == "ledger") {
+                            alert("Please open NEM BOLOS app");
+                        }
                         this._Wallet.transact(common, transaction)
                             .then(resolve)
-                            .catch(reject);
+                            .catch(err => {
+                                reject(this._Wallet.algo == "ledger" ? 'handledLedgerErrorSignal' : err);
+                            });
                     }).catch(reject);
-                }).catch(reject);
+                }).catch((error) => {
+                    if (error.ledgerError) {
+                        this._$timeout(() => {
+                            this.alertHandler(...error.ledgerError);
+                        });
+                        reject('handledLedgerErrorSignal');
+                    } else {
+                        reject(error);
+                    }
+                });
             }).catch(reject);
         });
     }
