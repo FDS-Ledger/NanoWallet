@@ -166,7 +166,6 @@ class Ledger {
         return new Promise((resolve, reject) => {
             this.getAppVersion().then(checkVersion => {
                 if (checkVersion === 1) {
-                    alert("Please check your Ledger device!");
                     this._signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey).then((result) => {
                         resolve(result);
                     }).catch((error) => {

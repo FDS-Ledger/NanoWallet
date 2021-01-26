@@ -371,6 +371,7 @@ class CatapultOptin {
                 if (this._Wallet.algo == "ledger") {
                     alert("Please open Symbol BOLOS app");
                     this._$timeout(() => {
+                        alert("Please check your Ledger device!");
                         this._Alert.ledgerFollowInstruction();
                     });
                 }
