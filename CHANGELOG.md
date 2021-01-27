@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 2.5.0
+
+    - Ledger hardware wallet support
+    - Opt-in to the same Ledger device (Ledger wallets only)
+
 ## Version 2.4.8
 
     - Fix voting service
@@ -54,7 +59,7 @@
     - Minor fixes and improvements
 
 ## Version 2.1.2
-    
+
     - Voting modules
     - Offline transaction modules
     - Advanced Apostille
@@ -64,20 +69,20 @@
     - Minor fixes and improvements
 
 ## Version 2.0.14
-    
+
     - Fix brain wallet login
 
 ## Version 2.0.13
-    
+
     - Hide Trezor login button in Chrome builds
 
 ## Version 2.0.12
-    
+
     - Fix harvesting on mainnet
     - Fix new update notification
 
 ## Version 2.0.10
-    
+
     - Fix Trezor support
     - Minor fixes and improvements
 
