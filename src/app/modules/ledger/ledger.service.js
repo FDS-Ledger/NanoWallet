@@ -224,13 +224,13 @@ class Ledger {
     async getAccount(hdKeypath, network, label, isSymbol, display) {
         try {
             const transport = await TransportNodeHid.open("");
-            const nemH = new NemH(transport);
+            const ledgerH = isSymbol ? new SymbolH(transport) : new NemH(transport);
             try {
                 let account;
                 if (isSymbol) {
-                    account = await nemH.getSymbolAccount(hdKeypath, network, display);
+                    account = await ledgerH.getAccount(hdKeypath, network, display);
                 } else {
-                    const result = await nemH.getAddress(hdKeypath);
+                    const result = await ledgerH.getAddress(hdKeypath);
                     account = {
                         "brain": false,
                         "algo": "ledger",
