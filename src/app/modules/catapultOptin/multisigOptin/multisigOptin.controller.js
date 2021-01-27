@@ -6,10 +6,11 @@ import {StatusCode} from "catapult-optin-module";
 import {TransactionMapping} from "symbol-sdk";
 import {generatePaperWallet} from "symbol-paper-wallets";
 
+const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
 
 class MultisigOptInCtrl {
 	// Set services as constructor parameter
-    constructor(Wallet, Alert, $scope, $timeout, DataStore, $location, Recipient, CatapultOptin) {
+    constructor(Wallet, Alert, $scope, $timeout, Ledger, DataStore, $location, Recipient, CatapultOptin) {
         'ngInject';
 
         // Declaring services
@@ -17,6 +18,7 @@ class MultisigOptInCtrl {
         this._Alert = Alert;
         this._Wallet = Wallet;
         this._scope = $scope;
+        this._Ledger = Ledger;
         this._DataStore = DataStore;
         this._Recipient = Recipient;
         this._$timeout = $timeout;
@@ -61,6 +63,11 @@ class MultisigOptInCtrl {
         else {
             this.catapultNetwork = NetworkType.MIJIN_TEST;
         }
+
+        // Symbol account paths
+        this.defaultAccountPath = '';
+        this.setAccountPath();
+
         //Cosigners mapping status
         this.cosignersMapping = {};
         //Optin step
@@ -77,6 +84,21 @@ class MultisigOptInCtrl {
         this.onMultisigSelectorChange();
         //Get Opt In Status
         // this.checkOptinStatus();
+    }
+
+    /**
+     * Set the account path for Symbol wallet
+     */
+    setAccountPath() {
+        if (this._Wallet.algo == "ledger") {
+            // Get the account index of the wallet
+            const currenthdKeypath = this._Wallet.currentAccount.hdKeypath;
+            const index = parseInt(currenthdKeypath.split("'/")[3]);
+
+            this.defaultAccountPath = `m/44'/4343'/${index}'/0'/0'`;
+        } else {
+            this.defaultAccountPath = DEFAULT_ACCOUNT_PATH;
+        }
     }
 
     /**
@@ -148,6 +170,32 @@ class MultisigOptInCtrl {
                 else if (this.optinStatus === StatusCode.OPTIN_MS_CONVERT) {
                     this.step = 4;
                 }
+            });
+        }
+    }
+
+    /**
+     * Ledger account click handler
+     */
+    async onLedgerUnlockClick() {
+        alert("Please open Symbol BOLOS app");
+        const nisPubKey = this._DataStore.account.metaData.account.publicKey;
+        const defaultPublicKey = await this._Ledger.getSymbolAccount(this.defaultAccountPath, this.catapultNetwork, true);
+        const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
+        this.formData.origin.account = defaultAccount;
+        if (defaultAccount && defaultAccount.address.pretty() === this.cosignersMapping[nisPubKey]) {
+            this._$timeout(() => {
+                if (this.optinStatus === StatusCode.OPTIN_MS_PENDING ) {
+                    this.generateRandomAccount();
+                    this.buildOptinAccount();
+                    this.step = 3;
+                } else if (this.optinStatus === StatusCode.OPTIN_MS_CONVERT) {
+                    this.step = 4;
+                }
+            });
+        } else {
+            this._$timeout(() => {
+                this._Alert.votingUnexpectedError("Symbol Ledger account doesn't match the account that you made normal OptIn");
             });
         }
     }
@@ -393,15 +441,16 @@ class MultisigOptInCtrl {
                 });
             }
             else {
-                this.step = 0;
                 $('#catapultOptinResume').modal('hide');
                 this._CatapultOptin.sendMultisigStartOptIn(
                     this.common,
                     this.formData.multisigSelector.address,
                     this.formData.origin.account,
+                    this.defaultAccountPath,
                     this.formData.optinAccount,
                     this.includeNamespaces ? this.namespaces: []
                 ).then( _ => {
+                    this.step = 0;
                     this.common.password = '';
                     this.resetMultisigData();
                     setTimeout(() => {
@@ -470,14 +519,15 @@ class MultisigOptInCtrl {
                 });
             }
             else {
-                this.step = 0;
                 this._$timeout(() => {
                     this._CatapultOptin.sendMultisigSignOptIn(
                         this.common,
                         this.formData.multisigSelector.address,
                         this.formData.origin.account,
+                        this.defaultAccountPath,
                         this.formData.cosign.account
                     ).then(_ => {
+                        this.step = 0;
                         this.common.password = '';
                         this.resetMultisigData();
                         setTimeout(() => {
@@ -490,7 +540,9 @@ class MultisigOptInCtrl {
                     }).catch((e) => {
                         this._$timeout(() => {
                             this.step = prevStep;
-                            this._Alert.votingUnexpectedError(e)
+                            if (e !== 'handledLedgerErrorSignal') {
+                                this._Alert.votingUnexpectedError(e);
+                            }
                         });
                     });
                 });
