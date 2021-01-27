@@ -1,7 +1,5 @@
 import nem from 'nem-sdk';
 import {
-    buildCosignDTO,
-    buildNormalOptInDTOs,
     MultisigCache,
     NormalCache,
     OptinConstants,
@@ -13,8 +11,8 @@ import {
     buildNormalOptInDTOsLedger,
     buildStartMultisigOptInDTOsLedger
 } from "../modules/ledger/optin/BroadcastLedger";
-import {PublicAccount, NetworkType, Account} from "symbol-sdk";
-import {broadcastDTO, buildStartMultisigOptInDTOs} from "catapult-optin-module/dist/src/Broadcast";
+import { NetworkType } from "symbol-sdk";
+import { broadcastDTO } from "catapult-optin-module/dist/src/Broadcast";
 
 
 /** Service with relative functions on symbol opt in books. */
@@ -25,7 +23,7 @@ class CatapultOptin {
      *
      * @params {services} - Angular services to inject
      */
-    constructor($localStorage, Wallet, Trezor, Ledger, DataStore, Alert, $timeout ) {
+    constructor($localStorage, Wallet, Trezor, Ledger, DataStore, Alert, $timeout) {
         'ngInject';
 
         this.normalCaches = {};

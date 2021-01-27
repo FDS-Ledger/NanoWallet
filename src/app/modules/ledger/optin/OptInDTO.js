@@ -18,4 +18,3 @@ class OptInDTO {
     }
 }
 exports.OptInDTO = OptInDTO;
-//# sourceMappingURL=OptInDTO.js.map

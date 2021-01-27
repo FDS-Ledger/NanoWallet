@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const symbol_sdk_1 = require("symbol-sdk");
 const nem_sdk_1 = require("nem-sdk");
-const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
+const constants_1 = require("catapult-optin-module/dist/src/constants");
 const OptInDTO_1 = require("./OptInDTO");
 import LedgerService from '../ledger.service';
 
@@ -59,4 +59,3 @@ NamespaceOptinDTO.createLedger = async (destination, destinationPath, namespace,
     }
     return new NamespaceOptinDTO(isLedger ? destination.publicAccount.publicKey : destination.publicKey, signedTransaction.payload, signedTransaction.hash);
 };
-//# sourceMappingURL=namespaceOptinDTO.js.map

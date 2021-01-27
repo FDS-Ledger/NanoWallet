@@ -92,7 +92,7 @@ class MultisigOptInCtrl {
     setAccountPath() {
         if (this._Wallet.algo == "ledger") {
             // Get the account index of the wallet
-            const currenthdKeypath = this._Wallet.currentAccount.hdKeypath
+            const currenthdKeypath = this._Wallet.currentAccount.hdKeypath;
             const index = parseInt(currenthdKeypath.split("'/")[3]);
 
             this.defaultAccountPath = `m/44'/4343'/${index}'/0'/0'`;
@@ -441,7 +441,6 @@ class MultisigOptInCtrl {
                 });
             }
             else {
-                this.step = 0;
                 $('#catapultOptinResume').modal('hide');
                 this._CatapultOptin.sendMultisigStartOptIn(
                     this.common,
@@ -451,6 +450,7 @@ class MultisigOptInCtrl {
                     this.formData.optinAccount,
                     this.includeNamespaces ? this.namespaces: []
                 ).then( _ => {
+                    this.step = 0;
                     this.common.password = '';
                     this.resetMultisigData();
                     setTimeout(() => {

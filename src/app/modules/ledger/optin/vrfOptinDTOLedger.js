@@ -59,4 +59,3 @@ VrfOptinDTOLedger.createLedger = async (destinationAccount, destinationAccountPa
     }
     return new VrfOptinDTOLedger(isLedger ? destinationAccount.publicAccount.publicKey : destinationAccount.publicKey, signedTransaction.payload, signedTransaction.hash);
 };
-//# sourceMappingURL=vrfOptinDTO.js.map

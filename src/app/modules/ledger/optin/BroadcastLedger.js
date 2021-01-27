@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const symbol_sdk_1 = require("symbol-sdk");
-const simpleOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/simpleOptinDTO");
+const simpleOptinDTO_1 = require("catapult-optin-module/dist/src/model/simpleOptinDTO");
 const namespaceOptinDTO_1 = require("./namespaceOptinDTOLedger");
 const vrfOptinDTO_1 = require("./vrfOptinDTOLedger");
-const signalOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/signalOptinDTO");
-const convertOptinDTO_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/model/convertOptinDTO");
-const MultisigCache_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/MultisigCache");
+const signalOptinDTO_1 = require("catapult-optin-module/dist/src/model/signalOptinDTO");
+const convertOptinDTO_1 = require("catapult-optin-module/dist/src/model/convertOptinDTO");
+const MultisigCache_1 = require("catapult-optin-module/dist/src/MultisigCache");
 const cosigOptinDTO_1 = require("./cosigOptinDTOLedger");
 
 /**

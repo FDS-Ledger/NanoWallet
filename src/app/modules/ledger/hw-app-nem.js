@@ -23,7 +23,7 @@ export default class Nem {
     constructor(transport, scrambleKey = "NEM") {
         this.transport = transport;
         transport.decorateAppAPIMethods(this,
-            ["getAppVersion", "getAddress", "getRemoteAccount", "getSymbolAccount", "signTransaction"],
+            ["getAppVersion", "getAddress", "getRemoteAccount", "signTransaction"],
             scrambleKey);
     }
 

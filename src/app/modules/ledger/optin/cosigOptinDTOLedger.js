@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const nem_sdk_1 = require("nem-sdk");
 const symbol_sdk_1 = require("symbol-sdk");
-const constants_1 = require("../../../../../node_modules/catapult-optin-module/dist/src/constants");
+const constants_1 = require("catapult-optin-module/dist/src/constants");
 const OptInDTO_1 = require("./OptInDTO");
 import LedgerService from '../ledger.service';
 
@@ -48,7 +48,6 @@ CosigOptinDTOLedger.createLedger = async (cosigner, cosignerAcountPath, convertD
     const transaction = symbol_sdk_1.TransactionMapping.createFromPayload(convertDTO.p);
     if (transaction instanceof symbol_sdk_1.AggregateTransaction) {
         const cosignatureTransaction = symbol_sdk_1.CosignatureTransaction.create(transaction);
-        // const signature = cosignatureTransaction.signWith(cosigner, convertDTO.h).signature;
         let signature;
         const ledgerService = new LedgerService();
         if (cosigner.privateKey === undefined) {
@@ -63,4 +62,3 @@ CosigOptinDTOLedger.createLedger = async (cosigner, cosignerAcountPath, convertD
         throw Error('Wrong transaction payload');
     }
 };
-//# sourceMappingURL=cosigOptinDTO.js.map
