@@ -17,7 +17,7 @@ const VRF_ACCOUNT_PATH = "m/44'/4343'/0'/1'/0'";
 
 class NormalOptInCtrl {
     // Set services as constructor parameter
-    constructor(Wallet, Alert, $scope, $timeout, DataStore, $location, Recipient, CatapultOptin) {
+    constructor(Wallet, Alert, $scope, $timeout, DataStore, $location, Recipient, CatapultOptin, Ledger) {
         'ngInject';
 
         // Declaring services
@@ -29,6 +29,7 @@ class NormalOptInCtrl {
         this._Recipient = Recipient;
         this._$timeout = $timeout;
         this._CatapultOptin = CatapultOptin;
+        this._Ledger = Ledger;
 
 
         // If no wallet show alert and redirect to home
@@ -79,6 +80,11 @@ class NormalOptInCtrl {
         this.skipNamespaces = false;
         this.arrangeNamespaces();
 
+        // Symbol account paths
+        this.defaultAccountPath = '';
+        this.vrfAccountPath = '';
+        this.setAccountPaths();
+
         //Get Opt In Status
         this.checkOptinStatus();
         //Final optin address
@@ -100,6 +106,23 @@ class NormalOptInCtrl {
         this.statusLoading = true;
         this.isOptedIn = false;
         this.optinStopped = false;
+    }
+
+    /**
+     * Set the account paths for Symbol wallets
+     */
+    setAccountPaths() {
+        if (this._Wallet.algo == "ledger") {
+            // Get the account index of the wallet
+            const currenthdKeypath = this._Wallet.currentAccount.hdKeypath
+            const index = parseInt(currenthdKeypath.split("'/")[2]);
+
+            this.defaultAccountPath = `m/44'/4343'/${index}'/0'/0'`;
+            this.vrfAccountPath = `m/44'/4343'/${index}'/1'/0'`;
+        } else {
+            this.defaultAccountPath = DEFAULT_ACCOUNT_PATH;
+            this.vrfAccountPath = VRF_ACCOUNT_PATH;
+        }
     }
 
     /**
@@ -201,6 +224,26 @@ class NormalOptInCtrl {
     }
 
     /**
+     * Get Ledger account from harware device
+     */
+    async getLedgerSymbolAccount() {
+        alert("Please open Symbol BOLOS app");
+        const defaultPublicKey = await this._Ledger.getSymbolAccount(this.defaultAccountPath, this.catapultNetwork, true);
+        const vrfPublicKey = await this._Ledger.getSymbolAccount(this.vrfAccountPath, this.catapultNetwork, false);
+        const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
+        const vrfAccount = PublicAccount.createFromPublicKey(vrfPublicKey, this.catapultNetwork);
+        this._$timeout(() => {
+            this.formData.optinAccount = { publicAccount: defaultAccount };
+            this.formData.optinVrfAccount = { publicAccount: vrfAccount };
+            this.formData.optinAddress = defaultAccount.address.pretty();
+            this.formData.optinVrfAddress = vrfAccount.address.pretty();
+            this.formData.optinPublicKey = defaultAccount.publicKey;
+            this.formData.optinVrfPublicKey = vrfAccount.publicKey;
+            this.step = 11;
+        });
+    }
+
+    /**
      * Arrange namespaces into an array
      */
     arrangeNamespaces() {
@@ -232,7 +275,9 @@ class NormalOptInCtrl {
         this.formData.optinVrfPublicKey = '';
         this.formData.optinPrivateKey = '';
         this.formData.optinVrfPrivateKey = '';
-        this.resetEntropy();
+        if (this._Wallet.algo !== 'ledger') {
+            this.resetEntropy();
+        }
     }
 
     /**
@@ -246,8 +291,6 @@ class NormalOptInCtrl {
                 });
             }
             else {
-                this.step = 0;
-                this.statusLoading = true;
                 this._$timeout(() => {
                     const namespaces = [];
                     for (let namespace of Object.keys(this.includedNamespaces)) {
@@ -256,10 +299,13 @@ class NormalOptInCtrl {
                     this._CatapultOptin.sendSimpleOptin(
                         this.common,
                         this.formData.optinAccount,
+                        this.defaultAccountPath,
                         namespaces,
                         this.includeVrf ? this.formData.optinVrfAccount : null
                     ).then(_ => {
                         this._$timeout(() => {
+                            this.step = 0;
+                            this.statusLoading = true;
                             this.common.password = '';
                             this.checkOptinStatus();
                         });
@@ -292,6 +338,11 @@ class NormalOptInCtrl {
         });
     }
 
+    getSymbolAccount(isLedgerWallet) {
+        if (!isLedgerWallet) {
+            this.resetEntropy();
+        }
+    }
 
     //NEW METHODS FOR REFACTOR
     resetEntropy() {

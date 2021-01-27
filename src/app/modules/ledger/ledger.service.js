@@ -1,12 +1,13 @@
 import nem from "nem-sdk";
 const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'].default;
 import NemH from "./hw-app-nem";
+import SymbolH from "./hw-app-symbol";
+
 const SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
     LEDGER_MINOR_VERSION: 0,
-    LEDGER_PATCH_VERSION: 4
+    LEDGER_PATCH_VERSION: 7
 }
-let message;
 
 /** Service storing Ledger utility functions. */
 class Ledger {
@@ -37,7 +38,7 @@ class Ledger {
     /**
      * Pop-up alert handler
      */
-    alertHandler(inputErrorCode, isTxSigning, txStatusText) {
+    alertHandler(inputErrorCode, isSymbolOptin, isTxSigning, txStatusText) {
         switch (inputErrorCode) {
             case 'NoDevice':
                 this._Alert.ledgerDeviceNotFound();
@@ -46,16 +47,16 @@ class Ledger {
                 this._Alert.ledgerDeviceLocked();
                 break;
             case 27904:
-                this._Alert.ledgerNotOpenApp();
+                this._Alert.ledgerNotOpenApp(isSymbolOptin);
                 break;
             case 27264:
-                this._Alert.ledgerNotUsingNemApp();
+                this._Alert.ledgerNotUsingCorrectApp(isSymbolOptin);
                 break;
             case 27013:
                 isTxSigning ? this._Alert.ledgerTransactionCancelByUser() : this._Alert.ledgerRequestCancelByUser();
                 break;
             case 26368:
-                this._Alert.ledgerTransactionTooBig();
+                isTxSigning ? this._Alert.ledgerNotOpenApp(isSymbolOptin) : this._Alert.ledgerTransactionTooBig();
                 break;
             case 2:
                 this._Alert.ledgerNotSupportApp();
@@ -82,8 +83,7 @@ class Ledger {
     bip44(network, index) {
         const coinType = network == 104 ? 43 : 1;
         return `m/44'/${coinType}'/${index}'/0'/0'`;
-      }
-
+    }
 
     createAccount(network, index, label) {
         const hdKeypath = this.bip44(network, index);
@@ -104,24 +104,104 @@ class Ledger {
                         resolve(result)
                     }).catch((error) => {
                         this._$timeout(() => {
-                            this.alertHandler(error);
+                            this.alertHandler(error, false, false);
                         });
                         reject(true);
                     });
 
                 } else {
                     this._$timeout(() => {
-                        this.alertHandler(checkVersion);
+                        this.alertHandler(checkVersion, false, false);
                     });
                     reject(true);
                 }
             }).catch(error => {
                 this._$timeout(() => {
-                    this.alertHandler(error);
+                    this.alertHandler(error, false, false);
                 });
                 reject(true);
             });
         });
+    }
+
+    getSymbolAccount(hdKeypath, network, display) {
+        return new Promise((resolve, reject) => {
+            this.getAppVersion().then(checkVersion => {
+                if (checkVersion != null) {
+                    if (display) {
+                        alert("Please check your Ledger device!");
+                        this._$timeout(() => {
+                            this._Alert.ledgerFollowInstruction();
+                        });
+                    }
+
+                    this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((account) => {
+                        resolve(account.publicKey);
+                    }).catch((error) => {
+                        this._$timeout(() => {
+                            this.alertHandler(error, true, false);
+                        });
+                        reject(true);
+                    });
+
+                } else {
+                    this._$timeout(() => {
+                        this.alertHandler(checkVersion, true, false);
+                    });
+                    reject(true);
+                }
+            }).catch(error => {
+                this._$timeout(() => {
+                    this.alertHandler(error, true, false);
+                });
+                reject(true);
+            });
+        });
+    }
+
+    async signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
+        return new Promise((resolve, reject) => {
+            this.getAppVersion().then(checkVersion => {
+                if (checkVersion === 1) {
+                    this._signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey).then((result) => {
+                        resolve(result);
+                    }).catch((error) => {
+                        reject({ ledgerError: [error, true, false] });
+                    });
+
+                } else {
+                    reject({ ledgerError: [checkVersion, true, false] });
+                }
+            }).catch(error => {
+                reject({ ledgerError: [error, true, false] });
+            });
+        });
+    }
+
+    async _signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
+        try {
+            const transport = await TransportNodeHid.open("");
+            const symbolH = new SymbolH(transport);
+            try {
+                const result = await symbolH.signTransaction(path, transaction, networkGenerationHash, signerPublicKey);
+                return Promise.resolve(result);
+            } catch (err) {
+                throw err
+            } finally {
+                transport.close();
+            }
+        } catch (err) {
+            if (err.statusCode != null) {
+                return Promise.reject(err.statusCode);
+            } else if (err.id != null) {
+                return Promise.reject(err.id);
+            } else if (err.name == "TransportError") {
+                Promise.reject(err.message);
+                return;
+            } else {
+                return Promise.reject(err);
+            }
+        }
     }
 
     showAccount(account) {
@@ -138,15 +218,18 @@ class Ledger {
         });
     }
 
-    async getAccount(hdKeypath, network, label) {
+    async getAccount(hdKeypath, network, label, isSymbol, display) {
         try {
             const transport = await TransportNodeHid.open("");
-            const nemH = new NemH(transport);
+            const ledgerH = isSymbol ? new SymbolH(transport) : new NemH(transport);
             try {
-                const networkType = network < 0 ? 256 + network : network;
-                const result = await nemH.getAddress(hdKeypath, networkType);
-                return Promise.resolve(
-                    {
+                let account;
+                if (isSymbol) {
+                    account = await ledgerH.getAccount(hdKeypath, network, display);
+                } else {
+                    const networkType = network < 0 ? 256 + network : network;
+                    const result = await ledgerH.getAddress(hdKeypath, networkType);
+                    account = {
                         "brain": false,
                         "algo": "ledger",
                         "encrypted": "",
@@ -158,7 +241,8 @@ class Ledger {
                         "hdKeypath": hdKeypath,
                         "publicKey": result.publicKey
                     }
-                );
+                }
+                return Promise.resolve(account);
             } catch (err) {
                 throw err
             } finally {
@@ -224,19 +308,19 @@ class Ledger {
                         });
                     }).catch((error) => {
                         this._$timeout(() => {
-                            this.alertHandler(error);
+                            this.alertHandler(error, false, false);
                         });
                         reject('handledLedgerErrorSignal');
                     });
                 } else {
                     this._$timeout(() => {
-                        this.alertHandler(checkVersion);
+                        this.alertHandler(checkVersion, false, false);
                     });
                     reject('handledLedgerErrorSignal');
                 }
             }).catch(error => {
                 this._$timeout(() => {
-                    this.alertHandler(error);
+                    this.alertHandler(error, false, false);
                 });
                 reject('handledLedgerErrorSignal');
             });
@@ -282,19 +366,19 @@ class Ledger {
                         resolve(payload);
                     } else {
                         this._$timeout(() => {
-                            this.alertHandler(payload.statusCode, true, payload.statusText);
+                            this.alertHandler(payload.statusCode, false, true, payload.statusText);
                         });
                         reject(payload);
                     }
                 } else {
                     this._$timeout(() => {
-                        this.alertHandler(checkVersion, true);
+                        this.alertHandler(checkVersion, false, true);
                     });
                     reject(true);
                 }
             }).catch(error => {
                 this._$timeout(() => {
-                    this.alertHandler(error);
+                    this.alertHandler(error, false, true);
                 });
                 reject(true);
             });

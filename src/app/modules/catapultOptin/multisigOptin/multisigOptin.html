@@ -75,7 +75,7 @@
 
                     <br>
                     <!-- ENTER MNEMONIC -->
-                    <div ng-show="$ctrl.step === 2">
+                    <div ng-show="$ctrl.step === 2 && $ctrl._Wallet.algo !== 'ledger'">
                         <!-- Catapult Account Information -->
                         <div class="panel-heading margin-form">
                             <h3>{{ 'CATAPULTOPTIN_ACCOUNT_UNLOCK' | translate }}</h3>
@@ -99,6 +99,13 @@
 
                         <button class="btn btn-success margin-form" type="submit"
                                 ng-disabled=" (!$ctrl.formData.origin.mnemonic)" ng-click="$ctrl.onMnemonicClick()">
+                            <i class="fa fa-unlock"></i> {{ 'CATAPULTOPTIN_UNLOCK' | translate }}
+                        </button>
+                    </div>
+
+                    <!-- IMPORT LEDGER ACCOUNT -->
+                    <div ng-show="$ctrl.step === 2 && $ctrl._Wallet.algo === 'ledger'">
+                        <button class="btn btn-success margin-form" type="submit" ng-click="$ctrl.onLedgerUnlockClick()">
                             <i class="fa fa-unlock"></i> {{ 'CATAPULTOPTIN_UNLOCK' | translate }}
                         </button>
                     </div>
