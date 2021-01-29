@@ -315,7 +315,7 @@ class CatapultOptin {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                if (this._Wallet.algo = "ledger") {
+                if (this._Wallet.algo == "ledger") {
                     alert("Please open Symbol BOLOS app");
                     alert("Please check your Ledger device!");
                     this._$timeout(() => {
