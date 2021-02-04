@@ -148,10 +148,10 @@ class CatapultOptin {
      * @param namespaces
      * @param vrfAccount
      */
-    sendSimpleOptin(common, destination, destinationPath, namespaces, vrfAccount) {
+    sendSimpleOptin(common, destination, destinationPath, namespaces, vrfAccount, isTrezorOptinLedger) {
         return new Promise( (resolve, reject) => {
             const config = this.getOptinConfig();
-            if (this._Wallet.algo == "ledger" && (namespaces.length > 0 || vrfAccount)) {
+            if ((this._Wallet.algo == "ledger" || isTrezorOptinLedger) && (namespaces.length > 0 || vrfAccount)) {
                 alert("Please open Symbol BOLOS app");
                 alert("Please check your Ledger device!");
                 this._$timeout(() => {
@@ -315,7 +315,7 @@ class CatapultOptin {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                if (this._Wallet.algo = "ledger") {
+                if (this._Wallet.algo == "ledger" || this._Wallet.algo == "trezor") {
                     alert("Please open Symbol BOLOS app");
                     alert("Please check your Ledger device!");
                     this._$timeout(() => {
@@ -366,7 +366,7 @@ class CatapultOptin {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                if (this._Wallet.algo == "ledger") {
+                if (this._Wallet.algo == "ledger" || this._Wallet.algo == "trezor") {
                     alert("Please open Symbol BOLOS app");
                     this._$timeout(() => {
                         alert("Please check your Ledger device!");
@@ -381,7 +381,7 @@ class CatapultOptin {
                         this._Wallet.transact(common, transaction)
                             .then(resolve)
                             .catch(err => {
-                                reject(this._Wallet.algo == "ledger" ? 'handledLedgerErrorSignal' : err);
+                                reject(this._Wallet.algo == "ledger" || this._Wallet.algo == "trezor" ? 'handledLedgerErrorSignal' : err);
                             });
                     }).catch(reject);
                 }).catch((error) => {

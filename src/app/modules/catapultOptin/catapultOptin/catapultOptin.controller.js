@@ -106,13 +106,14 @@ class NormalOptInCtrl {
         this.statusLoading = true;
         this.isOptedIn = false;
         this.optinStopped = false;
+        this.isTrezorOptinLedger = true;
     }
 
     /**
      * Set the account paths for Symbol wallets
      */
     setAccountPaths() {
-        if (this._Wallet.algo == "ledger") {
+        if (this._Wallet.algo == "ledger" || this._Wallet.algo == "trezor") {
             // Get the account index of the wallet
             const currenthdKeypath = this._Wallet.currentAccount.hdKeypath
             const index = parseInt(currenthdKeypath.split("'/")[3]);
@@ -275,7 +276,7 @@ class NormalOptInCtrl {
         this.formData.optinVrfPublicKey = '';
         this.formData.optinPrivateKey = '';
         this.formData.optinVrfPrivateKey = '';
-        if (this._Wallet.algo !== 'ledger') {
+        if ((this._Wallet.algo !== 'ledger' && this._Wallet.algo !== 'trezor') || !this.isTrezorOptinLedger) {
             this.resetEntropy();
         }
     }
@@ -301,7 +302,8 @@ class NormalOptInCtrl {
                         this.formData.optinAccount,
                         this.defaultAccountPath,
                         namespaces,
-                        this.includeVrf ? this.formData.optinVrfAccount : null
+                        this.includeVrf ? this.formData.optinVrfAccount : null,
+                        this.isTrezorOptinLedger
                     ).then(_ => {
                         this._$timeout(() => {
                             this.step = 0;

@@ -174,9 +174,9 @@ gulp.task('app', function () {
   });
 
 // Run Tasks
-gulp.task('default', ['html', 'js', 'sass', 'css', 'images', 'package', 'browserify', 'tests', 'browserifyTests'], function() {
+gulp.task('default', ['html', 'js', 'sass', 'css', 'package', 'browserify', 'browserifyTests'], function() {
 });
 
 // Build packaged apps for production
-gulp.task('build-app', ['html', 'js', 'sass', 'css', 'images', 'package', 'app'], function() {
+gulp.task('build-app', ['html', 'js', 'sass', 'css', 'package', 'app'], function() {
 });
