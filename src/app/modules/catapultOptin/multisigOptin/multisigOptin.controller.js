@@ -10,7 +10,7 @@ const DEFAULT_ACCOUNT_PATH = "m/44'/4343'/0'/0'/0'";
 
 class MultisigOptInCtrl {
 	// Set services as constructor parameter
-    constructor(Wallet, Alert, $scope, $timeout, Ledger, DataStore, $location, Recipient, CatapultOptin) {
+    constructor(Wallet, Alert, $scope, $timeout, $filter, Ledger, DataStore, $location, Recipient, CatapultOptin) {
         'ngInject';
 
         // Declaring services
@@ -18,6 +18,7 @@ class MultisigOptInCtrl {
         this._Alert = Alert;
         this._Wallet = Wallet;
         this._scope = $scope;
+        this._$filter = $filter;
         this._Ledger = Ledger;
         this._DataStore = DataStore;
         this._Recipient = Recipient;
@@ -64,6 +65,18 @@ class MultisigOptInCtrl {
             this.catapultNetwork = NetworkType.MIJIN_TEST;
         }
 
+        // Optin types of Trezor wallet
+        this.types = [{
+            name: this._$filter('translate')('CATAPULTOPTIN_ACCOUNT_UNLOCK'),
+            key: false
+        }, {
+            name: this._$filter('translate')('SYMBOL_WALLET_CREATING_BY_LEDGER_IMPORT_TYPE_INFO'),
+            key: true
+        }];
+
+        // Optin to Symbol Ledger wallet
+        this.optinSymbolLedger = this._Wallet.algo == "ledger";
+
         // Symbol account paths
         this.defaultAccountPath = '';
         this.setAccountPath();
@@ -90,11 +103,10 @@ class MultisigOptInCtrl {
      * Set the account path for Symbol wallet
      */
     setAccountPath() {
-        if (this._Wallet.algo == "ledger") {
+        if (this.optinSymbolLedger) {
             // Get the account index of the wallet
-            const currenthdKeypath = this._Wallet.currentAccount.hdKeypath;
-            const index = parseInt(currenthdKeypath.split("'/")[3]);
-
+            const currentHDKeyPath = this._Wallet.currentAccount.hdKeypath;
+            const index = parseInt(currentHDKeyPath.split("'/")[2]);
             this.defaultAccountPath = `m/44'/4343'/${index}'/0'/0'`;
         } else {
             this.defaultAccountPath = DEFAULT_ACCOUNT_PATH;
@@ -178,6 +190,7 @@ class MultisigOptInCtrl {
      * Ledger account click handler
      */
     async onLedgerUnlockClick() {
+        this.setAccountPath();
         alert("Please open Symbol BOLOS app");
         const nisPubKey = this._DataStore.account.metaData.account.publicKey;
         const defaultPublicKey = await this._Ledger.getSymbolAccount(this.defaultAccountPath, this.catapultNetwork, true);
@@ -448,7 +461,8 @@ class MultisigOptInCtrl {
                     this.formData.origin.account,
                     this.defaultAccountPath,
                     this.formData.optinAccount,
-                    this.includeNamespaces ? this.namespaces: []
+                    this.includeNamespaces ? this.namespaces: [],
+                    this.optinSymbolLedger
                 ).then( _ => {
                     this.step = 0;
                     this.common.password = '';
@@ -525,7 +539,8 @@ class MultisigOptInCtrl {
                         this.formData.multisigSelector.address,
                         this.formData.origin.account,
                         this.defaultAccountPath,
-                        this.formData.cosign.account
+                        this.formData.cosign.account,
+                        this.optinSymbolLedger
                     ).then(_ => {
                         this.step = 0;
                         this.common.password = '';

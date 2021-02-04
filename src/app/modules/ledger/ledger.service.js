@@ -3,10 +3,16 @@ const TransportNodeHid = window['TransportNodeHid'] && window['TransportNodeHid'
 import NemH from "./hw-app-nem";
 import SymbolH from "./hw-app-symbol";
 
-const SUPPORT_VERSION = {
+const NEM_SUPPORT_VERSION = {
     LEDGER_MAJOR_VERSION: 0,
     LEDGER_MINOR_VERSION: 0,
-    LEDGER_PATCH_VERSION: 7
+    LEDGER_PATCH_VERSION: 8
+}
+
+const SYMBOL_SUPPORT_VERSION = {
+    LEDGER_MAJOR_VERSION: 0,
+    LEDGER_MINOR_VERSION: 0,
+    LEDGER_PATCH_VERSION: 8
 }
 
 /** Service storing Ledger utility functions. */
@@ -126,8 +132,8 @@ class Ledger {
 
     getSymbolAccount(hdKeypath, network, display) {
         return new Promise((resolve, reject) => {
-            this.getAppVersion().then(checkVersion => {
-                if (checkVersion != null) {
+            this.getAppVersion(true).then(checkVersion => {
+                if (checkVersion === 1) {
                     if (display) {
                         alert("Please check your Ledger device!");
                         this._$timeout(() => {
@@ -135,7 +141,7 @@ class Ledger {
                         });
                     }
 
-                    this.getAccount(hdKeypath, network, 'Symbol Opt-in', true, display).then((account) => {
+                    this.getAccount(hdKeypath, network, 'Symbol', true, display).then((account) => {
                         resolve(account.publicKey);
                     }).catch((error) => {
                         this._$timeout(() => {
@@ -161,7 +167,7 @@ class Ledger {
 
     async signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey) {
         return new Promise((resolve, reject) => {
-            this.getAppVersion().then(checkVersion => {
+            this.getAppVersion(true).then(checkVersion => {
                 if (checkVersion === 1) {
                     this._signSymbolTransaction(path, transaction, networkGenerationHash, signerPublicKey).then((result) => {
                         resolve(result);
@@ -417,14 +423,15 @@ class Ledger {
     }
 
     /**
-     * Get NEM Ledger app version
+     * Get Ledger app version
      */
-    async getAppVersion() {
+    async getAppVersion(isSymbol) {
         try {
             const transport = await TransportNodeHid.open("");
-            const nemH = new NemH(transport);
+            const supportVersion = isSymbol ? SYMBOL_SUPPORT_VERSION : NEM_SUPPORT_VERSION;
+            const ledgerH = isSymbol ? new SymbolH(transport) : new NemH(transport);
             try {
-                const result = await nemH.getAppVersion();
+                const result = await ledgerH.getAppVersion();
                 let appVersion = result;
                 if (appVersion.majorVersion == null && appVersion.minorVersion == null && appVersion.patchVersion == null) {
                     if (result.statusCode != null) {
@@ -434,11 +441,11 @@ class Ledger {
                     }
                 } else {
                     let statusCode;
-                    if (appVersion.majorVersion < SUPPORT_VERSION.LEDGER_MAJOR_VERSION) {
+                    if (appVersion.majorVersion < supportVersion.LEDGER_MAJOR_VERSION) {
                         statusCode = 2;
-                    } else if (appVersion.minorVersion < SUPPORT_VERSION.LEDGER_MINOR_VERSION) {
+                    } else if (appVersion.minorVersion < supportVersion.LEDGER_MINOR_VERSION) {
                         statusCode = 2;
-                    } else if (appVersion.patchVersion < SUPPORT_VERSION.LEDGER_PATCH_VERSION) {
+                    } else if (appVersion.patchVersion < supportVersion.LEDGER_PATCH_VERSION) {
                         statusCode = 2;
                     } else {
                         statusCode = 1;

@@ -19,13 +19,48 @@ import { Transaction, SignedTransaction, Convert } from 'symbol-sdk';
 
 export default class SymbolLedger {
 
-    constructor(transport, scrambleKey) {
+    constructor(transport, scrambleKey = "Symbol") {
         this.transport = transport;
         transport.decorateAppAPIMethods(
             this,
-            ['getAccount', 'signTransaction'],
+            ['getAppVersion', 'getAccount', 'signTransaction'],
             scrambleKey,
         );
+    }
+
+    /**
+     * get the version of the Symbol app installed on the Ledger devices
+     *
+     * @return an object with a version
+     * @example
+     * const result = await symbolLedger.getAppVersion();
+     *
+     * {
+     *   "majorVersion": "0",
+     *   "minorVersion": "0",
+     *   "patchVersion": "2"
+     * }
+     */
+    async getAppVersion() {
+        // APDU fields configuration
+        const apdu = {
+            cla: 0xe0,
+            ins: 0x06,
+            p1: 0x00,
+            p2: 0x00,
+            data: Buffer.alloc(1, 0x00, 'hex'),
+        };
+        // Response from Ledger
+        const response = await this.transport.send(apdu.cla, apdu.ins, apdu.p1, apdu.p2, apdu.data);
+        const result = {
+            majorVersion: '',
+            minorVersion: '',
+            patchVersion: '',
+        };
+        result.majorVersion = response[1];
+        result.minorVersion = response[2];
+        result.patchVersion = response[3];
+        return result;
     }
 
     /**
@@ -65,6 +100,9 @@ export default class SymbolLedger {
         };
 
         const publicKeyLength = response[0];
+        if (publicKeyLength !== 32) {
+            throw { statusCode: 27904 };
+        }
         result.publicKey = response.slice(1, 1 + publicKeyLength).toString('hex');
         return result;
     }

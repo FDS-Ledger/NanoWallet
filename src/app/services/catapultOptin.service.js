@@ -147,11 +147,12 @@ class CatapultOptin {
      * @param destinationPath
      * @param namespaces
      * @param vrfAccount
+     * @param optinSymbolLedger
      */
-    sendSimpleOptin(common, destination, destinationPath, namespaces, vrfAccount) {
+    sendSimpleOptin(common, destination, destinationPath, namespaces, vrfAccount, optinSymbolLedger) {
         return new Promise( (resolve, reject) => {
             const config = this.getOptinConfig();
-            if (this._Wallet.algo == "ledger" && (namespaces.length > 0 || vrfAccount)) {
+            if (optinSymbolLedger && (namespaces.length > 0 || vrfAccount)) {
                 alert("Please open Symbol BOLOS app");
                 alert("Please check your Ledger device!");
                 this._$timeout(() => {
@@ -309,13 +310,14 @@ class CatapultOptin {
      * @param cosignerPath
      * @param destination
      * @param namespaces
+     * @param optinSymbolLedger
      * @return {Promise<unknown>}
      */
-    sendMultisigStartOptIn(common, originAddress, cosigner, cosignerPath, destination, namespaces) {
+    sendMultisigStartOptIn(common, originAddress, cosigner, cosignerPath, destination, namespaces, optinSymbolLedger) {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                if (this._Wallet.algo == "ledger") {
+                if (optinSymbolLedger) {
                     alert("Please open Symbol BOLOS app");
                     alert("Please check your Ledger device!");
                     this._$timeout(() => {
@@ -361,12 +363,13 @@ class CatapultOptin {
      * @param cosigner
      * @param cosignerPath
      * @param destination
+     * @param optinSymbolLedger
      */
-    sendMultisigSignOptIn(common, originAddress, cosigner, cosignerPath, destination) {
+    sendMultisigSignOptIn(common, originAddress, cosigner, cosignerPath, destination, optinSymbolLedger) {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                if (this._Wallet.algo == "ledger") {
+                if (optinSymbolLedger) {
                     alert("Please open Symbol BOLOS app");
                     this._$timeout(() => {
                         alert("Please check your Ledger device!");

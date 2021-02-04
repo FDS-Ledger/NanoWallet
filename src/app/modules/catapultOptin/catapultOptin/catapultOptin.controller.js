@@ -80,6 +80,9 @@ class NormalOptInCtrl {
         this.skipNamespaces = false;
         this.arrangeNamespaces();
 
+        // Optin to Symbol Ledger wallet
+        this.optinSymbolLedger = this._Wallet.algo == "ledger";
+
         // Symbol account paths
         this.defaultAccountPath = '';
         this.vrfAccountPath = '';
@@ -109,16 +112,44 @@ class NormalOptInCtrl {
     }
 
     /**
+     * Set the Optin method for current Trezor NEM account
+     */
+    optinMethod(usingLedger) {
+        this.optinSymbolLedger = usingLedger;
+        this.setAccountPaths();
+        if (!this.optinSymbolLedger) {
+            this.resetEntropy();
+        }
+        this.step = 10;
+    }
+
+    /**
+     * Reset imported Symbol account
+     */
+    resetImport() {
+        this.includeVrf = false;
+        this.optinSymbolLedger = false;
+        if (this._Wallet.algo == "trezor") {
+            this.step = 100;
+        } else {
+            if (this._Wallet.algo == "ledger") {
+                this.optinSymbolLedger = true;
+            } else {
+                this.resetEntropy();
+            }
+            this.step = 10;
+        }
+    }
+
+    /**
      * Set the account paths for Symbol wallets
      */
     setAccountPaths() {
-        if (this._Wallet.algo == "ledger") {
+        if (this.optinSymbolLedger) {
             // Get the account index of the wallet
-            const currenthdKeypath = this._Wallet.currentAccount.hdKeypath
-            const index = parseInt(currenthdKeypath.split("'/")[2]);
-
+            const currentHDKeyPath = this._Wallet.currentAccount.hdKeypath;
+            const index = parseInt(currentHDKeyPath.split("'/")[2]);
             this.defaultAccountPath = `m/44'/4343'/${index}'/0'/0'`;
-            this.vrfAccountPath = `m/44'/4343'/${index}'/1'/0'`;
         } else {
             this.defaultAccountPath = DEFAULT_ACCOUNT_PATH;
             this.vrfAccountPath = VRF_ACCOUNT_PATH;
@@ -224,21 +255,16 @@ class NormalOptInCtrl {
     }
 
     /**
-     * Get Ledger account from harware device
+     * Get Ledger account from hardware device
      */
     async getLedgerSymbolAccount() {
         alert("Please open Symbol BOLOS app");
         const defaultPublicKey = await this._Ledger.getSymbolAccount(this.defaultAccountPath, this.catapultNetwork, true);
-        const vrfPublicKey = await this._Ledger.getSymbolAccount(this.vrfAccountPath, this.catapultNetwork, false);
         const defaultAccount = PublicAccount.createFromPublicKey(defaultPublicKey, this.catapultNetwork);
-        const vrfAccount = PublicAccount.createFromPublicKey(vrfPublicKey, this.catapultNetwork);
         this._$timeout(() => {
             this.formData.optinAccount = { publicAccount: defaultAccount };
-            this.formData.optinVrfAccount = { publicAccount: vrfAccount };
             this.formData.optinAddress = defaultAccount.address.pretty();
-            this.formData.optinVrfAddress = vrfAccount.address.pretty();
             this.formData.optinPublicKey = defaultAccount.publicKey;
-            this.formData.optinVrfPublicKey = vrfAccount.publicKey;
             this.step = 11;
         });
     }
@@ -275,7 +301,7 @@ class NormalOptInCtrl {
         this.formData.optinVrfPublicKey = '';
         this.formData.optinPrivateKey = '';
         this.formData.optinVrfPrivateKey = '';
-        if (this._Wallet.algo !== 'ledger') {
+        if (this._Wallet.algo !== 'ledger' && (this._Wallet.algo !== 'trezor' || this.isTrezorOptinLedger)) {
             this.resetEntropy();
         }
     }
@@ -301,7 +327,8 @@ class NormalOptInCtrl {
                         this.formData.optinAccount,
                         this.defaultAccountPath,
                         namespaces,
-                        this.includeVrf ? this.formData.optinVrfAccount : null
+                        this.includeVrf ? this.formData.optinVrfAccount : null,
+                        this.optinSymbolLedger
                     ).then(_ => {
                         this._$timeout(() => {
                             this.step = 0;
@@ -336,12 +363,6 @@ class NormalOptInCtrl {
         this._$timeout(() => {
             this.fee = (200000 + (namespaces.length * 850000) + (this.includeVrf ? 850000 : 0)) / Math.pow(10, 6);
         });
-    }
-
-    getSymbolAccount(isLedgerWallet) {
-        if (!isLedgerWallet) {
-            this.resetEntropy();
-        }
     }
 
     //NEW METHODS FOR REFACTOR
