@@ -84,13 +84,14 @@ class MultisigOptInCtrl {
         this.onMultisigSelectorChange();
         //Get Opt In Status
         // this.checkOptinStatus();
+        this.isTrezorOptinLedger = '';
     }
 
     /**
      * Set the account path for Symbol wallet
      */
     setAccountPath() {
-        if (this._Wallet.algo == "ledger") {
+        if (this._Wallet.algo == "ledger" || this._Wallet.algo == "trezor") {
             // Get the account index of the wallet
             const currenthdKeypath = this._Wallet.currentAccount.hdKeypath;
             const index = parseInt(currenthdKeypath.split("'/")[3]);
@@ -448,7 +449,8 @@ class MultisigOptInCtrl {
                     this.formData.origin.account,
                     this.defaultAccountPath,
                     this.formData.optinAccount,
-                    this.includeNamespaces ? this.namespaces: []
+                    this.includeNamespaces ? this.namespaces: [],
+                    this.isTrezorOptinLedger
                 ).then( _ => {
                     this.step = 0;
                     this.common.password = '';
@@ -525,7 +527,8 @@ class MultisigOptInCtrl {
                         this.formData.multisigSelector.address,
                         this.formData.origin.account,
                         this.defaultAccountPath,
-                        this.formData.cosign.account
+                        this.formData.cosign.account,
+                        this.isTrezorOptinLedger
                     ).then(_ => {
                         this.step = 0;
                         this.common.password = '';

@@ -311,11 +311,11 @@ class CatapultOptin {
      * @param namespaces
      * @return {Promise<unknown>}
      */
-    sendMultisigStartOptIn(common, originAddress, cosigner, cosignerPath, destination, namespaces) {
+    sendMultisigStartOptIn(common, originAddress, cosigner, cosignerPath, destination, namespaces, isTrezorOptinLedger) {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                if (this._Wallet.algo == "ledger" || this._Wallet.algo == "trezor") {
+                if (this._Wallet.algo == "ledger" || isTrezorOptinLedger) {
                     alert("Please open Symbol BOLOS app");
                     alert("Please check your Ledger device!");
                     this._$timeout(() => {
@@ -362,11 +362,11 @@ class CatapultOptin {
      * @param cosignerPath
      * @param destination
      */
-    sendMultisigSignOptIn(common, originAddress, cosigner, cosignerPath, destination) {
+    sendMultisigSignOptIn(common, originAddress, cosigner, cosignerPath, destination, isTrezorOptinLedger) {
         const config = this.getOptinConfig();
         return new Promise((resolve, reject) => {
             nem.com.requests.account.data(this._Wallet.node, originAddress).then(origin => {
-                if (this._Wallet.algo == "ledger" || this._Wallet.algo == "trezor") {
+                if (this._Wallet.algo == "ledger" || isTrezorOptinLedger) {
                     alert("Please open Symbol BOLOS app");
                     this._$timeout(() => {
                         alert("Please check your Ledger device!");
@@ -381,7 +381,7 @@ class CatapultOptin {
                         this._Wallet.transact(common, transaction)
                             .then(resolve)
                             .catch(err => {
-                                reject(this._Wallet.algo == "ledger" || this._Wallet.algo == "trezor" ? 'handledLedgerErrorSignal' : err);
+                                reject(this._Wallet.algo == "ledger" || isTrezorOptinLedger ? 'handledLedgerErrorSignal' : err);
                             });
                     }).catch(reject);
                 }).catch((error) => {
