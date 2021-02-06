@@ -999,6 +999,7 @@ function EnglishProvider($translateProvider) {
         CREATE_SYMBOL_ACCOUNT: 'Create your Symbol account',
         OPTIN_SYMBOL_READY: 'Your Symbol account is ready',
         OPTIN_COPY_SUCCESS: 'Copied!',
+        OPTIN_TYPE_SELECT: 'Select the way you opted in this wallet',
         CATAPULT_OPT_IN_ERROR_TOO_MUCH_COSIGNATORIES: 'This account has more than 8 cosignatories. Opt In protocol only allows multisig accounts with less than 9 cosignatories'
 
     });

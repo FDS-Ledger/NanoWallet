@@ -80,8 +80,6 @@ class LedgerCtrl {
                 this._Alert.ledgerDeviceNotFound();
                 break;
             case 26628:
-                this._Alert.ledgerDeviceLocked();
-                break;
             case 27904:
                 this._Alert.ledgerNotOpenApp();
                 break;

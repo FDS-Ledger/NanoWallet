@@ -894,6 +894,9 @@ function SpanishProvider($translateProvider) {
         OPTIN_FORM_PASSWORD_FIELD_PLACEHOLDER: 'Introduce la contraseña de tu cartera NEM',
         OPTIN_NEW_PASSWORD: 'Nueva contraseña',
         SYMBOL_PASSWORD_REQUIREMENT: "La contraseña debe tener por lo menos 8 carácteres",
+        SYMBOL_WALLET_CREATING_TYPE_INFO: 'Please choose the way to create your Symbol account',
+        SYMBOL_WALLET_CREATING_BY_ENTROPY_TYPE_INFO: 'Generate your primary private key',
+        SYMBOL_WALLET_CREATING_BY_LEDGER_IMPORT_TYPE_INFO: 'Import Symbol account from Ledger',
         SYMBOL_SIGNUP_CREATE_WALLET_ADD_ENTROPY_INFO_1: 'Vamos a generar tu clave primaria.',
         SYMBOL_SIGNUP_CREATE_WALLET_ADD_ENTROPY_INFO_2: 'Por favor, pulsa iniciar y mueve tu cursor para añadir más aleatoriedad.',
         OPTIN_WELCOME_TITLE: 'Bienvenido al Opt-in de Symbol',
@@ -925,6 +928,10 @@ function SpanishProvider($translateProvider) {
         CREATE_SYMBOL_ACCOUNT: 'Crea tu cuenta Symbol',
         OPTIN_SYMBOL_READY: 'Tu cuenta Symbol está lista',
         GENERAL_BACK: 'atrás',
+        OPTIN_COPY_SUCCESS: 'Copied!',
+        OPTIN_TYPE_SELECT: 'Select the way you opted in this wallet',
+        CATAPULT_OPT_IN_ERROR_TOO_MUCH_COSIGNATORIES: 'This account has more than 8 cosignatories. Opt In protocol only allows multisig accounts with less than 9 cosignatories'
+
     });
 
 }

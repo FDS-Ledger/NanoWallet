@@ -969,6 +969,9 @@ function JapaneseProvider($translateProvider) {
       OPTIN_FORM_PASSWORD_FIELD_PLACEHOLDER: '通常のNEMウォレットのパスワードを入力します',
       OPTIN_NEW_PASSWORD: '新しいパスワード',
       SYMBOL_PASSWORD_REQUIREMENT: "パスワードには、最低8文字が必要です",
+      SYMBOL_WALLET_CREATING_TYPE_INFO: 'Please choose the way to create your Symbol account',
+      SYMBOL_WALLET_CREATING_BY_ENTROPY_TYPE_INFO: 'Generate your primary private key',
+      SYMBOL_WALLET_CREATING_BY_LEDGER_IMPORT_TYPE_INFO: 'Import Symbol account from Ledger',
       SYMBOL_SIGNUP_CREATE_WALLET_ADD_ENTROPY_INFO_1: 'これから、初期プライベートキーを生成します',
       SYMBOL_SIGNUP_CREATE_WALLET_ADD_ENTROPY_INFO_2: '「開始する」をクリックして、カーソルをランダムに動かしてください。',
       OPTIN_WELCOME_TITLE: 'Symbolのオプトインにようこそ',
@@ -1000,7 +1003,11 @@ function JapaneseProvider($translateProvider) {
       OPTIN_FINISHED: 'オプトインが完了しました。ウォレットを更新して最新の詳細を取得してください',
       GENERAL_BACK: '戻る',
       CREATE_SYMBOL_ACCOUNT: 'Symbol アカウントを作成して下さい',
-      OPTIN_SYMBOL_READY: 'Symbol アカウントが準備出来ました。'
+      OPTIN_SYMBOL_READY: 'Symbol アカウントが準備出来ました。',
+      OPTIN_COPY_SUCCESS: 'Copied!',
+      OPTIN_TYPE_SELECT: 'Select the way you opted in this wallet',
+      CATAPULT_OPT_IN_ERROR_TOO_MUCH_COSIGNATORIES: 'This account has more than 8 cosignatories. Opt In protocol only allows multisig accounts with less than 9 cosignatories'
+
     });
 
 }
