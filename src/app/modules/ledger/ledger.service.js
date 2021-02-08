@@ -45,6 +45,9 @@ class Ledger {
      * Pop-up alert handler
      */
     alertHandler(inputErrorCode, isSymbolOptin, isTxSigning, txStatusText) {
+        if (inputErrorCode.message && inputErrorCode.message.includes("cannot open device with path")) {
+            inputErrorCode = 3;
+        }
         switch (inputErrorCode) {
             case 'NoDevice':
                 this._Alert.ledgerDeviceNotFound();
@@ -68,6 +71,9 @@ class Ledger {
                 break;
             case 2:
                 this._Alert.ledgerNotSupportApp();
+                break;
+            case 3:
+                this._Alert.ledgerConnectedOtherApp();
                 break;
             default:
                 isTxSigning ? this._Alert.transactionError(txStatusText) : this._Alert.requestFailed(inputErrorCode);
