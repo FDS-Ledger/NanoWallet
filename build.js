@@ -309,6 +309,17 @@ function initialize() {
       })
     })
   }
+
+  app.on('web-contents-created', (e, contents) => {
+    contents.on('new-window', (e, url) => {
+      e.preventDefault();
+      require('open')(url);
+    });
+    contents.on('will-navigate', (e, url) => {
+      if (url !== contents.getURL()) e.preventDefault(), require('open')(url);
+    });
+  });
+
   app.on('window-all-closed', function () {
     app.quit()
   })
